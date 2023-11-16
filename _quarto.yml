@@ -2,18 +2,54 @@ project:
   type: website
 
 website:
-  title: "ISSS624 Geospatial"
-  navbar:
-    left:
-      - href: index.qmd
-        text: Home
-      - about.qmd
+  title: "Geospatial"
+  site-url: "https://geospatial2023.netlify.app/"
+  sidebar:
+    background: "#A8D8CA"
+    logo: "images/logo.png"
+    pinned: true
+    align: center
+    tools:
+      - icon: house-fill
+        href: "https://geospatial2023.netlify.app/"
+        text: "Home"
+      - icon: github
+        href: "https://github.com/magdalenecjw/ISSS624-Geospatial"
+        text: "GitHub"
+      - icon: bar-chart-fill
+        href: "https://public.tableau.com/app/profile/magdalene.chan"
+        text: "Tableau"
+      - icon: linkedin
+        href: "https://www.linkedin.com/in/chanmagdalene/"
+        text: "LinkedIn"
+      - icon: envelope-fill
+        href: "mailto:jwchan.2021@mitb.smu.edu.sg"
+        text: "Email"  
 
+    style: "docked"
+    search: true
+    collapse-level: 1
+    contents:
+      - section: "Take-Home Exercise"
+        contents:
+          - href: "Take_home_ex/Take_home_ex01/Take_home_ex01.html"
+            text: "Take Home Exercise 1"
+          - href: "Take_home_ex/Take_home_ex02/Take_home_ex02.html"
+            text: "Take Home Exercise 2"
+      - section: "Hands-on Exercise"
+        contents:
+          - href: "Hands_on_ex/Hands_on_ex01/Hands_on_ex01.html"
+            text: "Hands-on Exercise 1"
+          - href: "Hands_on_ex/Hands_on_ex02/Hands_on_ex02.html"
+            text: "Hands-on Exercise 2"
+          - href: "Hands_on_ex/Hands_on_ex03/Hands_on_ex03.html"
+            text: "Hands-on Exercise 3"
+          - href: "Hands_on_ex/Hands_on_ex04/Hands_on_ex04.html"
+            text: "Hands-on Exercise 4"
 format:
   html:
-    theme: cosmo
+    theme: minty
     css: styles.css
     toc: true
 
 editor: visual
-
