@@ -1,15 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://geospatial2023.netlify.app/Take_Home_Exercise/Take_home_Ex2.html</loc>
+    <lastmod>2023-11-16T17:40:46.787Z</lastmod>
+  </url>
+  <url>
     <loc>https://geospatial2023.netlify.app/index.html</loc>
-    <lastmod>2023-11-16T16:50:57.679Z</lastmod>
+    <lastmod>2023-11-16T17:40:45.842Z</lastmod>
+  </url>
+  <url>
+    <loc>https://geospatial2023.netlify.app/Hands_on_Exercise/Hands_on_Ex1.html</loc>
+    <lastmod>2023-11-16T17:40:44.605Z</lastmod>
   </url>
   <url>
     <loc>https://geospatial2023.netlify.app/about.html</loc>
-    <lastmod>2023-11-16T16:50:54.954Z</lastmod>
+    <lastmod>2023-11-16T17:40:44.095Z</lastmod>
   </url>
   <url>
-    <loc>https://geospatial2023.netlify.app/Hands_on_Ex1.html</loc>
-    <lastmod>2023-11-16T16:50:55.498Z</lastmod>
+    <loc>https://geospatial2023.netlify.app/Hands_on_Exercise/Hands_on_Ex2.html</loc>
+    <lastmod>2023-11-16T17:40:45.095Z</lastmod>
+  </url>
+  <url>
+    <loc>https://geospatial2023.netlify.app/Take_Home_Exercise/Take_home_Ex1.html</loc>
+    <lastmod>2023-11-16T17:40:46.311Z</lastmod>
   </url>
 </urlset>
