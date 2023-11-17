@@ -1,6 +1,0 @@
----
-title: "Hands-on Exercise 2"
-author: "Magdalene Chan"
----
-
-Placeholder

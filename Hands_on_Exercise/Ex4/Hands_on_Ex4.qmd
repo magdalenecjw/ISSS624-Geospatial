@@ -1,0 +1,6 @@
+---
+title: "4: 	Geographically Weighted Regression"
+author: "Magdalene Chan"
+---
+
+Placeholder

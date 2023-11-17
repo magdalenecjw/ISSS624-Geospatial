@@ -1,0 +1,6 @@
+---
+title: "2c: Local Measures of Spatial Autocorrelation"
+author: "Magdalene Chan"
+---
+
+Placeholder

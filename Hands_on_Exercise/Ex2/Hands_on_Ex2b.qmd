@@ -1,0 +1,6 @@
+---
+title: "2b: Global Measures of Spatial Autocorrelation"
+author: "Magdalene Chan"
+---
+
+Placeholder

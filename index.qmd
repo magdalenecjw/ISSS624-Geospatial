@@ -1,11 +1,114 @@
 ---
-title: "ISSS624 Geospatial"
+pagetitle: "Geospatial Analytics"
+page-layout: custom
+section-divs: false
+editor: source
+sidebar: false
+search: false
+description: | 
+  A showcase for the exercises done in ISSS624 Applied Geospatial Analytics.
+image: images/logo.png
+listing:
+
+  - id: Hands_on_Exercise
+    contents: 
+    - /Hands_on_Exercise/Ex1/Hands_on_Ex1a.qmd
+    - /Hands_on_Exercise/Ex1/Hands_on_Ex1b.qmd
+    - /Hands_on_Exercise/Ex2/Hands_on_Ex2a.qmd
+    - /Hands_on_Exercise/Ex2/Hands_on_Ex2b.qmd
+    - /Hands_on_Exercise/Ex2/Hands_on_Ex2c.qmd
+    - /Hands_on_Exercise/Ex3/Hands_on_Ex3.qmd
+    - /Hands_on_Exercise/Ex4/Hands_on_Ex4.qmd
+    - "!index.qmd"
+    type: grid
+    categories: false
+    sort-ui: false
+    filter-ui: false
+    max-items: 9
+    feed: false
+
+  - id: In_Class_Exercise
+    contents: 
+    - /In_Class_Exercise/Lesson1.qmd
+    - "!index.qmd"
+    type: grid
+    categories: false
+    sort-ui: false
+    filter-ui: false
+    max-items: 6
+    feed: false
+
+  - id: Take_Home_Exercise
+    contents: 
+    - /Take_Home_Exercise/Ex1/Take_home_Ex1.qmd
+    - /Take_Home_Exercise/Ex2/Take_home_Ex2.qmd
+    - "!index.qmd"
+    type: grid
+    categories: false
+    sort-ui: false
+    filter-ui: false
+    max-items: 3
+    feed: false
+
+toc: false
 ---
 
-This is a Quarto website.
+::: {.header-text} 
+::: {.content-container}
+::: {.header-block}
+<br/>
+Welcome to **Geospatial Analytics**. <br/>
+In this site, you will find a showcase of the exercises I have done for the SMU MITB course <a href="https://isss624-ay2023-24nov.netlify.app/">ISSS624 Applied Geospatial Analytics</a>.
+:::
+:::
+:::
 
-To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
+::: {.content-container}
+::: {.listing-block}
+<a href="Hands_on_Exercise/index.qmd">
 
-```{r}
-1 + 1
-```
+## Hands-On Exercise
+</a> 
+
+::: {#Hands_on_Exercise}
+:::
+
+:::
+:::
+
+::: {.content-container}
+::: {.listing-block}
+<a href="Take_Home_Exercise/index.qmd">
+
+## Take Home Exercise 
+</a>
+
+::: {#Take_Home_Exercise}
+:::
+
+:::
+:::
+
+::: {.content-container}
+::: {.listing-block}
+<a href="In_Class_Exercise/index.qmd">
+
+## In Class Exercise 
+</a>
+
+::: {#In_Class_Exercise}
+:::
+
+:::
+:::
+
+::: {.footer-text}
+::: {.footer-container .black-background}
+::: {.footer-block}
+::: grid
+
+
+:::
+:::
+:::
+:::

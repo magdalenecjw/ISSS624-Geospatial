@@ -1,0 +1,2938 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss  xmlns:atom="http://www.w3.org/2005/Atom" 
+      xmlns:media="http://search.yahoo.com/mrss/" 
+      xmlns:content="http://purl.org/rss/1.0/modules/content/" 
+      xmlns:dc="http://purl.org/dc/elements/1.1/" 
+      version="2.0">
+<channel>
+<title>Geospatial Analytics</title>
+<link>https://geospatial2023.netlify.app/Hands_on_Exercise/index.html</link>
+<atom:link href="https://geospatial2023.netlify.app/Hands_on_Exercise/index.xml" rel="self" type="application/rss+xml"/>
+<description></description>
+<image>
+<url>https://geospatial2023.netlify.app/Images/logo.png</url>
+<title>Geospatial Analytics</title>
+<link>https://geospatial2023.netlify.app/Hands_on_Exercise/index.html</link>
+<height>86</height>
+<width>144</width>
+</image>
+<generator>quarto-1.3.433</generator>
+<lastBuildDate>Thu, 16 Nov 2023 16:00:00 GMT</lastBuildDate>
+<item>
+  <title>1a: Geospatial Data Wrangling with R</title>
+  <dc:creator>Magdalene Chan</dc:creator>
+  <link>https://geospatial2023.netlify.app/Hands_on_Exercise/Ex1/Hands_on_Ex1a.html</link>
+  <description><![CDATA[ 
+
+
+
+<section id="getting-started" class="level2">
+<h2 class="anchored" data-anchor-id="getting-started">Getting started</h2>
+<p>The code chunk below uses <code>p_load()</code> of <strong>pacman</strong> package to check if the required packages have been installed on the computer. If they are, the packages will be launched.</p>
+<blockquote class="blockquote">
+<p><strong>sf</strong> package is used for importing, managing, and processing geospatial data.</p>
+</blockquote>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1">pacman<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">p_load</span>(sf, tidyverse)</span></code></pre></div>
+</div>
+<p>The data sets used are:</p>
+<ul>
+<li>Master Plan 2014 Subzone Boundary (Web) (last updated Dec 2014) from <a href="https://beta.data.gov.sg/collections/1708/view">data.gov.sg</a> retrieved on 17 Nov 2023</li>
+<li>Pre-Schools Location (last updated Jul 2023) from <a href="https://beta.data.gov.sg/collections/2064/view">data.gov.sg</a> retrieved on 17 Nov 2023</li>
+<li>Cycling Path (last updated Jul 2023) from <a href="https://datamall.lta.gov.sg/content/datamall/en/search_datasets.html?searchText=Cycling%20Path">LTADataMall</a> retrieved on 17 Nov 2023</li>
+<li>Singapore listing data (last updated Sep 2023) from <a href="http://insideairbnb.com/get-the-data/">Inside Airbnb</a> retrieved on 17 Nov 2023</li>
+</ul>
+</section>
+<section id="importing-data" class="level2">
+<h2 class="anchored" data-anchor-id="importing-data">Importing Data</h2>
+<section id="import-polygon-feature-data-in-shapefile-format" class="level3">
+<h3 class="anchored" data-anchor-id="import-polygon-feature-data-in-shapefile-format">Import Polygon Feature Data in shapefile format</h3>
+<p>The code chunk below uses <code>st_read()</code> function of <strong>sf</strong> package to import <code>MP14_SUBZONE_WEB_PL</code> shapefile into R as a <strong>polygon feature data</strong> frame.</p>
+<blockquote class="blockquote">
+<p>When the input geospatial data is in shapefile format, two arguments are used: (1) <code>dsn</code> to define the data path and (2) <code>layer</code> to provide the shapefile name. File extensions (e.g.&nbsp;.shp, .dbf, .prj, .shx) need not be specified.</p>
+</blockquote>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1">mpsz <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_read</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">dsn =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data/geospatial"</span>, </span>
+<span id="cb2-2">                  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">layer =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"MP14_SUBZONE_WEB_PL"</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Reading layer `MP14_SUBZONE_WEB_PL' from data source 
+  `C:\magdalenecjw\ISSS624 Geospatial\Hands_on_Exercise\Ex1\data\geospatial' 
+  using driver `ESRI Shapefile'
+Simple feature collection with 323 features and 15 fields
+Geometry type: MULTIPOLYGON
+Dimension:     XY
+Bounding box:  xmin: 2667.538 ymin: 15748.72 xmax: 56396.44 ymax: 50256.33
+Projected CRS: SVY21</code></pre>
+</div>
+</div>
+<p>There are a total of 323 multipolygon features and 15 fields in <code>mpsz</code> simple feature data frame. <code>mpsz</code> is in <strong>svy21</strong> projected coordinates system.</p>
+<blockquote class="blockquote">
+<p><strong>svy21</strong> (or <strong>Singapore SVY21 Projected Coordinate System</strong>) is a coordinates system used by Singapore that is based on the Transverse Mercator projection from geographical coordinates referenced to the WGS 84 ellipsoid.</p>
+</blockquote>
+<blockquote class="blockquote">
+<p>The bounding box provides the x extend and y extend of the data.</p>
+</blockquote>
+</section>
+<section id="import-polyline-feature-data-in-shapefile-format" class="level3">
+<h3 class="anchored" data-anchor-id="import-polyline-feature-data-in-shapefile-format">Import Polyline feature data in shapefile format</h3>
+<p>The code chunk below uses <code>st_read()</code> function of <strong>sf</strong> package to import <code>CyclingPath</code> shapefile into R as <strong>line feature data</strong> frame.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1">cyclingpath <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_read</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">dsn =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data/geospatial"</span>, </span>
+<span id="cb4-2">                         <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">layer =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"CyclingPathGazette"</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Reading layer `CyclingPathGazette' from data source 
+  `C:\magdalenecjw\ISSS624 Geospatial\Hands_on_Exercise\Ex1\data\geospatial' 
+  using driver `ESRI Shapefile'
+Simple feature collection with 2558 features and 2 fields
+Geometry type: MULTILINESTRING
+Dimension:     XY
+Bounding box:  xmin: 11854.32 ymin: 28347.98 xmax: 42626.09 ymax: 48948.15
+Projected CRS: SVY21</code></pre>
+</div>
+</div>
+<p>There are a total of 2558 features and 2 fields in <code>cyclingpath</code> linestring feature data frame. <code>cyclingpath</code> is also in <strong>svy21</strong> projected coordinates system.</p>
+</section>
+<section id="import-gis-data-in-kml-format" class="level3">
+<h3 class="anchored" data-anchor-id="import-gis-data-in-kml-format">Import GIS data in kml format</h3>
+<p>The code chunk below uses <code>st_read()</code> function of <strong>sf</strong> package to import <code>PreSchoolsLocation</code> into R.</p>
+<blockquote class="blockquote">
+<p>In kml format, the complete path and the kml file extension must be provided.</p>
+</blockquote>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1">preschool <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_read</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data/geospatial/PreSchoolsLocation.kml"</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Reading layer `PRESCHOOLS_LOCATION' from data source 
+  `C:\magdalenecjw\ISSS624 Geospatial\Hands_on_Exercise\Ex1\data\geospatial\PreSchoolsLocation.kml' 
+  using driver `KML'
+Simple feature collection with 2290 features and 2 fields
+Geometry type: POINT
+Dimension:     XYZ
+Bounding box:  xmin: 103.6878 ymin: 1.247759 xmax: 103.9897 ymax: 1.462134
+z_range:       zmin: 0 zmax: 0
+Geodetic CRS:  WGS 84</code></pre>
+</div>
+</div>
+<p>There are a total of 2290 features and 2 fields in <code>preschool</code> point feature data frame. Unlike the above two simple feature data frames, <code>preschool</code> is in <strong>wgs84</strong> geographic coordinates system.</p>
+<blockquote class="blockquote">
+<p><strong>wgs84</strong> is the current version of the World Geodetic System (WGS), which is a standard used in cartography, geodesy, and satellite navigation including GPS.</p>
+</blockquote>
+</section>
+</section>
+<section id="checking-data-content-of-simple-feature-data-frame" class="level2">
+<h2 class="anchored" data-anchor-id="checking-data-content-of-simple-feature-data-frame">Checking data content of Simple Feature Data Frame</h2>
+<p>The column in the <strong>sf</strong> data.frame that contains the geometries is a list, of class <strong>sfc</strong>. While we can retrieve the geometry list-column in this case by <code>mpsz$geom</code> or <code>mpsz[[1]]</code>, a more general way is to use <code>st_geometry()</code> as shown in the code chunk below.</p>
+<p><code>st_geometry()</code> displays basic information of the feature class such as type of geometry, the geographic extent of the features and the coordinate system of the data.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_geometry</span>(mpsz)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Geometry set for 323 features 
+Geometry type: MULTIPOLYGON
+Dimension:     XY
+Bounding box:  xmin: 2667.538 ymin: 15748.72 xmax: 56396.44 ymax: 50256.33
+Projected CRS: SVY21
+First 5 geometries:</code></pre>
+</div>
+</div>
+<p><code>glimpse()</code> of the <strong>dplyr</strong> package reveals associated attribute information such as data type of each fields.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">glimpse</span>(mpsz)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 323
+Columns: 16
+$ OBJECTID   &lt;int&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, …
+$ SUBZONE_NO &lt;int&gt; 1, 1, 3, 8, 3, 7, 9, 2, 13, 7, 12, 6, 1, 5, 1, 1, 3, 2, 2, …
+$ SUBZONE_N  &lt;chr&gt; "MARINA SOUTH", "PEARL'S HILL", "BOAT QUAY", "HENDERSON HIL…
+$ SUBZONE_C  &lt;chr&gt; "MSSZ01", "OTSZ01", "SRSZ03", "BMSZ08", "BMSZ03", "BMSZ07",…
+$ CA_IND     &lt;chr&gt; "Y", "Y", "Y", "N", "N", "N", "N", "Y", "N", "N", "N", "N",…
+$ PLN_AREA_N &lt;chr&gt; "MARINA SOUTH", "OUTRAM", "SINGAPORE RIVER", "BUKIT MERAH",…
+$ PLN_AREA_C &lt;chr&gt; "MS", "OT", "SR", "BM", "BM", "BM", "BM", "SR", "QT", "QT",…
+$ REGION_N   &lt;chr&gt; "CENTRAL REGION", "CENTRAL REGION", "CENTRAL REGION", "CENT…
+$ REGION_C   &lt;chr&gt; "CR", "CR", "CR", "CR", "CR", "CR", "CR", "CR", "CR", "CR",…
+$ INC_CRC    &lt;chr&gt; "5ED7EB253F99252E", "8C7149B9EB32EEFC", "C35FEFF02B13E0E5",…
+$ FMEL_UPD_D &lt;date&gt; 2014-12-05, 2014-12-05, 2014-12-05, 2014-12-05, 2014-12-05…
+$ X_ADDR     &lt;dbl&gt; 31595.84, 28679.06, 29654.96, 26782.83, 26201.96, 25358.82,…
+$ Y_ADDR     &lt;dbl&gt; 29220.19, 29782.05, 29974.66, 29933.77, 30005.70, 29991.38,…
+$ SHAPE_Leng &lt;dbl&gt; 5267.381, 3506.107, 1740.926, 3313.625, 2825.594, 4428.913,…
+$ SHAPE_Area &lt;dbl&gt; 1630379.27, 559816.25, 160807.50, 595428.89, 387429.44, 103…
+$ geometry   &lt;MULTIPOLYGON [m]&gt; MULTIPOLYGON (((31495.56 30..., MULTIPOLYGON (…</code></pre>
+</div>
+</div>
+<p><code>head()</code> in <strong>Base R</strong> provides complete information of a feature object.</p>
+<blockquote class="blockquote">
+<p>To change the number of observations, set argument <code>n</code> to a desired reasonable number.</p>
+</blockquote>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">head</span>(mpsz, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Simple feature collection with 5 features and 15 fields
+Geometry type: MULTIPOLYGON
+Dimension:     XY
+Bounding box:  xmin: 25867.68 ymin: 28369.47 xmax: 32362.39 ymax: 30435.54
+Projected CRS: SVY21
+  OBJECTID SUBZONE_NO      SUBZONE_N SUBZONE_C CA_IND      PLN_AREA_N
+1        1          1   MARINA SOUTH    MSSZ01      Y    MARINA SOUTH
+2        2          1   PEARL'S HILL    OTSZ01      Y          OUTRAM
+3        3          3      BOAT QUAY    SRSZ03      Y SINGAPORE RIVER
+4        4          8 HENDERSON HILL    BMSZ08      N     BUKIT MERAH
+5        5          3        REDHILL    BMSZ03      N     BUKIT MERAH
+  PLN_AREA_C       REGION_N REGION_C          INC_CRC FMEL_UPD_D   X_ADDR
+1         MS CENTRAL REGION       CR 5ED7EB253F99252E 2014-12-05 31595.84
+2         OT CENTRAL REGION       CR 8C7149B9EB32EEFC 2014-12-05 28679.06
+3         SR CENTRAL REGION       CR C35FEFF02B13E0E5 2014-12-05 29654.96
+4         BM CENTRAL REGION       CR 3775D82C5DDBEFBD 2014-12-05 26782.83
+5         BM CENTRAL REGION       CR 85D9ABEF0A40678F 2014-12-05 26201.96
+    Y_ADDR SHAPE_Leng SHAPE_Area                       geometry
+1 29220.19   5267.381  1630379.3 MULTIPOLYGON (((31495.56 30...
+2 29782.05   3506.107   559816.2 MULTIPOLYGON (((29092.28 30...
+3 29974.66   1740.926   160807.5 MULTIPOLYGON (((29932.33 29...
+4 29933.77   3313.625   595428.9 MULTIPOLYGON (((27131.28 30...
+5 30005.70   2825.594   387429.4 MULTIPOLYGON (((26451.03 30...</code></pre>
+</div>
+</div>
+</section>
+<section id="plotting-geospatial-data" class="level2">
+<h2 class="anchored" data-anchor-id="plotting-geospatial-data">Plotting Geospatial Data</h2>
+<p>In geospatial data analytics, it is insufficient to just look at the feature information. To visualise the geospatial features, <code>plot()</code> of <strong>R Graphic</strong> can be used.</p>
+<blockquote class="blockquote">
+<p>The default plot of an sf object is a multi-plot. The plot below shows the first 9 out of 15 attributes. To change the number of attributes plotted, set the <code>max.plot</code> argument to a desired reasonable number.</p>
+</blockquote>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot</span>(mpsz)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://geospatial2023.netlify.app/Hands_on_Exercise/Ex1/Hands_on_Ex1a_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>To plot only the geometry, wrap <code>st_geometry()</code> around the data frame before plotting.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_geometry</span>(mpsz))</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://geospatial2023.netlify.app/Hands_on_Exercise/Ex1/Hands_on_Ex1a_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>It is also possible to plot a specific attribute of the sf object.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot</span>(mpsz[<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"PLN_AREA_C"</span>])</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://geospatial2023.netlify.app/Hands_on_Exercise/Ex1/Hands_on_Ex1a_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><code>plot()</code> provides a plot of the geospatial object for a quick look. For high cartographic quality plots, other R packages such as <strong>tmap</strong> should be used.</p>
+</div>
+</div>
+</section>
+<section id="map-projection" class="level2">
+<h2 class="anchored" data-anchor-id="map-projection">Map Projection</h2>
+<p>Map projection is an important property of a geospatial data. In order to perform geoprocessing using two sets of geospatial data, they must be projected using a similar coordinate system.</p>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<dl>
+<dt>Projection Transformation</dt>
+<dd>
+<p>The process of projecting a simple feature data frame from one coordinate system to another coordinate system.</p>
+</dd>
+</dl>
+</div>
+</div>
+<section id="assigning-epsg-code-to-a-simple-feature-data-frame" class="level3">
+<h3 class="anchored" data-anchor-id="assigning-epsg-code-to-a-simple-feature-data-frame">Assigning EPSG code to a simple feature data frame</h3>
+<p>Common issues that could happen when importing geospatial data into R are:</p>
+<ol type="1">
+<li>Missing coordinate system of the source data (such as due to missing .proj for ESRI shapefile).</li>
+<li>Wrongly assigned coordinate system during the importing process.</li>
+</ol>
+<p>To look at the coordinate system of <code>mpsz</code> simple feature data frame, <code>st_crs()</code> of <strong>sf</strong> package is used.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_crs</span>(mpsz)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Coordinate Reference System:
+  User input: SVY21 
+  wkt:
+PROJCRS["SVY21",
+    BASEGEOGCRS["SVY21[WGS84]",
+        DATUM["World Geodetic System 1984",
+            ELLIPSOID["WGS 84",6378137,298.257223563,
+                LENGTHUNIT["metre",1]],
+            ID["EPSG",6326]],
+        PRIMEM["Greenwich",0,
+            ANGLEUNIT["Degree",0.0174532925199433]]],
+    CONVERSION["unnamed",
+        METHOD["Transverse Mercator",
+            ID["EPSG",9807]],
+        PARAMETER["Latitude of natural origin",1.36666666666667,
+            ANGLEUNIT["Degree",0.0174532925199433],
+            ID["EPSG",8801]],
+        PARAMETER["Longitude of natural origin",103.833333333333,
+            ANGLEUNIT["Degree",0.0174532925199433],
+            ID["EPSG",8802]],
+        PARAMETER["Scale factor at natural origin",1,
+            SCALEUNIT["unity",1],
+            ID["EPSG",8805]],
+        PARAMETER["False easting",28001.642,
+            LENGTHUNIT["metre",1],
+            ID["EPSG",8806]],
+        PARAMETER["False northing",38744.572,
+            LENGTHUNIT["metre",1],
+            ID["EPSG",8807]]],
+    CS[Cartesian,2],
+        AXIS["(E)",east,
+            ORDER[1],
+            LENGTHUNIT["metre",1,
+                ID["EPSG",9001]]],
+        AXIS["(N)",north,
+            ORDER[2],
+            LENGTHUNIT["metre",1,
+                ID["EPSG",9001]]]]</code></pre>
+</div>
+</div>
+<p>The EPSG indicated in the print above is 9001. However, the <code>mpsz</code> data frame is projected in <strong>svy21</strong>, and the correct EPSG code for <strong>svy21</strong> should be 3414.</p>
+<p>To assign the correct EPSG code to <code>mpsz</code> data frame, <code>st_set_crs()</code> of <strong>sf</strong> package is used.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1">mpsz3414 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_set_crs</span>(mpsz, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3414</span>)</span></code></pre></div>
+</div>
+<p>After calling the revised <code>mpsz3414</code> data frame, the EPSG code indicated is now 3414.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_crs</span>(mpsz3414)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Coordinate Reference System:
+  User input: EPSG:3414 
+  wkt:
+PROJCRS["SVY21 / Singapore TM",
+    BASEGEOGCRS["SVY21",
+        DATUM["SVY21",
+            ELLIPSOID["WGS 84",6378137,298.257223563,
+                LENGTHUNIT["metre",1]]],
+        PRIMEM["Greenwich",0,
+            ANGLEUNIT["degree",0.0174532925199433]],
+        ID["EPSG",4757]],
+    CONVERSION["Singapore Transverse Mercator",
+        METHOD["Transverse Mercator",
+            ID["EPSG",9807]],
+        PARAMETER["Latitude of natural origin",1.36666666666667,
+            ANGLEUNIT["degree",0.0174532925199433],
+            ID["EPSG",8801]],
+        PARAMETER["Longitude of natural origin",103.833333333333,
+            ANGLEUNIT["degree",0.0174532925199433],
+            ID["EPSG",8802]],
+        PARAMETER["Scale factor at natural origin",1,
+            SCALEUNIT["unity",1],
+            ID["EPSG",8805]],
+        PARAMETER["False easting",28001.642,
+            LENGTHUNIT["metre",1],
+            ID["EPSG",8806]],
+        PARAMETER["False northing",38744.572,
+            LENGTHUNIT["metre",1],
+            ID["EPSG",8807]]],
+    CS[Cartesian,2],
+        AXIS["northing (N)",north,
+            ORDER[1],
+            LENGTHUNIT["metre",1]],
+        AXIS["easting (E)",east,
+            ORDER[2],
+            LENGTHUNIT["metre",1]],
+    USAGE[
+        SCOPE["Cadastre, engineering survey, topographic mapping."],
+        AREA["Singapore - onshore and offshore."],
+        BBOX[1.13,103.59,1.47,104.07]],
+    ID["EPSG",3414]]</code></pre>
+</div>
+</div>
+</section>
+<section id="transforming-data-to-projected-coordinate-system" class="level3">
+<h3 class="anchored" data-anchor-id="transforming-data-to-projected-coordinate-system">Transforming data to projected coordinate system</h3>
+<p>In geospatial analytics, it is common to transform the original data from geographic coordinate system to projected coordinate system. Geographic coordinate system is inappropriate if the analysis requires the use of distance or/and area measurements. <code>st_transform()</code> of <strong>sf</strong> package reprojects data frames from one coordinate system to another coordinate system mathematically.</p>
+<p>As <code>preschool</code> data frame is in <strong>wgs84</strong> coordinates system, it can be transformed into <strong>svy21</strong> projected coordinates system (CRS = 3413).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1">preschool3414 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_transform</span>(preschool, </span>
+<span id="cb22-2">                              <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3414</span>)</span></code></pre></div>
+</div>
+<p><code>preschool3414</code> data frame is now in <strong>svy21</strong> projected coordinate system.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_geometry</span>(preschool3414)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Geometry set for 2290 features 
+Geometry type: POINT
+Dimension:     XYZ
+Bounding box:  xmin: 11810.03 ymin: 25596.33 xmax: 45404.24 ymax: 49300.88
+z_range:       zmin: 0 zmax: 0
+Projected CRS: SVY21 / Singapore TM
+First 5 geometries:</code></pre>
+</div>
+</div>
+<blockquote class="blockquote">
+<p>The transformation can be verified by reviewing the x and y extend of the data indicated in the Bounding Box. Most geographic coordinate systems use a 0-360 range of decimal degree. As <code>preschool3414</code> data frame has undergone projection transformation, the x and y extend of the data is now substantially larger than 360.</p>
+</blockquote>
+</section>
+</section>
+<section id="importing-and-converting-aspatial-data" class="level2">
+<h2 class="anchored" data-anchor-id="importing-and-converting-aspatial-data">Importing and Converting Aspatial Data</h2>
+<p>In practice, it is common to come across aspatial data with two fields that capture the x- and y-coordinates of the data points. Aspatial data can be converted from a tibble data frame into a <strong>simple feature data frame</strong> for further geospatial analysis.</p>
+<section id="importing-aspatial-data-as-tibble-data-frame" class="level3">
+<h3 class="anchored" data-anchor-id="importing-aspatial-data-as-tibble-data-frame">Importing Aspatial Data as tibble data frame</h3>
+<p>The code chunk below uses <code>read_csv()</code> function of <strong>readr</strong> package to import the <code>listings.csv</code> data from Airbnb. The output R object is a tibble data frame called <code>listings</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1">listings <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">read_csv</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data/aspatial/listings.csv"</span>)</span></code></pre></div>
+</div>
+<p>The code chunk below shows l<code>ist()</code> of <strong>Base R</strong> instead of <code>glimpse()</code> to examine if the data file has been imported correctly.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(listings) </span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[[1]]
+# A tibble: 3,483 × 18
+       id name     host_id host_…¹ neigh…² neigh…³ latit…⁴ longi…⁵ room_…⁶ price
+    &lt;dbl&gt; &lt;chr&gt;      &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;     &lt;dbl&gt;   &lt;dbl&gt; &lt;chr&gt;   &lt;dbl&gt;
+ 1  71609 Villa i…  367042 Belinda East R… Tampin…    1.35    104. Privat…   150
+ 2  71896 Home in…  367042 Belinda East R… Tampin…    1.35    104. Privat…    80
+ 3  71903 Home in…  367042 Belinda East R… Tampin…    1.35    104. Privat…    80
+ 4 275343 Rental … 1439258 Kay     Centra… Bukit …    1.29    104. Privat…    55
+ 5 275344 Rental … 1439258 Kay     Centra… Bukit …    1.29    104. Privat…    69
+ 6 289234 Home in…  367042 Belinda East R… Tampin…    1.34    104. Privat…   220
+ 7 294281 Rental … 1521514 Elizab… Centra… Newton     1.31    104. Privat…    85
+ 8 324945 Rental … 1439258 Kay     Centra… Bukit …    1.29    104. Privat…    75
+ 9 330095 Rental … 1439258 Kay     Centra… Bukit …    1.29    104. Privat…    45
+10 369141 Place t… 1521514 Elizab… Centra… Newton     1.31    104. Privat…    79
+# … with 3,473 more rows, 8 more variables: minimum_nights &lt;dbl&gt;,
+#   number_of_reviews &lt;dbl&gt;, last_review &lt;date&gt;, reviews_per_month &lt;dbl&gt;,
+#   calculated_host_listings_count &lt;dbl&gt;, availability_365 &lt;dbl&gt;,
+#   number_of_reviews_ltm &lt;dbl&gt;, license &lt;chr&gt;, and abbreviated variable names
+#   ¹​host_name, ²​neighbourhood_group, ³​neighbourhood, ⁴​latitude, ⁵​longitude,
+#   ⁶​room_type</code></pre>
+</div>
+</div>
+<p>The <code>listing</code> tibble data frame consists of 3483 rows and 18 columns. For the next phase, the columns <code>latitude</code> and <code>longitude</code> will be used.</p>
+<blockquote class="blockquote">
+<p>The columns <code>latitude</code> and <code>longitude</code> are in decimal degree format, suggesting that the data could be in <strong>wgs84</strong> geographic coordinates system.</p>
+</blockquote>
+</section>
+<section id="converting-tibble-data-frame-to-simple-feature-data-frame" class="level3">
+<h3 class="anchored" data-anchor-id="converting-tibble-data-frame-to-simple-feature-data-frame">Converting tibble data frame to simple feature data frame</h3>
+<p>The code chunk below converts <code>listing</code> data frame into a simple feature data frame by using <code>st_as_sf()</code> of <strong>sf</strong> packages.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1">listings_sf <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_as_sf</span>(listings, </span>
+<span id="cb28-2">                       <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">coords =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"longitude"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"latitude"</span>),</span>
+<span id="cb28-3">                       <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4326</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb28-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_transform</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3414</span>)</span></code></pre></div>
+</div>
+<blockquote class="blockquote">
+<p><code>coords</code> argument requires column name of the x-coordinates first followed by the column name of the y-coordinates.</p>
+</blockquote>
+<blockquote class="blockquote">
+<p><code>crs</code> argument requires the coordinates system in EPSG format. EPSG 4326 is <strong>wgs84</strong> geographic coordinates system and EPSG 3414 is <strong>svy21</strong> projected coordinates system. Refer to <a href="epsg.io">epsg.io</a> for other country’s EPSG codes.</p>
+</blockquote>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">glimpse</span>(listings_sf)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 3,483
+Columns: 17
+$ id                             &lt;dbl&gt; 71609, 71896, 71903, 275343, 275344, 28…
+$ name                           &lt;chr&gt; "Villa in Singapore · ★4.44 · 2 bedroom…
+$ host_id                        &lt;dbl&gt; 367042, 367042, 367042, 1439258, 143925…
+$ host_name                      &lt;chr&gt; "Belinda", "Belinda", "Belinda", "Kay",…
+$ neighbourhood_group            &lt;chr&gt; "East Region", "East Region", "East Reg…
+$ neighbourhood                  &lt;chr&gt; "Tampines", "Tampines", "Tampines", "Bu…
+$ room_type                      &lt;chr&gt; "Private room", "Private room", "Privat…
+$ price                          &lt;dbl&gt; 150, 80, 80, 55, 69, 220, 85, 75, 45, 7…
+$ minimum_nights                 &lt;dbl&gt; 92, 92, 92, 60, 60, 92, 92, 60, 60, 92,…
+$ number_of_reviews              &lt;dbl&gt; 20, 24, 47, 22, 17, 12, 133, 18, 6, 81,…
+$ last_review                    &lt;date&gt; 2020-01-17, 2019-10-13, 2020-01-09, 20…
+$ reviews_per_month              &lt;dbl&gt; 0.14, 0.16, 0.31, 0.17, 0.12, 0.09, 0.9…
+$ calculated_host_listings_count &lt;dbl&gt; 5, 5, 5, 52, 52, 5, 7, 52, 52, 7, 7, 1,…
+$ availability_365               &lt;dbl&gt; 89, 89, 89, 275, 274, 89, 365, 365, 365…
+$ number_of_reviews_ltm          &lt;dbl&gt; 0, 0, 0, 0, 3, 0, 0, 1, 3, 0, 0, 0, 0, …
+$ license                        &lt;chr&gt; NA, NA, NA, "S0399", "S0399", NA, NA, "…
+$ geometry                       &lt;POINT [m]&gt; POINT (41972.5 36390.05), POINT (…</code></pre>
+</div>
+</div>
+<p>The table above shows the content of <code>listing_sf</code>. A new column called <code>geometry</code> has been added into the data frame while the <code>longitude</code> and <code>latitude</code> columns have been dropped.</p>
+</section>
+</section>
+<section id="geoprocessing-with-sf-package" class="level2">
+<h2 class="anchored" data-anchor-id="geoprocessing-with-sf-package">Geoprocessing with sf package</h2>
+<p>Besides providing functions to handling (i.e.&nbsp;importing, exporting, assigning projection, transforming projection etc) geospatial data, <strong>sf</strong> package also offers a wide range of geoprocessing (also known as GIS analysis) functions such as buffering and point-in-polygon count.</p>
+<section id="buffering" class="level3">
+<h3 class="anchored" data-anchor-id="buffering">Buffering</h3>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<dl>
+<dt>Buffer</dt>
+<dd>
+<p>A defined zone or area created around a geographic feature such as a point, line, or polygon.</p>
+</dd>
+</dl>
+</div>
+</div>
+<p>The purpose of creating a buffer is to identify and analyze spatial relationships between features within that distance. The buffer is typically measured in units of distance (e.g.&nbsp;meters, kilometers) and represents a specific radius or width around the feature.</p>
+<p>Using the <code>CyclingPath</code> data set as an example:</p>
+<p>Assuming there are plans to upgrade the exiting cycling path and 5m of reserved land on both sides of the current cycling path must be acquired, <strong>determine the extend of the land needed to be acquired and their total area</strong>.</p>
+<p>To do so, <code>st_buffer()</code> of <strong>sf</strong> package is used to compute the 5-meter buffers around cycling paths.</p>
+<blockquote class="blockquote">
+<p><code>dist</code> argument takes in the numeric buffer distance to be computed.</p>
+</blockquote>
+<blockquote class="blockquote">
+<p><code>nQuadSegs</code> argument refers to ‘the number of segments per quadrant’ and is set by default to 30 (meaning circles created by buffers are composed of 4 × 30 = 120 lines). This argument may be useful to include when the memory consumed by the output of a buffer operation is a major concern (in which case it should be reduced) or when very high precision is needed (in which case it should be increased).</p>
+</blockquote>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1">buffer_cycling <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_buffer</span>(cyclingpath, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">dist=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">nQuadSegs=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">30</span>)</span></code></pre></div>
+</div>
+<p>This is followed by calculating the area of the buffers then summed up to derive the total land involved.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1">buffer_cycling<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>AREA <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_area</span>(buffer_cycling)</span>
+<span id="cb32-2"></span>
+<span id="cb32-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sum</span>(buffer_cycling<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>AREA)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>1774367 [m^2]</code></pre>
+</div>
+</div>
+</section>
+<section id="point-in-polygon-count" class="level3">
+<h3 class="anchored" data-anchor-id="point-in-polygon-count">Point-in-polygon count</h3>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<dl>
+<dt>Point-in-polygon count</dt>
+<dd>
+<p>The number of points in each polygon given a set of points and a set of polygons.</p>
+</dd>
+</dl>
+</div>
+</div>
+<p>In computational geometry, the point-in-polygon (PIP) problem asks whether a given point in the plane lies inside, outside, or on the boundary of a polygon.</p>
+<p>Using the <code>PreSchoolsLocation</code> data set as an example:</p>
+<p>Assuming a preschool group wants to study the distribution of preschools in each Planning Subzone, <strong>determine the number and density of preschools within each Planning Subzone</strong>.</p>
+<p><code>st_intersects()</code> of <strong>sf</strong> package is used to identify pre-schools located inside each Planning Subzone. <code>lengths()</code> of <strong>Base R</strong> is then used to calculate numbers of pre-schools that fall inside each Subzone and <code>summary()</code> displays the summary statistics of the newly derived <code>PreSch Count</code> field.</p>
+<blockquote class="blockquote">
+<p><code>st_intersects()</code> and <code>st_intersection()</code> are different! <code>st_intersects</code> provides a logical result that informs whether there is indeed an intersection between two sets of geometries, while <code>st_intersection()</code> perform geometric set operations and provide the intersection, difference or symmetric difference between two sets of geometries.</p>
+</blockquote>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1">mpsz3414<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">PreSch Count</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span><span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">lengths</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_intersects</span>(mpsz3414, preschool3414))</span>
+<span id="cb34-2"></span>
+<span id="cb34-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">summary</span>(mpsz3414<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">PreSch Count</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+   0.00    0.00    4.00    7.09   10.00   72.00 </code></pre>
+</div>
+</div>
+<p>To list the Planning Subzone with the most number of pre-schools, use <code>top_n()</code> of <strong>dplyr</strong> package.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">top_n</span>(mpsz3414, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">PreSch Count</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Simple feature collection with 1 feature and 16 fields
+Geometry type: MULTIPOLYGON
+Dimension:     XY
+Bounding box:  xmin: 39655.33 ymin: 35966 xmax: 42940.57 ymax: 38622.37
+Projected CRS: SVY21 / Singapore TM
+  OBJECTID SUBZONE_NO     SUBZONE_N SUBZONE_C CA_IND PLN_AREA_N PLN_AREA_C
+1      189          2 TAMPINES EAST    TMSZ02      N   TAMPINES         TM
+     REGION_N REGION_C          INC_CRC FMEL_UPD_D   X_ADDR   Y_ADDR SHAPE_Leng
+1 EAST REGION       ER 21658EAAF84F4D8D 2014-12-05 41122.55 37392.39   10180.62
+  SHAPE_Area                       geometry PreSch Count
+1    4339824 MULTIPOLYGON (((42196.76 38...           72</code></pre>
+</div>
+</div>
+<p>Next, the code chunk below uses <code>st_area()</code> of <strong>sf</strong> package to derive the area of each Planning Subzone.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1">mpsz3414<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>Area <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> mpsz3414 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb38-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_area</span>()</span></code></pre></div>
+</div>
+<p><code>mutate()</code> of <strong>dplyr</strong> package is then used to compute the density.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1">mpsz3414 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> mpsz3414 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb39-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">PreSch Density</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span> <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">PreSch Count</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span>Area <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">*</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1000000</span>)</span></code></pre></div>
+</div>
+</section>
+</section>
+<section id="exploratory-data-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="exploratory-data-analysis">Exploratory Data Analysis</h2>
+<p>In practice, many geospatial analytics start with Exploratory Data Analysis. The use of appropriate <strong>ggplot2</strong> functions can help create functional statistical graphs for EDA purposes.</p>
+<section id="histogram-on-preschool-density" class="level3">
+<h3 class="anchored" data-anchor-id="histogram-on-preschool-density">Histogram on Preschool Density</h3>
+<p>A histogram is plotted using <code>hist()</code> of <strong>R Graphics</strong> to reveal the distribution of <code>PreSch Density</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">hist</span>(mpsz3414<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">PreSch Density</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://geospatial2023.netlify.app/Hands_on_Exercise/Ex1/Hands_on_Ex1a_files/figure-html/unnamed-chunk-26-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<blockquote class="blockquote">
+<p>While the syntax is easy to use, there is limited room for further customisation to improve the output to meet publication quality.</p>
+</blockquote>
+<p>In the code chunk below, appropriate <strong>ggplot2</strong> functions will be used including <code>geom_histogram()</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data=</span>mpsz3414, </span>
+<span id="cb41-2">       <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.numeric</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">PreSch Density</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span>)))<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb41-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_histogram</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">bins=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">20</span>, </span>
+<span id="cb41-4">                 <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">color=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"white"</span>,</span>
+<span id="cb41-5">                 <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"steelblue"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb41-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Are preschools even distributed in Singapore?"</span>,</span>
+<span id="cb41-7">       <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">subtitle=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Most Planning Subzones have a low preschool density (&lt;10 preschools per km sq)</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">One Planning Subzone has a preschool density of &gt;30 preschools per km sq"</span>,</span>
+<span id="cb41-8">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Preschool density (per km sq)"</span>,</span>
+<span id="cb41-9">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Frequency"</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://geospatial2023.netlify.app/Hands_on_Exercise/Ex1/Hands_on_Ex1a_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="scatterplot-between-preschool-density-and-preschool-count" class="level3">
+<h3 class="anchored" data-anchor-id="scatterplot-between-preschool-density-and-preschool-count">Scatterplot between Preschool Density and Preschool Count</h3>
+<p>In the code chunk below, <code>geom_point()</code> is used to plot a scatterplot between Preschool Density and Preschool Count.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data=</span>mpsz3414, </span>
+<span id="cb42-2">       <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">PreSch Count</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span>, </span>
+<span id="cb42-3">           <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.numeric</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">PreSch Density</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span>)))<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb42-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_point</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">color=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"steelblue"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb42-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">xlim</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">40</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb42-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ylim</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">40</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb42-7">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">labs</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Scatterplot of Preschool Density and Preschool Count"</span>,</span>
+<span id="cb42-8">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Pre-school density (per km sq)"</span>,</span>
+<span id="cb42-9">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Pre-school count"</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://geospatial2023.netlify.app/Hands_on_Exercise/Ex1/Hands_on_Ex1a_files/figure-html/unnamed-chunk-28-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+
+
+</section>
+</section>
+
+ ]]></description>
+  <guid>https://geospatial2023.netlify.app/Hands_on_Exercise/Ex1/Hands_on_Ex1a.html</guid>
+  <pubDate>Thu, 16 Nov 2023 16:00:00 GMT</pubDate>
+</item>
+<item>
+  <title>1b: Choropleth Mapping with R</title>
+  <dc:creator>Magdalene Chan</dc:creator>
+  <link>https://geospatial2023.netlify.app/Hands_on_Exercise/Ex1/Hands_on_Ex1b.html</link>
+  <description><![CDATA[ 
+
+
+
+<p>Choropleth mapping involves the symbolisation of enumeration units, such as countries, provinces, states, counties or census units, using area patterns or graduated colors. For example, the spatial distribution of aged population of Singapore could be represented on a choropleth map using the Master Plan 2014 Subzone Boundary. In R, choropleth maps can be plotted using the <strong>tmap</strong> package.</p>
+<section id="getting-started" class="level2">
+<h2 class="anchored" data-anchor-id="getting-started">Getting started</h2>
+<p>The code chunk below uses <code>p_load()</code> of <strong>pacman</strong> package to check if the required packages have been installed on the computer. If they are, the packages will be launched.</p>
+<blockquote class="blockquote">
+<p><strong>sf</strong> package is used for importing, managing, and processing geospatial data.</p>
+</blockquote>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1">pacman<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">p_load</span>(sf, tmap, tidyverse)</span></code></pre></div>
+</div>
+<p>The data sets used are:</p>
+<ul>
+<li>Master Plan 2014 Subzone Boundary (Web) (last updated Dec 2014) from <a href="https://beta.data.gov.sg/collections/1708/view">data.gov.sg</a> retrieved on 17 Nov 2023</li>
+<li>Singapore Residents by Planning Area / Subzone, Age Group, Sex and Type of Dwelling, June 2011-2020 from <a href="https://www.singstat.gov.sg/find-data/search-by-theme/population/geographic-distribution/latest-data">Department of Statistics</a> retrieved on 17 Nov 2023</li>
+</ul>
+</section>
+<section id="importing-data" class="level2">
+<h2 class="anchored" data-anchor-id="importing-data">Importing Data</h2>
+<section id="import-geospatial-data-into-r" class="level3">
+<h3 class="anchored" data-anchor-id="import-geospatial-data-into-r">Import Geospatial data into R</h3>
+<p>The code chunk below uses the <code>st_read()</code> function of <strong>sf</strong> package to import <code>MP14_SUBZONE_WEB_PL</code> shapefile into R as a simple feature data frame called <code>mpsz</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1">mpsz <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_read</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">dsn =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data/geospatial"</span>, </span>
+<span id="cb2-2">                <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">layer =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"MP14_SUBZONE_WEB_PL"</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Reading layer `MP14_SUBZONE_WEB_PL' from data source 
+  `C:\magdalenecjw\ISSS624 Geospatial\Hands_on_Exercise\Ex1\data\geospatial' 
+  using driver `ESRI Shapefile'
+Simple feature collection with 323 features and 15 fields
+Geometry type: MULTIPOLYGON
+Dimension:     XY
+Bounding box:  xmin: 2667.538 ymin: 15748.72 xmax: 56396.44 ymax: 50256.33
+Projected CRS: SVY21</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1">mpsz</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Simple feature collection with 323 features and 15 fields
+Geometry type: MULTIPOLYGON
+Dimension:     XY
+Bounding box:  xmin: 2667.538 ymin: 15748.72 xmax: 56396.44 ymax: 50256.33
+Projected CRS: SVY21
+First 10 features:
+   OBJECTID SUBZONE_NO       SUBZONE_N SUBZONE_C CA_IND      PLN_AREA_N
+1         1          1    MARINA SOUTH    MSSZ01      Y    MARINA SOUTH
+2         2          1    PEARL'S HILL    OTSZ01      Y          OUTRAM
+3         3          3       BOAT QUAY    SRSZ03      Y SINGAPORE RIVER
+4         4          8  HENDERSON HILL    BMSZ08      N     BUKIT MERAH
+5         5          3         REDHILL    BMSZ03      N     BUKIT MERAH
+6         6          7  ALEXANDRA HILL    BMSZ07      N     BUKIT MERAH
+7         7          9   BUKIT HO SWEE    BMSZ09      N     BUKIT MERAH
+8         8          2     CLARKE QUAY    SRSZ02      Y SINGAPORE RIVER
+9         9         13 PASIR PANJANG 1    QTSZ13      N      QUEENSTOWN
+10       10          7       QUEENSWAY    QTSZ07      N      QUEENSTOWN
+   PLN_AREA_C       REGION_N REGION_C          INC_CRC FMEL_UPD_D   X_ADDR
+1          MS CENTRAL REGION       CR 5ED7EB253F99252E 2014-12-05 31595.84
+2          OT CENTRAL REGION       CR 8C7149B9EB32EEFC 2014-12-05 28679.06
+3          SR CENTRAL REGION       CR C35FEFF02B13E0E5 2014-12-05 29654.96
+4          BM CENTRAL REGION       CR 3775D82C5DDBEFBD 2014-12-05 26782.83
+5          BM CENTRAL REGION       CR 85D9ABEF0A40678F 2014-12-05 26201.96
+6          BM CENTRAL REGION       CR 9D286521EF5E3B59 2014-12-05 25358.82
+7          BM CENTRAL REGION       CR 7839A8577144EFE2 2014-12-05 27680.06
+8          SR CENTRAL REGION       CR 48661DC0FBA09F7A 2014-12-05 29253.21
+9          QT CENTRAL REGION       CR 1F721290C421BFAB 2014-12-05 22077.34
+10         QT CENTRAL REGION       CR 3580D2AFFBEE914C 2014-12-05 24168.31
+     Y_ADDR SHAPE_Leng SHAPE_Area                       geometry
+1  29220.19   5267.381  1630379.3 MULTIPOLYGON (((31495.56 30...
+2  29782.05   3506.107   559816.2 MULTIPOLYGON (((29092.28 30...
+3  29974.66   1740.926   160807.5 MULTIPOLYGON (((29932.33 29...
+4  29933.77   3313.625   595428.9 MULTIPOLYGON (((27131.28 30...
+5  30005.70   2825.594   387429.4 MULTIPOLYGON (((26451.03 30...
+6  29991.38   4428.913  1030378.8 MULTIPOLYGON (((25899.7 297...
+7  30230.86   3275.312   551732.0 MULTIPOLYGON (((27746.95 30...
+8  30222.86   2208.619   290184.7 MULTIPOLYGON (((29351.26 29...
+9  29893.78   6571.323  1084792.3 MULTIPOLYGON (((20996.49 30...
+10 30104.18   3454.239   631644.3 MULTIPOLYGON (((24472.11 29...</code></pre>
+</div>
+</div>
+<blockquote class="blockquote">
+<p>Calling the <code>mpsz</code> simple feature data frame will only display the first 10 rows. This makes it much easier to work with large data and prevents R from attempting to display every row of a data frame.</p>
+</blockquote>
+</section>
+<section id="import-attribute-data-into-r" class="level3">
+<h3 class="anchored" data-anchor-id="import-attribute-data-into-r">Import Attribute data into R</h3>
+<p>The code chunk below uses the <code>read_csv()</code> function of <strong>readr</strong> package to import <code>respopagsex2000to2018.csv</code> file into R and save it as a R dataframe called <code>popdata</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1">popdata <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">read_csv</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data/aspatial/respopagesextod2011to2020.csv"</span>)</span></code></pre></div>
+</div>
+</section>
+<section id="data-preparation" class="level3">
+<h3 class="anchored" data-anchor-id="data-preparation">Data Preparation</h3>
+<p>Before a thematic map can be prepared, <code>popdata</code> is converted into a data table with year 2020 values and includes the following variables:</p>
+<ul>
+<li><code>YOUNG</code>: age group 0 to 4 until age groyup 20 to 24,</li>
+<li><code>ECONOMY ACTIVE</code>: age group 25-29 until age group 60-64,</li>
+<li><code>AGED</code>: age group 65 and above,</li>
+<li><code>TOTAL</code>: all age group, and</li>
+<li><code>DEPENDENCY</code>: the ratio between young and aged against economy active group.</li>
+</ul>
+<p>The following data wrangling and transformation functions are used: <code>pivot_wider()</code> of <strong>tidyr</strong> package, and <code>mutate()</code>, <code>filter()</code>, <code>group_by()</code> and <code>select()</code> of <strong>dplyr</strong> package.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1">popdata2020 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> popdata <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb7-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(Time <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2020</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb7-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">group_by</span>(PA, SZ, AG) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb7-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">summarise</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">POP</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span> <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sum</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">Pop</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span>)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb7-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ungroup</span>()<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb7-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">pivot_wider</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">names_from=</span>AG, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">values_from=</span>POP) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb7-7">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">YOUNG =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rowSums</span>(.[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span>])<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rowSums</span>(.[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">12</span>])) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb7-8">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ECONOMY ACTIVE</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span> <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rowSums</span>(.[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">7</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">11</span>])<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rowSums</span>(.[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">13</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">15</span>]))<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb7-9">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">AGED</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span><span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rowSums</span>(.[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">16</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">21</span>])) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb7-10">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">TOTAL</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span><span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rowSums</span>(.[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">21</span>])) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span>  </span>
+<span id="cb7-11">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">DEPENDENCY</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span> <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> (<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">YOUNG</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">AGED</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span>)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">/</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ECONOMY ACTIVE</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb7-12">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">select</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">PA</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">SZ</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">YOUNG</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ECONOMY ACTIVE</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">AGED</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">TOTAL</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">DEPENDENCY</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span>)</span></code></pre></div>
+</div>
+</section>
+<section id="joining-attribute-and-geospatial-data" class="level3">
+<h3 class="anchored" data-anchor-id="joining-attribute-and-geospatial-data">Joining Attribute and Geospatial data</h3>
+<p>Before performing the georelational join, an extra step is required to convert the values in <code>PA</code> and <code>SZ</code> fields to uppercase as the values of <code>PA</code> and <code>SZ</code> fields consist of upper and lowercase while the <code>SUBZONE_N</code> and <code>PLN_AREA_N</code> columns are entirely in uppercase.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1">popdata2020 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> popdata2020 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb8-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">across</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">where</span>(is.character), toupper)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb8-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span><span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ECONOMY ACTIVE</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">`</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>)</span></code></pre></div>
+</div>
+<p>Next, <code>left_join()</code> of <strong>dplyr</strong> is used to join the geographical data and attribute table using Planning Subzone name i.e.&nbsp;SUBZONE_N and SZ as the common identifier.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1">mpsz_pop2020 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">left_join</span>(mpsz, popdata2020,</span>
+<span id="cb9-2">                          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">by =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"SUBZONE_N"</span> <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"SZ"</span>))</span></code></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">write_rds</span>(mpsz_pop2020, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data/rds/mpszpop2020.rds"</span>)</span></code></pre></div>
+</div>
+</section>
+</section>
+<section id="choropleth-mapping-geospatial-data-using-tmap" class="level2">
+<h2 class="anchored" data-anchor-id="choropleth-mapping-geospatial-data-using-tmap">Choropleth Mapping Geospatial Data Using tmap</h2>
+<p>Two approaches can be used to prepare thematic maps using the <strong>tmap</strong> package:</p>
+<ul>
+<li>Plotting a thematic map quickly by using <code>qtm()</code>.</li>
+<li>Plotting a highly customisable thematic map by using <strong>tmap</strong> elements.</li>
+</ul>
+<section id="plotting-a-choropleth-map-quickly-by-using-qtm" class="level3">
+<h3 class="anchored" data-anchor-id="plotting-a-choropleth-map-quickly-by-using-qtm">Plotting a choropleth map quickly by using qtm()</h3>
+<p><code>qtm()</code> is the easiest and quickest to draw a choropleth map using <strong>tmap</strong> as it is concise and provides a good default visualisation in many cases. The code chunk below will draw a cartographic standard choropleth map as shown below.</p>
+<blockquote class="blockquote">
+<p><code>tmap_mode()</code> with <code>plot</code> option produces a static map. For interactive mode, <code>view</code> option should be used.</p>
+</blockquote>
+<blockquote class="blockquote">
+<p><code>fill</code> argument is used to map the attribute of interest.</p>
+</blockquote>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tmap_mode</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"plot"</span>)</span>
+<span id="cb11-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">qtm</span>(mpsz_pop2020, </span>
+<span id="cb11-3">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">fill =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"DEPENDENCY"</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://geospatial2023.netlify.app/Hands_on_Exercise/Ex1/Hands_on_Ex1b_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<blockquote class="blockquote">
+<p>However, when using <code>qtm()</code>, aesthetics of individual layers are harder to control. To draw a high quality cartographic choropleth map, <strong>tmap</strong> drawing elements should be used.</p>
+</blockquote>
+</section>
+<section id="drawing-base-map-using-tmap-elements" class="level3">
+<h3 class="anchored" data-anchor-id="drawing-base-map-using-tmap-elements">Drawing Base Map using tmap elements</h3>
+<p>The basic building block of <strong>tmap</strong> is <code>tm_shape()</code> followed by one or more layer elements such as <code>tm_fill()</code> and <code>tm_polygons()</code>. In the code chunk below, <code>tm_shape()</code> is used to define the input data (i.e <code>mpsz_pop2020</code>) and <code>tm_polygons()</code> is used to draw the Planning Subzone polygons.</p>
+<p>To draw a choropleth map showing the geographical distribution of a selected variable by Planning Subzone, assign the target variable such as <code>Dependency</code> to <code>tm_polygons()</code>.</p>
+<blockquote class="blockquote">
+<p>The default interval binning used to draw the choropleth map is <code>pretty</code>. <strong>tmap</strong> provides a total ten data classification methods, namely: fixed, sd, equal, pretty (default), quantile, kmeans, hclust, bclust, fisher, and jenks.</p>
+</blockquote>
+<blockquote class="blockquote">
+<p>By default, missing values will be shaded in grey.</p>
+</blockquote>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_shape</span>(mpsz_pop2020) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb12-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_polygons</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"DEPENDENCY"</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://geospatial2023.netlify.app/Hands_on_Exercise/Ex1/Hands_on_Ex1b_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="drawing-a-choropleth-map-using-tm_fill-and-tm_border" class="level3">
+<h3 class="anchored" data-anchor-id="drawing-a-choropleth-map-using-tm_fill-and-tm_border">Drawing a choropleth map using <code>tm_fill()</code> and <code>tm_border()</code></h3>
+<p><code>tm_polygons()</code> is a wrapper of <code>tm_fill()</code> and <code>tm_border()</code>. <code>tm_fill()</code> shades the polygons using the default colour scheme and <code>tm_borders()</code> adds the borders of the shapefile onto the choropleth map.</p>
+<p>The code chunk below draws a choropleth map by using <code>tm_fill()</code> alone, and the Planning Subzones are shaded according to the respective <code>DEPENDENCY</code> values.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_shape</span>(mpsz_pop2020)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb13-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_fill</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"DEPENDENCY"</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://geospatial2023.netlify.app/Hands_on_Exercise/Ex1/Hands_on_Ex1b_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p><code>tm_borders()</code> adds light grey borders on the boundary of the Planning Subzones.</p>
+<blockquote class="blockquote">
+<p>The <code>alpha</code> argument is used to define transparency number between 0 (totally transparent) and 1 (not transparent). By default, the <code>alpha</code> value of the col is used (normally 1). Other arguments that can be specified include <code>col</code> = border colour, <code>lwd</code> = border line width (default = 1), and <code>lty</code> = border line type (default = ‘solid’).</p>
+</blockquote>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_shape</span>(mpsz_pop2020)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb14-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_fill</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"DEPENDENCY"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb14-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_borders</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">lwd =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span>,  <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://geospatial2023.netlify.app/Hands_on_Exercise/Ex1/Hands_on_Ex1b_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="data-classification-methods-of-tmap" class="level3">
+<h3 class="anchored" data-anchor-id="data-classification-methods-of-tmap">Data Classification Methods of tmap</h3>
+<p>Most choropleth maps employ some methods of data classification. The point of classification is to take a large number of observations and group them into data ranges or classes. To define a data classification method, use the <code>style</code> argument of <code>tm_fill()</code> or <code>tm_polygons()</code>.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs"><li class="nav-item"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" aria-controls="tabset-1-1" aria-selected="true">Equal: 5 classes</a></li><li class="nav-item"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" aria-controls="tabset-1-2" aria-selected="false">Standard Deviation: 5 classes</a></li><li class="nav-item"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" aria-controls="tabset-1-3" aria-selected="false">Quantile: 5 classes</a></li><li class="nav-item"><a class="nav-link" id="tabset-1-4-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-4" aria-controls="tabset-1-4" aria-selected="false">Jenks: 5 classes</a></li><li class="nav-item"><a class="nav-link" id="tabset-1-5-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-5" aria-controls="tabset-1-5" aria-selected="false">KMeans: 5 classes</a></li><li class="nav-item"><a class="nav-link" id="tabset-1-6-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-6" aria-controls="tabset-1-6" aria-selected="false">Fisher: 5 classes</a></li></ul>
+<div class="tab-content">
+<div id="tabset-1-1" class="tab-pane active" aria-labelledby="tabset-1-1-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_shape</span>(mpsz_pop2020)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb15-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_fill</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"DEPENDENCY"</span>,</span>
+<span id="cb15-3">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>,</span>
+<span id="cb15-4">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">style =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"equal"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb15-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_borders</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://geospatial2023.netlify.app/Hands_on_Exercise/Ex1/Hands_on_Ex1b_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<blockquote class="blockquote">
+<p>The <code>equal</code> style divides input values into bins of equal range. In variables with a skewed distribution, the resulting map is likely to end up with little color diversity.</p>
+</blockquote>
+</div>
+<div id="tabset-1-2" class="tab-pane" aria-labelledby="tabset-1-2-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_shape</span>(mpsz_pop2020)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb16-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_fill</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"DEPENDENCY"</span>,</span>
+<span id="cb16-3">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>,</span>
+<span id="cb16-4">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">style =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"sd"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb16-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_borders</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://geospatial2023.netlify.app/Hands_on_Exercise/Ex1/Hands_on_Ex1b_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<blockquote class="blockquote">
+<p>The <code>sd</code> style calculates a standard deviation of a given variable, and next use this value as the break width.</p>
+</blockquote>
+</div>
+<div id="tabset-1-3" class="tab-pane" aria-labelledby="tabset-1-3-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_shape</span>(mpsz_pop2020)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb17-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_fill</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"DEPENDENCY"</span>,</span>
+<span id="cb17-3">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>,</span>
+<span id="cb17-4">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">style =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"quantile"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb17-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_borders</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://geospatial2023.netlify.app/Hands_on_Exercise/Ex1/Hands_on_Ex1b_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<blockquote class="blockquote">
+<p>The <code>quantile</code> style creates breaks with an equal number of features (polygons).</p>
+</blockquote>
+</div>
+<div id="tabset-1-4" class="tab-pane" aria-labelledby="tabset-1-4-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_shape</span>(mpsz_pop2020)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb18-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_fill</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"DEPENDENCY"</span>,</span>
+<span id="cb18-3">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>,</span>
+<span id="cb18-4">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">style =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"jenks"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb18-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_borders</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://geospatial2023.netlify.app/Hands_on_Exercise/Ex1/Hands_on_Ex1b_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<blockquote class="blockquote">
+<p>The Jenks optimization method, also called the Jenks natural breaks classification method, is a data clustering method designed to determine the best arrangement of values into different classes. This is done by seeking to minimize each class’s average deviation from the class mean, while maximizing each class’s deviation from the means of the other classes. In other words, the method seeks to reduce the variance within classes and maximize the variance between classes.</p>
+</blockquote>
+</div>
+<div id="tabset-1-5" class="tab-pane" aria-labelledby="tabset-1-5-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_shape</span>(mpsz_pop2020)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb19-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_fill</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"DEPENDENCY"</span>,</span>
+<span id="cb19-3">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>,</span>
+<span id="cb19-4">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">style =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"kmeans"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb19-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_borders</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://geospatial2023.netlify.app/Hands_on_Exercise/Ex1/Hands_on_Ex1b_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<blockquote class="blockquote">
+<p>Classification by KMeans Clustering is somewhat similar to natural breaks (Jenks), except that KMeans looks for centres of clusters of features with similar attribute values rather than looking for breaks between feature attribute values.</p>
+</blockquote>
+</div>
+<div id="tabset-1-6" class="tab-pane" aria-labelledby="tabset-1-6-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_shape</span>(mpsz_pop2020)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb20-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_fill</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"DEPENDENCY"</span>,</span>
+<span id="cb20-3">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>,</span>
+<span id="cb20-4">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">style =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"fisher"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb20-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_borders</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://geospatial2023.netlify.app/Hands_on_Exercise/Ex1/Hands_on_Ex1b_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<blockquote class="blockquote">
+<p>The <code>fisher</code> style creates groups with maximalized homogeneity.</p>
+</blockquote>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>In this example, the distribution of equal data classification method is substantially less evenly distributed than the quantile data classification method. The distribution of the variable and the objectives of the analysis are important factors that should be considered when deciding on the data classification method to use.</p>
+</div>
+</div>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs"><li class="nav-item"><a class="nav-link active" id="tabset-2-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-1" aria-controls="tabset-2-1" aria-selected="true">Equal: 2 classes</a></li><li class="nav-item"><a class="nav-link" id="tabset-2-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-2" aria-controls="tabset-2-2" aria-selected="false">Equal: 6 classes</a></li><li class="nav-item"><a class="nav-link" id="tabset-2-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-3" aria-controls="tabset-2-3" aria-selected="false">Equal: 10 classes</a></li><li class="nav-item"><a class="nav-link" id="tabset-2-4-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-4" aria-controls="tabset-2-4" aria-selected="false">Equal: 20 classes</a></li><li class="nav-item"><a class="nav-link" id="tabset-2-5-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-5" aria-controls="tabset-2-5" aria-selected="false">Quantile: 2 classes</a></li><li class="nav-item"><a class="nav-link" id="tabset-2-6-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-6" aria-controls="tabset-2-6" aria-selected="false">Quantile: 6 classes</a></li><li class="nav-item"><a class="nav-link" id="tabset-2-7-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-7" aria-controls="tabset-2-7" aria-selected="false">Quantile: 10 classes</a></li><li class="nav-item"><a class="nav-link" id="tabset-2-8-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-8" aria-controls="tabset-2-8" aria-selected="false">Quantile: 20 classes</a></li></ul>
+<div class="tab-content">
+<div id="tabset-2-1" class="tab-pane active" aria-labelledby="tabset-2-1-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_shape</span>(mpsz_pop2020)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb21-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_fill</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"DEPENDENCY"</span>,</span>
+<span id="cb21-3">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>,</span>
+<span id="cb21-4">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">style =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"equal"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb21-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_borders</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://geospatial2023.netlify.app/Hands_on_Exercise/Ex1/Hands_on_Ex1b_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</div>
+<div id="tabset-2-2" class="tab-pane" aria-labelledby="tabset-2-2-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_shape</span>(mpsz_pop2020)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb22-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_fill</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"DEPENDENCY"</span>,</span>
+<span id="cb22-3">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span>,</span>
+<span id="cb22-4">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">style =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"equal"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb22-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_borders</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://geospatial2023.netlify.app/Hands_on_Exercise/Ex1/Hands_on_Ex1b_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</div>
+<div id="tabset-2-3" class="tab-pane" aria-labelledby="tabset-2-3-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_shape</span>(mpsz_pop2020)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb23-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_fill</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"DEPENDENCY"</span>,</span>
+<span id="cb23-3">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>,</span>
+<span id="cb23-4">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">style =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"equal"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb23-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_borders</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://geospatial2023.netlify.app/Hands_on_Exercise/Ex1/Hands_on_Ex1b_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</div>
+<div id="tabset-2-4" class="tab-pane" aria-labelledby="tabset-2-4-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_shape</span>(mpsz_pop2020)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb24-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_fill</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"DEPENDENCY"</span>,</span>
+<span id="cb24-3">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">20</span>,</span>
+<span id="cb24-4">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">style =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"equal"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb24-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_borders</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://geospatial2023.netlify.app/Hands_on_Exercise/Ex1/Hands_on_Ex1b_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</div>
+<div id="tabset-2-5" class="tab-pane" aria-labelledby="tabset-2-5-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_shape</span>(mpsz_pop2020)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb25-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_fill</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"DEPENDENCY"</span>,</span>
+<span id="cb25-3">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>,</span>
+<span id="cb25-4">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">style =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"quantile"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb25-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_borders</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://geospatial2023.netlify.app/Hands_on_Exercise/Ex1/Hands_on_Ex1b_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</div>
+<div id="tabset-2-6" class="tab-pane" aria-labelledby="tabset-2-6-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_shape</span>(mpsz_pop2020)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb26-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_fill</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"DEPENDENCY"</span>,</span>
+<span id="cb26-3">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span>,</span>
+<span id="cb26-4">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">style =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"quantile"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb26-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_borders</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://geospatial2023.netlify.app/Hands_on_Exercise/Ex1/Hands_on_Ex1b_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</div>
+<div id="tabset-2-7" class="tab-pane" aria-labelledby="tabset-2-7-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_shape</span>(mpsz_pop2020)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb27-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_fill</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"DEPENDENCY"</span>,</span>
+<span id="cb27-3">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">10</span>,</span>
+<span id="cb27-4">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">style =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"quantile"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb27-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_borders</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://geospatial2023.netlify.app/Hands_on_Exercise/Ex1/Hands_on_Ex1b_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</div>
+<div id="tabset-2-8" class="tab-pane" aria-labelledby="tabset-2-8-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_shape</span>(mpsz_pop2020)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb28-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_fill</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"DEPENDENCY"</span>,</span>
+<span id="cb28-3">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">20</span>,</span>
+<span id="cb28-4">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">style =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"quantile"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb28-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_borders</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://geospatial2023.netlify.app/Hands_on_Exercise/Ex1/Hands_on_Ex1b_files/figure-html/unnamed-chunk-25-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<blockquote class="blockquote">
+<p>Increasing the number of classes may not always be beneficial for the analysis: In the <code>equal</code> data classification method, the additional classes added more colours to the legend without meaningful impact on the map. For <code>quantile</code> data classification method, the additional number of classes appeared to be useful up until around n=10 – beyond that, again, the additional colours did not value-add to the map.</p>
+</blockquote>
+</section>
+<section id="plotting-choropleth-map-with-custom-breaks-fixed-data-classification" class="level3">
+<h3 class="anchored" data-anchor-id="plotting-choropleth-map-with-custom-breaks-fixed-data-classification">Plotting choropleth map with custom breaks (Fixed Data Classification)</h3>
+<p>For all the built-in styles, the category breaks are computed internally. In order to override these defaults, the breakpoints can be set explicitly by means of the breaks argument to the <code>tm_fill()</code>.</p>
+<blockquote class="blockquote">
+<p>In <strong>tmap</strong>, the breaks include a minimum and maximum. Hence, for n categories, n+1 elements must be specified in the breaks option in increasing order.</p>
+</blockquote>
+<p>Descriptive statistics on the variable can be used to guide the setting of the break points.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">summary</span>(mpsz_pop2020<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>DEPENDENCY)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+ 0.0000  0.6519  0.7025  0.7742  0.7645 19.0000      92 </code></pre>
+</div>
+</div>
+<p>With reference to the results above, we set break point at 0.60, 0.65, 0.70, 0.75 and 0.80. In addition, we also need to include a minimum and maximum, which we set at 0 and 100. Hence, we set the <code>breaks</code> vector as <code>c(0, 0.60, 0.65, 0.70, 0.75, 0.80, 1.00)</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_shape</span>(mpsz_pop2020)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb31-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_fill</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"DEPENDENCY"</span>,</span>
+<span id="cb31-3">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">breaks =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.60</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.65</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.70</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.75</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.80</span>, <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.00</span>)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb31-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_borders</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://geospatial2023.netlify.app/Hands_on_Exercise/Ex1/Hands_on_Ex1b_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="colour-scheme" class="level3">
+<h3 class="anchored" data-anchor-id="colour-scheme">Colour Scheme</h3>
+<p><strong>tmap</strong> supports colour ramps either defined by the user or a set of predefined colour ramps from the <strong>RColorBrewer</strong> package. To change the colour, assign the preferred colour to palette argument of <code>tm_fill()</code> as shown in the code chunk below.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_shape</span>(mpsz_pop2020)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb32-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_fill</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"DEPENDENCY"</span>,</span>
+<span id="cb32-3">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span>,</span>
+<span id="cb32-4">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">style =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"jenks"</span>,</span>
+<span id="cb32-5">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">palette =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Blues"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb32-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_borders</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://geospatial2023.netlify.app/Hands_on_Exercise/Ex1/Hands_on_Ex1b_files/figure-html/unnamed-chunk-28-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>To reverse the colour shading, add a “-” prefix.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_shape</span>(mpsz_pop2020)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb33-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_fill</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"DEPENDENCY"</span>,</span>
+<span id="cb33-3">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span>,</span>
+<span id="cb33-4">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">style =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"jenks"</span>,</span>
+<span id="cb33-5">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">palette =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"-Blues"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb33-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_borders</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://geospatial2023.netlify.app/Hands_on_Exercise/Ex1/Hands_on_Ex1b_files/figure-html/unnamed-chunk-29-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="map-layouts" class="level3">
+<h3 class="anchored" data-anchor-id="map-layouts">Map Layouts</h3>
+<p>Map layout refers to the combination of all map elements into a cohensive map. Map elements include among others the objects to be mapped, the title, the scale bar, the compass, margins and aspects ratios. Colour settings and data classification methods covered in the previous section relate to the palette and break-points are used to affect how the map looks. In <strong>tmap</strong>, several legend options are provided to change the placement, format and appearance of the legend.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_shape</span>(mpsz_pop2020)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb34-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_fill</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"DEPENDENCY"</span>, </span>
+<span id="cb34-3">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">style =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"jenks"</span>, </span>
+<span id="cb34-4">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">palette =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Blues"</span>, </span>
+<span id="cb34-5">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.hist =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>, </span>
+<span id="cb34-6">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.is.portrait =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>,</span>
+<span id="cb34-7">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.hist.z =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb34-8">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_layout</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">main.title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Distribution of Dependency Ratio by planning subzone </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">(Jenks classification)"</span>,</span>
+<span id="cb34-9">            <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">main.title.position =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"center"</span>,</span>
+<span id="cb34-10">            <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">main.title.size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>,</span>
+<span id="cb34-11">            <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.height =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.45</span>, </span>
+<span id="cb34-12">            <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.width =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.35</span>,</span>
+<span id="cb34-13">            <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.outside =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>,</span>
+<span id="cb34-14">            <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.position =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"right"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bottom"</span>),</span>
+<span id="cb34-15">            <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">frame =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb34-16">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_borders</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://geospatial2023.netlify.app/Hands_on_Exercise/Ex1/Hands_on_Ex1b_files/figure-html/unnamed-chunk-30-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p><strong>tmap</strong> allows a wide variety of layout settings to be changed. They can be called by using <code>tmap_style()</code>. The code chunk below uses the <code>classic</code> style.</p>
+<blockquote class="blockquote">
+<p>Other available styles are: “white”, “gray”, “natural”, “cobalt”, “col_blind”, “albatross”, “beaver”, “bw”, “watercolor”.</p>
+</blockquote>
+<blockquote class="blockquote">
+<p>To reset to the default style use <code>tmap_style("white")</code>.</p>
+</blockquote>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_shape</span>(mpsz_pop2020)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb35-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_fill</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"DEPENDENCY"</span>, </span>
+<span id="cb35-3">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">style =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"quantile"</span>, </span>
+<span id="cb35-4">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">palette =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"-Greens"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb35-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_borders</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb35-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tmap_style</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"classic"</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://geospatial2023.netlify.app/Hands_on_Exercise/Ex1/Hands_on_Ex1b_files/figure-html/unnamed-chunk-31-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Beside map style, <strong>tmap</strong> also also provides arguments to draw other map furniture such as compass using <code>tm_compass()</code>, scale bar using <code>tm_scale_bar()</code> and grid lines using <code>tm_grid()</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_shape</span>(mpsz_pop2020)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb36-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_fill</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"DEPENDENCY"</span>, </span>
+<span id="cb36-3">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">style =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"quantile"</span>, </span>
+<span id="cb36-4">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">palette =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Blues"</span>,</span>
+<span id="cb36-5">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"No. of persons"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb36-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_layout</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">main.title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Distribution of Dependency Ratio </span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">by planning subzone"</span>,</span>
+<span id="cb36-7">            <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">main.title.position =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"center"</span>,</span>
+<span id="cb36-8">            <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">main.title.size =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.2</span>,</span>
+<span id="cb36-9">            <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.height =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.45</span>, </span>
+<span id="cb36-10">            <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.width =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.35</span>,</span>
+<span id="cb36-11">            <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">frame =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb36-12">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_borders</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb36-13">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_compass</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">type=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"8star"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb36-14">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_scale_bar</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">width =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.15</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb36-15">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_grid</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">lwd =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.2</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb36-16">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_credits</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Source: Planning Subzone boundary from Urban Redevelopment Authorithy (URA)</span></span>
+<span id="cb36-17"><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">             and Population data from Department of Statistics DOS"</span>, </span>
+<span id="cb36-18">             <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">position =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"left"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bottom"</span>))</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://geospatial2023.netlify.app/Hands_on_Exercise/Ex1/Hands_on_Ex1b_files/figure-html/unnamed-chunk-32-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="small-multiple-choropleth-maps-facet-choropleth-maps" class="level3">
+<h3 class="anchored" data-anchor-id="small-multiple-choropleth-maps-facet-choropleth-maps">Small Multiple Choropleth Maps (Facet Choropleth Maps)</h3>
+<p>Small multiple maps, also referred to as facet maps, are composed of many maps arrange side-by-side, and sometimes stacked vertically. Small multiple maps enable the visualisation of how spatial relationships change with respect to another variable, such as time.</p>
+<p>In <strong>tmap</strong>, small multiple maps can be plotted in three ways:</p>
+<ul>
+<li>by assigning multiple values to at least one of the aesthetic arguments,</li>
+<li>by defining a group-by variable in <code>tm_facets()</code>, and</li>
+<li>by creating multiple stand-alone maps with <code>tmap_arrange()</code>.</li>
+</ul>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs"><li class="nav-item"><a class="nav-link active" id="tabset-3-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-1" aria-controls="tabset-3-1" aria-selected="true">By assigning multiple values to aesthetic arguments</a></li><li class="nav-item"><a class="nav-link" id="tabset-3-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-2" aria-controls="tabset-3-2" aria-selected="false">By defining a group-by variable in tm_facets()</a></li><li class="nav-item"><a class="nav-link" id="tabset-3-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-3" aria-controls="tabset-3-3" aria-selected="false">By creating multiple stand-alone maps with tmap_arrange()</a></li></ul>
+<div class="tab-content">
+<div id="tabset-3-1" class="tab-pane active" aria-labelledby="tabset-3-1-tab">
+<p>Small multiple choropleth maps can be created by defining <code>ncols</code> in <code>tm_fill()</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_shape</span>(mpsz_pop2020)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb37-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_fill</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"YOUNG"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"AGED"</span>),</span>
+<span id="cb37-3">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">style =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"equal"</span>, </span>
+<span id="cb37-4">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">palette =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Blues"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb37-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_layout</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.position =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"right"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bottom"</span>)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb37-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_borders</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb37-7">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tmap_style</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"white"</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://geospatial2023.netlify.app/Hands_on_Exercise/Ex1/Hands_on_Ex1b_files/figure-html/unnamed-chunk-33-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>It is also possible to assign multiple values to at least one of the aesthetic arguments.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_shape</span>(mpsz_pop2020)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> </span>
+<span id="cb38-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_polygons</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"DEPENDENCY"</span>,<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"AGED"</span>),</span>
+<span id="cb38-3">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">style =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"equal"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"quantile"</span>), </span>
+<span id="cb38-4">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">palette =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Blues"</span>,<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Purples"</span>)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb38-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_layout</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.position =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"right"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bottom"</span>))</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://geospatial2023.netlify.app/Hands_on_Exercise/Ex1/Hands_on_Ex1b_files/figure-html/unnamed-chunk-34-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</div>
+<div id="tabset-3-2" class="tab-pane" aria-labelledby="tabset-3-2-tab">
+<p>Small multiple choropleth maps can be created by using <code>tm_facets()</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_shape</span>(mpsz_pop2020) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb39-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_fill</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"DEPENDENCY"</span>,</span>
+<span id="cb39-3">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">style =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"quantile"</span>,</span>
+<span id="cb39-4">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">palette =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Blues"</span>,</span>
+<span id="cb39-5">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">thres.poly =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> </span>
+<span id="cb39-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_facets</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">by=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"REGION_N"</span>, </span>
+<span id="cb39-7">            <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">free.coords=</span><span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>, </span>
+<span id="cb39-8">            <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">drop.shapes=</span><span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb39-9">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_layout</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.show =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>,</span>
+<span id="cb39-10">            <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title.position =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"center"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"center"</span>), </span>
+<span id="cb39-11">            <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title.size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">20</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb39-12">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_borders</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://geospatial2023.netlify.app/Hands_on_Exercise/Ex1/Hands_on_Ex1b_files/figure-html/unnamed-chunk-35-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</div>
+<div id="tabset-3-3" class="tab-pane" aria-labelledby="tabset-3-3-tab">
+<p>Small multiple choropleth maps can be created by creating multiple stand-alone maps with <code>tmap_arrange()</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1">youngmap <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_shape</span>(mpsz_pop2020)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> </span>
+<span id="cb40-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_polygons</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"YOUNG"</span>, </span>
+<span id="cb40-3">              <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">style =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"quantile"</span>, </span>
+<span id="cb40-4">              <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">palette =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Blues"</span>)</span>
+<span id="cb40-5"></span>
+<span id="cb40-6">agedmap <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_shape</span>(mpsz_pop2020)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span> </span>
+<span id="cb40-7">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_polygons</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"AGED"</span>, </span>
+<span id="cb40-8">              <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">style =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"quantile"</span>, </span>
+<span id="cb40-9">              <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">palette =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Blues"</span>)</span>
+<span id="cb40-10"></span>
+<span id="cb40-11"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tmap_arrange</span>(youngmap, agedmap, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">asp=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ncol=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://geospatial2023.netlify.app/Hands_on_Exercise/Ex1/Hands_on_Ex1b_files/figure-html/unnamed-chunk-36-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="mappping-spatial-object-meeting-a-selection-criterion" class="level3">
+<h3 class="anchored" data-anchor-id="mappping-spatial-object-meeting-a-selection-criterion">Mappping Spatial Object Meeting a Selection Criterion</h3>
+<p>Instead of creating small multiple choropleth map, it is also possible to use selection function to map spatial objects meeting the selection criterion.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_shape</span>(mpsz_pop2020[mpsz_pop2020<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>REGION_N<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"CENTRAL REGION"</span>, ])<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb41-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_fill</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"DEPENDENCY"</span>, </span>
+<span id="cb41-3">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">style =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"quantile"</span>, </span>
+<span id="cb41-4">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">palette =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Blues"</span>, </span>
+<span id="cb41-5">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.hist =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>, </span>
+<span id="cb41-6">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.is.portrait =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>,</span>
+<span id="cb41-7">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.hist.z =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.1</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb41-8">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_layout</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.outside =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>,</span>
+<span id="cb41-9">            <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.height =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.45</span>, </span>
+<span id="cb41-10">            <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.width =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5.0</span>,</span>
+<span id="cb41-11">            <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.position =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"right"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bottom"</span>),</span>
+<span id="cb41-12">            <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">frame =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb41-13">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_borders</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://geospatial2023.netlify.app/Hands_on_Exercise/Ex1/Hands_on_Ex1b_files/figure-html/unnamed-chunk-37-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+
+
+</section>
+</section>
+
+ ]]></description>
+  <guid>https://geospatial2023.netlify.app/Hands_on_Exercise/Ex1/Hands_on_Ex1b.html</guid>
+  <pubDate>Thu, 16 Nov 2023 16:00:00 GMT</pubDate>
+</item>
+<item>
+  <title>2a: Spatial Weights and Applications</title>
+  <dc:creator>Magdalene Chan</dc:creator>
+  <link>https://geospatial2023.netlify.app/Hands_on_Exercise/Ex2/Hands_on_Ex2a.html</link>
+  <description><![CDATA[ 
+
+
+
+<p>Placeholder</p>
+
+
+
+ ]]></description>
+  <guid>https://geospatial2023.netlify.app/Hands_on_Exercise/Ex2/Hands_on_Ex2a.html</guid>
+  <pubDate>Fri, 17 Nov 2023 12:42:14 GMT</pubDate>
+</item>
+<item>
+  <title>2b: Global Measures of Spatial Autocorrelation</title>
+  <dc:creator>Magdalene Chan</dc:creator>
+  <link>https://geospatial2023.netlify.app/Hands_on_Exercise/Ex2/Hands_on_Ex2b.html</link>
+  <description><![CDATA[ 
+
+
+
+<p>Placeholder</p>
+
+
+
+ ]]></description>
+  <guid>https://geospatial2023.netlify.app/Hands_on_Exercise/Ex2/Hands_on_Ex2b.html</guid>
+  <pubDate>Fri, 17 Nov 2023 12:42:14 GMT</pubDate>
+</item>
+<item>
+  <title>2c: Local Measures of Spatial Autocorrelation</title>
+  <dc:creator>Magdalene Chan</dc:creator>
+  <link>https://geospatial2023.netlify.app/Hands_on_Exercise/Ex2/Hands_on_Ex2c.html</link>
+  <description><![CDATA[ 
+
+
+
+<p>Placeholder</p>
+
+
+
+ ]]></description>
+  <guid>https://geospatial2023.netlify.app/Hands_on_Exercise/Ex2/Hands_on_Ex2c.html</guid>
+  <pubDate>Fri, 17 Nov 2023 12:42:14 GMT</pubDate>
+</item>
+<item>
+  <title>3: Spatial Interaction Models</title>
+  <dc:creator>Magdalene Chan</dc:creator>
+  <link>https://geospatial2023.netlify.app/Hands_on_Exercise/Ex3/Hands_on_Ex3.html</link>
+  <description><![CDATA[ 
+
+
+
+<p>Placeholder</p>
+
+
+
+ ]]></description>
+  <guid>https://geospatial2023.netlify.app/Hands_on_Exercise/Ex3/Hands_on_Ex3.html</guid>
+  <pubDate>Fri, 17 Nov 2023 12:42:14 GMT</pubDate>
+</item>
+<item>
+  <title>4: Geographically Weighted Regression</title>
+  <dc:creator>Magdalene Chan</dc:creator>
+  <link>https://geospatial2023.netlify.app/Hands_on_Exercise/Ex4/Hands_on_Ex4.html</link>
+  <description><![CDATA[ 
+
+
+
+<p>Placeholder</p>
+
+
+
+ ]]></description>
+  <guid>https://geospatial2023.netlify.app/Hands_on_Exercise/Ex4/Hands_on_Ex4.html</guid>
+  <pubDate>Fri, 17 Nov 2023 12:42:14 GMT</pubDate>
+</item>
+</channel>
+</rss>

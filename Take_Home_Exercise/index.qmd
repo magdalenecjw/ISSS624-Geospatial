@@ -1,0 +1,16 @@
+---
+pagetitle: Take Home Exercise | Geospatial Analytics
+title: Take Home Exercise
+search: false
+listing:
+  contents: 
+  - Ex1/Take_home_Ex1.qmd
+  - Ex2/Take_home_Ex2.qmd
+  - "!index.qmd"
+  type: grid
+  categories: true
+  sort-ui: false
+  filter-ui: false
+  page-size: 30
+  feed: true
+---
