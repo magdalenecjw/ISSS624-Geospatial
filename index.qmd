@@ -57,8 +57,7 @@ toc: false
 ::: {.content-container}
 ::: {.header-block}
 <br/>
-Welcome to **Geospatial Analytics**. <br/>
-In this site, you will find a showcase of the exercises I have done for the SMU MITB course <a href="https://isss624-ay2023-24nov.netlify.app/">ISSS624 Applied Geospatial Analytics</a>.
+Welcome to **Geospatial Analytics**. In this site, you will find a showcase of the exercises I have done for the SMU MITB course <a href="https://isss624-ay2023-24nov.netlify.app/">ISSS624 Applied Geospatial Analytics</a>.
 :::
 :::
 :::
