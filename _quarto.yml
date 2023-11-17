@@ -19,15 +19,15 @@ website:
       - text: "Hands-on Exercise"
         menu: 
         - text: "Exercise 1"
-          href: Hands_on_Exercise/Hands_on_Ex1.qmd
+          href: Hands_on_Exercise/Ex1/Hands_on_Ex1.qmd
         - text: "Exercise 2"
-          href: Hands_on_Exercise/Hands_on_Ex2.qmd
+          href: Hands_on_Exercise/Ex2/Hands_on_Ex2.qmd
       - text: "Take Home Exercise"
         menu: 
         - text: "Exercise 1"
-          href: Take_Home_Exercise/Take_home_Ex1.qmd
+          href: Take_Home_Exercise/Ex1/Take_home_Ex1.qmd
         - text: "Exercise 2"
-          href: Take_Home_Exercise/Take_home_Ex2.qmd
+          href: Take_Home_Exercise/Ex2/Take_home_Ex2.qmd
 
   page-navigation: true
 
