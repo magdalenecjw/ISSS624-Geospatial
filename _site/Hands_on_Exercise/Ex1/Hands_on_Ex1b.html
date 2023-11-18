@@ -242,13 +242,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     </div>
   </div>
   
+    <div>
+    <div class="quarto-title-meta-heading">Modified</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date-modified">November 18, 2023</p>
+    </div>
+  </div>
     
   </div>
   
 
 </header>
 
-<p>Choropleth mapping involves the symbolisation of enumeration units, such as countries, provinces, states, counties or census units, using area patterns or graduated colors. For example, the spatial distribution of aged population of Singapore could be represented on a choropleth map using the Master Plan 2014 Subzone Boundary. In R, choropleth maps can be plotted using the <strong>tmap</strong> package.</p>
+<p>A choropleth map is a type of thematic map in which areas are shaded or patterned in proportion to a statistical variable that represents an aggregate summary of a geographic characteristic within each area, such as population or per-capita income. For example, the spatial distribution of aged population of Singapore could be represented on a choropleth map using the Master Plan 2014 Subzone Boundary. In R, choropleth maps can be plotted using the <strong>tmap</strong> package.</p>
 <section id="getting-started" class="level2">
 <h2 class="anchored" data-anchor-id="getting-started">Getting started</h2>
 <p>The code chunk below uses <code>p_load()</code> of <strong>pacman</strong> package to check if the required packages have been installed on the computer. If they are, the packages will be launched.</p>
@@ -452,7 +458,12 @@ First 10 features:
 </section>
 <section id="data-classification-methods-of-tmap" class="level3">
 <h3 class="anchored" data-anchor-id="data-classification-methods-of-tmap">Data Classification Methods of tmap</h3>
-<p>Most choropleth maps employ some methods of data classification. The point of classification is to take a large number of observations and group them into data ranges or classes. To define a data classification method, use the <code>style</code> argument of <code>tm_fill()</code> or <code>tm_polygons()</code>.</p>
+<p>Choropleth maps can be either classified or unclassified:</p>
+<ul>
+<li>Classed choropleth maps: The point of classification is to take a large number of observations and group them into data ranges or classes. To define a data classification method, use the <code>style</code> argument of <code>tm_fill()</code> or <code>tm_polygons()</code>.</li>
+<li>Unclassed choropleth maps: Similar to classed choropleth maps but they do not have an averaged statistic towards each particular colour.</li>
+</ul>
+<p>There are many methods of choosing classes and could be based on the nature of distribution (e.g.&nbsp;quantile, equal interval, natural breaks) or arbitrary (e.g.&nbsp;fixed round numbers, census housing categories).</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Equal: 5 classes</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">Standard Deviation: 5 classes</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false">Quantile: 5 classes</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-4-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-4" role="tab" aria-controls="tabset-1-4" aria-selected="false">Jenks: 5 classes</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-5-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-5" role="tab" aria-controls="tabset-1-5" aria-selected="false">KMeans: 5 classes</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-6-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-6" role="tab" aria-controls="tabset-1-6" aria-selected="false">Fisher: 5 classes</a></li></ul>
 <div class="tab-content">
@@ -468,7 +479,7 @@ First 10 features:
 </div>
 </div>
 <blockquote class="blockquote">
-<p>The <code>equal</code> style divides input values into bins of equal range. In variables with a skewed distribution, the resulting map is likely to end up with little color diversity.</p>
+<p>The <code>equal</code> style divides the attribute values into equally sized classes. In variables with a skewed distribution or there are a couple of very large outliers, the resulting map is likely to end up with empty classes with little colour diversity.</p>
 </blockquote>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
@@ -498,7 +509,7 @@ First 10 features:
 </div>
 </div>
 <blockquote class="blockquote">
-<p>The <code>quantile</code> style creates breaks with an equal number of features (polygons).</p>
+<p>The <code>quantile</code> style creates breaks with the same number of features per class.</p>
 </blockquote>
 </div>
 <div id="tabset-1-4" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-4-tab">

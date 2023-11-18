@@ -2,11 +2,12 @@
 title: "1b: Choropleth Mapping with R"
 author: "Magdalene Chan"
 date: 2023-11-17
+date-modified: "last-modified"
 execute: 
   warning: false
 ---
 
-Choropleth mapping involves the symbolisation of enumeration units, such as countries, provinces, states, counties or census units, using area patterns or graduated colors. For example, the spatial distribution of aged population of Singapore could be represented on a choropleth map using the Master Plan 2014 Subzone Boundary. In R, choropleth maps can be plotted using the **tmap** package.
+A choropleth map is a type of thematic map in which areas are shaded or patterned in proportion to a statistical variable that represents an aggregate summary of a geographic characteristic within each area, such as population or per-capita income. For example, the spatial distribution of aged population of Singapore could be represented on a choropleth map using the Master Plan 2014 Subzone Boundary. In R, choropleth maps can be plotted using the **tmap** package.
 
 ## Getting started
 
@@ -155,7 +156,12 @@ tm_shape(mpsz_pop2020)+
 
 ### Data Classification Methods of tmap
 
-Most choropleth maps employ some methods of data classification. The point of classification is to take a large number of observations and group them into data ranges or classes. To define a data classification method, use the `style` argument of `tm_fill()` or `tm_polygons()`.
+Choropleth maps can be either classified or unclassified:
+
+* Classed choropleth maps: The point of classification is to take a large number of observations and group them into data ranges or classes. To define a data classification method, use the `style` argument of `tm_fill()` or `tm_polygons()`.
+* Unclassed choropleth maps: Similar to classed choropleth maps but they do not have an averaged statistic towards each particular colour.
+
+There are many methods of choosing classes and could be based on the nature of distribution (e.g. quantile, equal interval, natural breaks) or arbitrary (e.g. fixed round numbers, census housing categories).
 
 ::: panel-tabset
 ### Equal: 5 classes
@@ -168,7 +174,7 @@ tm_shape(mpsz_pop2020)+
   tm_borders(alpha = 0.5)
 ```
 
-> The `equal` style divides input values into bins of equal range. In variables with a skewed distribution, the resulting map is likely to end up with little color diversity.
+> The `equal` style divides the attribute values into equally sized classes. In variables with a skewed distribution or there are a couple of very large outliers, the resulting map is likely to end up with empty classes with little colour diversity.
 
 ### Standard Deviation: 5 classes
 
@@ -192,7 +198,7 @@ tm_shape(mpsz_pop2020)+
   tm_borders(alpha = 0.5)
 ```
 
-> The `quantile` style creates breaks with an equal number of features (polygons).
+> The `quantile` style creates breaks with the same number of features per class.
 
 ### Jenks: 5 classes
 

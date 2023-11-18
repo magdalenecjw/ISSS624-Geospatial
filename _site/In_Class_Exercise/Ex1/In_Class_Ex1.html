@@ -9,7 +9,7 @@
 <meta name="author" content="Magdalene Chan">
 <meta name="dcterms.date" content="2023-11-18">
 
-<title>Geospatial Analytics - In-Class Exercise 1</title>
+<title>Geospatial Analytics - 1: Urban Mobility Analysis</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -99,7 +99,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <link rel="stylesheet" href="../../styles.css">
-<meta property="og:title" content="Geospatial Analytics - In-Class Exercise 1">
+<meta property="og:title" content="Geospatial Analytics - 1: Urban Mobility Analysis">
 <meta property="og:description" content="">
 <meta property="og:site-name" content="Geospatial Analytics">
 </head>
@@ -190,9 +190,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#getting-started" id="toc-getting-started" class="nav-link active" data-scroll-target="#getting-started">Getting started</a>
+  <li><a href="#getting-started" id="toc-getting-started" class="nav-link active" data-scroll-target="#getting-started">Getting started</a></li>
+  <li><a href="#import-passenger-volume-by-origin-destination-bus-stops" id="toc-import-passenger-volume-by-origin-destination-bus-stops" class="nav-link" data-scroll-target="#import-passenger-volume-by-origin-destination-bus-stops">Import Passenger Volume by Origin-Destination Bus Stops</a></li>
+  <li><a href="#extract-commuting-flow-data" id="toc-extract-commuting-flow-data" class="nav-link" data-scroll-target="#extract-commuting-flow-data">Extract Commuting Flow data</a></li>
+  <li><a href="#import-geospatial-data" id="toc-import-geospatial-data" class="nav-link" data-scroll-target="#import-geospatial-data">Import Geospatial Data</a>
   <ul class="collapse">
-  <li><a href="#import-passenger-volume-by-origin-destination-bus-stops" id="toc-import-passenger-volume-by-origin-destination-bus-stops" class="nav-link" data-scroll-target="#import-passenger-volume-by-origin-destination-bus-stops">Import Passenger Volume by Origin Destination Bus Stops</a></li>
   <li><a href="#import-bus-stop-locations" id="toc-import-bus-stop-locations" class="nav-link" data-scroll-target="#import-bus-stop-locations">Import Bus Stop Locations</a></li>
   <li><a href="#import-planning-subzone-data" id="toc-import-planning-subzone-data" class="nav-link" data-scroll-target="#import-planning-subzone-data">Import Planning Subzone data</a></li>
   </ul></li>
@@ -204,7 +206,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">In-Class Exercise 1</h1>
+<h1 class="title">1: Urban Mobility Analysis</h1>
 </div>
 
 
@@ -225,39 +227,70 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     </div>
   </div>
   
+    <div>
+    <div class="quarto-title-meta-heading">Modified</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date-modified">November 18, 2023</p>
+    </div>
+  </div>
     
   </div>
   
 
 </header>
 
+<p>Urban Mobility analysis by using passenger volume by origin-destination bus stops.</p>
 <section id="getting-started" class="level2">
 <h2 class="anchored" data-anchor-id="getting-started">Getting started</h2>
-<p>The code chunk below uses p_load() of pacman package to check if the required packages have been installed on the computer. If they are, the packages will be launched.</p>
+<p>The code chunk below uses p_load() of pacman package to check if the required packages have been installed on the computer. If they are, the packages will be launched. The packages used are:</p>
+<ul>
+<li><strong>tmap</strong>: for thematic mapping</li>
+<li><strong>sf</strong>: for geospatial data wrangling</li>
+<li><strong>tidyverse</strong>: for non-spatial data wrangling</li>
+</ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(tmap, sf, tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<section id="import-passenger-volume-by-origin-destination-bus-stops" class="level3">
-<h3 class="anchored" data-anchor-id="import-passenger-volume-by-origin-destination-bus-stops">Import Passenger Volume by Origin Destination Bus Stops</h3>
+<p>The data sets used are:</p>
+<ul>
+<li>Master Plan 2019 Subzone Boundary (No Sea) (last updated Dec 2019) from <a href="https://beta.data.gov.sg/collections/1749/view">data.gov.sg</a> - reformatted into shapefile format</li>
+<li>Bus Stop Location (Last updated Jul 2023) from <a href="https://datamall.lta.gov.sg/content/datamall/en/static-data.html">LTADataMall</a> retrieved on 18 Nov 2023</li>
+<li>Passenger Volume by Origin Destination Bus Stops for Aug-Oct 2023 from <a href="https://datamall.lta.gov.sg/content/datamall/en/dynamic-data.html">LTADataMall</a> retrieved on 18 Nov 2023</li>
+</ul>
+</section>
+<section id="import-passenger-volume-by-origin-destination-bus-stops" class="level2">
+<h2 class="anchored" data-anchor-id="import-passenger-volume-by-origin-destination-bus-stops">Import Passenger Volume by Origin-Destination Bus Stops</h2>
+<p>The code chunk below uses the <code>read_csv()</code> function of <strong>readr</strong> package to import the csv file into R and save it as a R dataframe called <code>odbus</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>odbus <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/aspatial/origin_destination_bus_202310.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Rows: 5694297 Columns: 7
-── Column specification ────────────────────────────────────────────────────────
-Delimiter: ","
-chr (5): YEAR_MONTH, DAY_TYPE, PT_TYPE, ORIGIN_PT_CODE, DESTINATION_PT_CODE
-dbl (2): TIME_PER_HOUR, TOTAL_TRIPS
-
-ℹ Use `spec()` to retrieve the full column specification for this data.
-ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>odbus <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/aspatial/origin_destination_bus_202308.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p><code>ORIGIN_PT_CODE</code> and <code>DESTINATION_PT_CODE</code> are numeric variables that are categorical in nature. As such, they should be transformed to factor so that R treats them as a grouping variable.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>odbus<span class="sc">$</span>ORIGIN_PT_CODE <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(odbus<span class="sc">$</span>ORIGIN_PT_CODE)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>odbus<span class="sc">$</span>DESTINATION_PT_CODE <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(odbus<span class="sc">$</span>DESTINATION_PT_CODE)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
+<section id="extract-commuting-flow-data" class="level2">
+<h2 class="anchored" data-anchor-id="extract-commuting-flow-data">Extract Commuting Flow data</h2>
+<p>The code chunk below extracts commuting flows on weekday during the rush hour (7am, 8am, 9am).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>origtrip_7_9 <span class="ot">&lt;-</span> odbus <span class="sc">%&gt;%</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(DAY_TYPE <span class="sc">==</span> <span class="st">"WEEKDAY"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(TIME_PER_HOUR <span class="sc">&gt;=</span> <span class="dv">7</span> <span class="sc">&amp;</span> TIME_PER_HOUR <span class="sc">&lt;=</span> <span class="dv">9</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(ORIGIN_PT_CODE) <span class="sc">%&gt;%</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">TRIPS =</span> <span class="fu">sum</span>(TOTAL_TRIPS))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="import-geospatial-data" class="level2">
+<h2 class="anchored" data-anchor-id="import-geospatial-data">Import Geospatial Data</h2>
+<p>Two geospatial data are used in this exercise.</p>
 <section id="import-bus-stop-locations" class="level3">
 <h3 class="anchored" data-anchor-id="import-bus-stop-locations">Import Bus Stop Locations</h3>
+<p>The code chunk below uses the <code>st_read()</code> function of <strong>sf</strong> package to import <code>BusStop</code> shapefile into R as a simple feature data frame called <code>BusStop</code>. As <code>BusStop</code> uses <strong>svy21</strong> projected coordinate system, the <code>crs</code> is set to 3414.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>BusStop <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"data/geospatial"</span>, </span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>                <span class="at">layer =</span> <span class="st">"BusStop"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>BusStop <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"data/geospatial"</span>, </span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>                <span class="at">layer =</span> <span class="st">"BusStop"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs=</span><span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Reading layer `BusStop' from data source 
   `C:\magdalenecjw\ISSS624 Geospatial\In_Class_Exercise\Ex1\data\geospatial' 
@@ -272,9 +305,11 @@ Projected CRS: SVY21</code></pre>
 </section>
 <section id="import-planning-subzone-data" class="level3">
 <h3 class="anchored" data-anchor-id="import-planning-subzone-data">Import Planning Subzone data</h3>
+<p>The code chunk below uses the <code>st_read()</code> function of <strong>sf</strong> package to import <code>MPSZ-2019</code> shapefile into R as a simple feature data frame called <code>mpsz</code>. To ensure we can use <code>mpsz</code> together with <code>BusStop</code>, <code>mpsz</code> is reprojected to the <strong>svy21</strong> projected coordinate system (<code>crs=3413</code>).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>mpsz <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"data/geospatial"</span>, </span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>                <span class="at">layer =</span> <span class="st">"MPSZ-2019"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>mpsz <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"data/geospatial"</span>, </span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>                <span class="at">layer =</span> <span class="st">"MPSZ-2019"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs=</span><span class="dv">3414</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Reading layer `MPSZ-2019' from data source 
   `C:\magdalenecjw\ISSS624 Geospatial\In_Class_Exercise\Ex1\data\geospatial' 

@@ -251,6 +251,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     </div>
   </div>
   
+    <div>
+    <div class="quarto-title-meta-heading">Modified</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date-modified">November 18, 2023</p>
+    </div>
+  </div>
     
   </div>
   
@@ -298,7 +304,7 @@ Projected CRS: SVY21</code></pre>
 </div>
 <p>There are a total of 323 multipolygon features and 15 fields in <code>mpsz</code> simple feature data frame. <code>mpsz</code> is in <strong>svy21</strong> projected coordinate system.</p>
 <blockquote class="blockquote">
-<p><strong>svy21</strong> (or <strong>Singapore SVY21 Projected Coordinate System</strong>) is a coordinate system used by Singapore that is based on the Transverse Mercator projection from geographical coordinates referenced to the WGS 84 ellipsoid.</p>
+<p><strong>svy21</strong> (or <strong>Singapore SVY21 Projected Coordinate System</strong>) is a projected coordinate system used by Singapore that is based on the Transverse Mercator projection from geographical coordinates referenced to the WGS 84 ellipsoid.</p>
 </blockquote>
 <blockquote class="blockquote">
 <p>The bounding box provides the x extend and y extend of the data.</p>
@@ -345,7 +351,7 @@ Geodetic CRS:  WGS 84</code></pre>
 </div>
 <p>There are a total of 2290 features and 2 fields in <code>preschool</code> point feature data frame. Unlike the above two simple feature data frames, <code>preschool</code> is in <strong>wgs84</strong> geographic coordinate system.</p>
 <blockquote class="blockquote">
-<p><strong>wgs84</strong> is the current version of the World Geodetic System (WGS), which is a standard used in cartography, geodesy, and satellite navigation including GPS.</p>
+<p><strong>wgs84</strong> is the current version of the World Geodetic System (WGS), which is a standard used in cartography, geodesy, and satellite navigation including GPS. It is a geographic coordinate system, which defines locations on the earth using a three-dimensional spherical surface.</p>
 </blockquote>
 </section>
 </section>
@@ -613,7 +619,7 @@ PROJCRS["SVY21 / Singapore TM",
 </section>
 <section id="transforming-data-to-projected-coordinate-system" class="level3">
 <h3 class="anchored" data-anchor-id="transforming-data-to-projected-coordinate-system">Transforming data to projected coordinate system</h3>
-<p>In geospatial analytics, it is common to transform the original data from geographic coordinate system to projected coordinate system. Geographic coordinate system is inappropriate if the analysis requires the use of distance or/and area measurements. <code>st_transform()</code> of <strong>sf</strong> package reprojects data frames from one coordinate system to another coordinate system mathematically.</p>
+<p>In geospatial analytics, it is common to transform the original data from geographic coordinate system (GCS) to projected coordinate system (PCS). GCS is inappropriate if the analysis requires the use of distance or/and area measurements as 1 degree distance at the poles is relatively shorter than 1 degree at the equator. In contrast, PCS provides consistent length and area measurement across space. <code>st_transform()</code> of <strong>sf</strong> package helps to reproject data frames from one coordinate system to another coordinate system mathematically.</p>
 <p>As <code>preschool</code> data frame is in <strong>wgs84</strong> coordinate system, it can be transformed into <strong>svy21</strong> projected coordinate system (<code>crs</code> = 3413).</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>preschool3414 <span class="ot">&lt;-</span> <span class="fu">st_transform</span>(preschool, </span>

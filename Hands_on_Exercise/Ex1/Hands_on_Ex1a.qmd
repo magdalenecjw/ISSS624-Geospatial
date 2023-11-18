@@ -2,6 +2,7 @@
 title: "1a: Geospatial Data Wrangling with R"
 author: "Magdalene Chan"
 date: 2023-11-17
+date-modified: "last-modified"
 execute: 
   warning: false
 ---
@@ -38,7 +39,7 @@ mpsz = st_read(dsn = "data/geospatial",
 
 There are a total of 323 multipolygon features and 15 fields in `mpsz` simple feature data frame. `mpsz` is in **svy21** projected coordinate system.
 
-> **svy21** (or **Singapore SVY21 Projected Coordinate System**) is a coordinate system used by Singapore that is based on the Transverse Mercator projection from geographical coordinates referenced to the WGS 84 ellipsoid.
+> **svy21** (or **Singapore SVY21 Projected Coordinate System**) is a projected coordinate system used by Singapore that is based on the Transverse Mercator projection from geographical coordinates referenced to the WGS 84 ellipsoid.
 
 > The bounding box provides the x extend and y extend of the data.
 
@@ -65,7 +66,7 @@ preschool = st_read("data/geospatial/PreSchoolsLocation.kml")
 
 There are a total of 2290 features and 2 fields in `preschool` point feature data frame. Unlike the above two simple feature data frames, `preschool` is in **wgs84** geographic coordinate system.
 
-> **wgs84** is the current version of the World Geodetic System (WGS), which is a standard used in cartography, geodesy, and satellite navigation including GPS.
+> **wgs84** is the current version of the World Geodetic System (WGS), which is a standard used in cartography, geodesy, and satellite navigation including GPS. It is a geographic coordinate system, which defines locations on the earth using a three-dimensional spherical surface. 
 
 ## Checking data content of Simple Feature Data Frame
 
@@ -172,7 +173,7 @@ st_crs(mpsz3414)
 
 ### Transforming data to projected coordinate system
 
-In geospatial analytics, it is common to transform the original data from geographic coordinate system to projected coordinate system. Geographic coordinate system is inappropriate if the analysis requires the use of distance or/and area measurements. `st_transform()` of **sf** package reprojects data frames from one coordinate system to another coordinate system mathematically.
+In geospatial analytics, it is common to transform the original data from geographic coordinate system (GCS) to projected coordinate system (PCS). GCS is inappropriate if the analysis requires the use of distance or/and area measurements as 1 degree distance at the poles is relatively shorter than 1 degree at the equator. In contrast, PCS provides consistent length and area measurement across space. `st_transform()` of **sf** package helps to reproject data frames from one coordinate system to another coordinate system mathematically.
 
 As `preschool` data frame is in **wgs84** coordinate system, it can be transformed into **svy21** projected coordinate system (`crs` = 3413).
 

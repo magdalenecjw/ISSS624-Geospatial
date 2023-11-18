@@ -77,12 +77,12 @@ Welcome to **Geospatial Analytics**. In this site, you will find a showcase of t
 
 ::: {.content-container}
 ::: {.listing-block}
-<a href="Take_Home_Exercise/index.qmd">
+<a href="In_Class_Exercise/index.qmd">
 
-## Take Home Exercise 
+## In Class Exercise 
 </a>
 
-::: {#Take_Home_Exercise}
+::: {#In_Class_Exercise}
 :::
 
 :::
@@ -90,12 +90,12 @@ Welcome to **Geospatial Analytics**. In this site, you will find a showcase of t
 
 ::: {.content-container}
 ::: {.listing-block}
-<a href="In_Class_Exercise/index.qmd">
+<a href="Take_Home_Exercise/index.qmd">
 
-## In Class Exercise 
+## Take Home Exercise 
 </a>
 
-::: {#In_Class_Exercise}
+::: {#Take_Home_Exercise}
 :::
 
 :::
