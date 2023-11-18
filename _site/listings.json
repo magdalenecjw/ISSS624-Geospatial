@@ -7,6 +7,18 @@
     ]
   },
   {
+    "listing": "/Hands_on_Exercise/index.html",
+    "items": [
+      "/Hands_on_Exercise/Ex1/Hands_on_Ex1a.html",
+      "/Hands_on_Exercise/Ex1/Hands_on_Ex1b.html",
+      "/Hands_on_Exercise/Ex2/Hands_on_Ex2a.html",
+      "/Hands_on_Exercise/Ex2/Hands_on_Ex2b.html",
+      "/Hands_on_Exercise/Ex2/Hands_on_Ex2c.html",
+      "/Hands_on_Exercise/Ex3/Hands_on_Ex3.html",
+      "/Hands_on_Exercise/Ex4/Hands_on_Ex4.html"
+    ]
+  },
+  {
     "listing": "/index.html",
     "items": [
       "/Hands_on_Exercise/Ex1/Hands_on_Ex1a.html",
@@ -19,18 +31,6 @@
       "/In_Class_Exercise/Lesson1.html",
       "/Take_Home_Exercise/Ex1/Take_home_Ex1.html",
       "/Take_Home_Exercise/Ex2/Take_home_Ex2.html"
-    ]
-  },
-  {
-    "listing": "/Hands_on_Exercise/index.html",
-    "items": [
-      "/Hands_on_Exercise/Ex1/Hands_on_Ex1a.html",
-      "/Hands_on_Exercise/Ex1/Hands_on_Ex1b.html",
-      "/Hands_on_Exercise/Ex2/Hands_on_Ex2a.html",
-      "/Hands_on_Exercise/Ex2/Hands_on_Ex2b.html",
-      "/Hands_on_Exercise/Ex2/Hands_on_Ex2c.html",
-      "/Hands_on_Exercise/Ex3/Hands_on_Ex3.html",
-      "/Hands_on_Exercise/Ex4/Hands_on_Ex4.html"
     ]
   },
   {

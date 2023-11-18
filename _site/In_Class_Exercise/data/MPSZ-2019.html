@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Hands-on Exercise | Geospatial Analytics</title>
+<title>Geospatial Analytics – mpsz-2019</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -23,25 +23,23 @@ ul.task-list li input[type="checkbox"] {
 </style>
 
 
-<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="../site_libs/quarto-nav/headroom.min.js"></script>
-<script src="../site_libs/clipboard/clipboard.min.js"></script>
-<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="../site_libs/quarto-search/fuse.min.js"></script>
-<script src="../site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="../">
-<link href="../Images/favicon_small.png" rel="icon" type="image/png">
-<script src="../site_libs/quarto-listing/list.min.js"></script>
-<script src="../site_libs/quarto-listing/quarto-listing.js"></script>
-<script src="../site_libs/quarto-html/quarto.js"></script>
-<script src="../site_libs/quarto-html/popper.min.js"></script>
-<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="../site_libs/quarto-html/anchor.min.js"></script>
-<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../Images/favicon_small.png" rel="icon" type="image/png">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -62,42 +60,9 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
-<script>
 
-  window.document.addEventListener("DOMContentLoaded", function (_event) {
-    const listingTargetEl = window.document.querySelector('#listing-listing .list');
-    if (!listingTargetEl) {
-      // No listing discovered, do not attach.
-      return; 
-    }
 
-    const options = {
-      valueNames: ['listing-title','listing-author','listing-date','listing-image','listing-description','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
-      
-      searchColumns: ["listing-title","listing-author","listing-date","listing-image","listing-description","listing-categories"],
-    };
-
-    window['quarto-listings'] = window['quarto-listings'] || {};
-    window['quarto-listings']['listing-listing'] = new List('listing-listing', options);
-
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  });
-
-  window.addEventListener('hashchange',() => {
-    if (window['quarto-listing-loaded']) {
-      window['quarto-listing-loaded']();
-    }
-  })
-  </script>
-
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
-
-<link rel="stylesheet" href="../styles.css">
-<link rel="alternate" type="application/rss+xml" title="Geospatial Analytics" href="index.xml"><meta property="og:title" content="Hands-on Exercise | Geospatial Analytics">
-<meta property="og:site-name" content="Geospatial Analytics">
+<link rel="stylesheet" href="../../styles.css">
 </head>
 
 <body class="nav-fixed">
@@ -107,8 +72,8 @@ ul.task-list li input[type="checkbox"] {
     <nav class="navbar navbar-expand-lg navbar-dark ">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container">
-    <a href="../index.html" class="navbar-brand navbar-brand-logo">
-    <img src="../Images/logo.png" alt="Geospatial Analytics" class="navbar-logo">
+    <a href="../../index.html" class="navbar-brand navbar-brand-logo">
+    <img src="../../Images/logo.png" alt="Geospatial Analytics" class="navbar-logo">
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
@@ -123,7 +88,7 @@ ul.task-list li input[type="checkbox"] {
     </a>
     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-menu-in-class-exercise">    
         <li>
-    <a class="dropdown-item" href="../In_Class_Exercise/Lesson1.html" rel="" target="">
+    <a class="dropdown-item" href="../../In_Class_Exercise/Lesson1.html" rel="" target="">
  <span class="dropdown-text">Lesson 1</span></a>
   </li>  
     </ul>
@@ -134,23 +99,23 @@ ul.task-list li input[type="checkbox"] {
     </a>
     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-menu-hands-on-exercise">    
         <li>
-    <a class="dropdown-item" href="../Hands_on_Exercise/Ex1/Hands_on_Ex1a.html" rel="" target="">
+    <a class="dropdown-item" href="../../Hands_on_Exercise/Ex1/Hands_on_Ex1a.html" rel="" target="">
  <span class="dropdown-text">1a: Geospatial Data Wrangling</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="../Hands_on_Exercise/Ex1/Hands_on_Ex1b.html" rel="" target="">
+    <a class="dropdown-item" href="../../Hands_on_Exercise/Ex1/Hands_on_Ex1b.html" rel="" target="">
  <span class="dropdown-text">1b: Choropleth Mapping</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="../Hands_on_Exercise/Ex2/Hands_on_Ex2a.html" rel="" target="">
+    <a class="dropdown-item" href="../../Hands_on_Exercise/Ex2/Hands_on_Ex2a.html" rel="" target="">
  <span class="dropdown-text">2a: Spatial Weights and Applications</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="../Hands_on_Exercise/Ex2/Hands_on_Ex2b.html" rel="" target="">
+    <a class="dropdown-item" href="../../Hands_on_Exercise/Ex2/Hands_on_Ex2b.html" rel="" target="">
  <span class="dropdown-text">2b: Global Measures of Spatial Autocorrelation</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="../Hands_on_Exercise/Ex2/Hands_on_Ex2c.html" rel="" target="">
+    <a class="dropdown-item" href="../../Hands_on_Exercise/Ex2/Hands_on_Ex2c.html" rel="" target="">
  <span class="dropdown-text">2c: Local Measures of Spatial Autocorrelation</span></a>
   </li>  
     </ul>
@@ -161,11 +126,11 @@ ul.task-list li input[type="checkbox"] {
     </a>
     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-menu-take-home-exercise">    
         <li>
-    <a class="dropdown-item" href="../Take_Home_Exercise/Ex1/Take_home_Ex1.html" rel="" target="">
+    <a class="dropdown-item" href="../../Take_Home_Exercise/Ex1/Take_home_Ex1.html" rel="" target="">
  <span class="dropdown-text">Exercise 1</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="../Take_Home_Exercise/Ex2/Take_home_Ex2.html" rel="" target="">
+    <a class="dropdown-item" href="../../Take_Home_Exercise/Ex2/Take_home_Ex2.html" rel="" target="">
  <span class="dropdown-text">Exercise 2</span></a>
   </li>  
     </ul>
@@ -183,184 +148,20 @@ ul.task-list li input[type="checkbox"] {
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         
-    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(7)</span></div></div></div>
+    </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default">
-<div class="quarto-title">
-<h1 class="title">Hands-on Exercise</h1>
-</div>
+
+
+&lt;!DOCTYPE qgis PUBLIC ‘http://mrcc.com/qgis.dtd’ ‘SYSTEM’&gt; <qgis version="3.26.2-Buenos Aires"> <identifier></identifier> <parentidentifier></parentidentifier> <language></language> <type>dataset</type>
+<title>
+</title>
+<p><abstract></abstract> <links> <fees></fees> <encoding></encoding> <crs> <spatialrefsys nativeformat="Wkt"> <wkt></wkt> <proj4></proj4> <srsid>0</srsid> <srid>0</srid> <authid></authid> <description></description> <projectionacronym></projectionacronym> <ellipsoidacronym></ellipsoidacronym> <geographicflag>false</geographicflag> </spatialrefsys> </crs> <extent> </extent></links></p>
 
 
 
-<div class="quarto-title-meta">
-
-    
-  
-    
-  </div>
-  
-
-</header>
-
-
-
-
-
-<div class="quarto-listing quarto-listing-container-grid" id="listing-listing">
-<div class="list grid quarto-listing-cols-3">
-<div class="g-col-1" data-index="0" data-listing-date-sort="1700150400000" data-listing-file-modified-sort="1700270181513" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="11">
-<a href="../Hands_on_Exercise/Ex1/Hands_on_Ex1a.html" class="quarto-grid-link">
-<div class="quarto-grid-item card h-100 card-left">
-<p class="card-img-top"><img src="Ex1\Hands_on_Ex1a_files\figure-html\unnamed-chunk-8-1.png" style="height: 150px;"  class="thumbnail-image card-img"/></p>
-<div class="card-body post-contents">
-<h5 class="no-anchor card-title listing-title">
-1a: Geospatial Data Wrangling with R
-</h5>
-<div class="card-text listing-description">
-The code chunk below uses <code>p_load()</code> of <strong>pacman</strong> package to check if the required packages have been installed on the computer. If they are, the packages will be launched.
-</div>
-<div class="card-attribution card-text-small justify">
-<div class="listing-author">
-Magdalene Chan
-</div>
-<div class="listing-date">
-Nov 17, 2023
-</div>
-</div>
-</div>
-</div>
-</a>
-</div>
-<div class="g-col-1" data-index="1" data-listing-date-sort="1700150400000" data-listing-file-modified-sort="1700270503534" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="17">
-<a href="../Hands_on_Exercise/Ex1/Hands_on_Ex1b.html" class="quarto-grid-link">
-<div class="quarto-grid-item card h-100 card-left">
-<p class="card-img-top"><img src="Ex1\Hands_on_Ex1b_files\figure-html\unnamed-chunk-8-1.png" style="height: 150px;"  class="thumbnail-image card-img"/></p>
-<div class="card-body post-contents">
-<h5 class="no-anchor card-title listing-title">
-1b: Choropleth Mapping with R
-</h5>
-<div class="card-text listing-description">
-Choropleth mapping involves the symbolisation of enumeration units, such as countries, provinces, states, counties or census units, using area patterns or graduated colors.…<strong></strong>
-</div>
-<div class="card-attribution card-text-small justify">
-<div class="listing-author">
-Magdalene Chan
-</div>
-<div class="listing-date">
-Nov 17, 2023
-</div>
-</div>
-</div>
-</div>
-</a>
-</div>
-<div class="g-col-1" data-index="2" data-listing-file-modified-sort="1700224060607" data-listing-reading-time-sort="1">
-<a href="../Hands_on_Exercise/Ex2/Hands_on_Ex2a.html" class="quarto-grid-link">
-<div class="quarto-grid-item card h-100 card-left">
-<div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
-<div class="card-body post-contents">
-<h5 class="no-anchor card-title listing-title">
-2a: Spatial Weights and Applications
-</h5>
-<div class="card-text listing-description">
-Placeholder
-</div>
-<div class="card-attribution card-text-small start">
-<div class="listing-author">
-Magdalene Chan
-</div>
-</div>
-</div>
-</div>
-</a>
-</div>
-<div class="g-col-1" data-index="3" data-listing-file-modified-sort="1700223377887" data-listing-reading-time-sort="1">
-<a href="../Hands_on_Exercise/Ex2/Hands_on_Ex2b.html" class="quarto-grid-link">
-<div class="quarto-grid-item card h-100 card-left">
-<div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
-<div class="card-body post-contents">
-<h5 class="no-anchor card-title listing-title">
-2b: Global Measures of Spatial Autocorrelation
-</h5>
-<div class="card-text listing-description">
-Placeholder
-</div>
-<div class="card-attribution card-text-small start">
-<div class="listing-author">
-Magdalene Chan
-</div>
-</div>
-</div>
-</div>
-</a>
-</div>
-<div class="g-col-1" data-index="4" data-listing-file-modified-sort="1700223388204" data-listing-reading-time-sort="1">
-<a href="../Hands_on_Exercise/Ex2/Hands_on_Ex2c.html" class="quarto-grid-link">
-<div class="quarto-grid-item card h-100 card-left">
-<div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
-<div class="card-body post-contents">
-<h5 class="no-anchor card-title listing-title">
-2c: Local Measures of Spatial Autocorrelation
-</h5>
-<div class="card-text listing-description">
-Placeholder
-</div>
-<div class="card-attribution card-text-small start">
-<div class="listing-author">
-Magdalene Chan
-</div>
-</div>
-</div>
-</div>
-</a>
-</div>
-<div class="g-col-1" data-index="5" data-listing-file-modified-sort="1700223421095" data-listing-reading-time-sort="1">
-<a href="../Hands_on_Exercise/Ex3/Hands_on_Ex3.html" class="quarto-grid-link">
-<div class="quarto-grid-item card h-100 card-left">
-<div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
-<div class="card-body post-contents">
-<h5 class="no-anchor card-title listing-title">
-3: Spatial Interaction Models
-</h5>
-<div class="card-text listing-description">
-Placeholder
-</div>
-<div class="card-attribution card-text-small start">
-<div class="listing-author">
-Magdalene Chan
-</div>
-</div>
-</div>
-</div>
-</a>
-</div>
-<div class="g-col-1" data-index="6" data-listing-file-modified-sort="1700223441829" data-listing-reading-time-sort="1">
-<a href="../Hands_on_Exercise/Ex4/Hands_on_Ex4.html" class="quarto-grid-link">
-<div class="quarto-grid-item card h-100 card-left">
-<div class="listing-item-img-placeholder card-img-top" style="height: 150px;">&nbsp;</div>
-<div class="card-body post-contents">
-<h5 class="no-anchor card-title listing-title">
-4: Geographically Weighted Regression
-</h5>
-<div class="card-text listing-description">
-Placeholder
-</div>
-<div class="card-attribution card-text-small start">
-<div class="listing-author">
-Magdalene Chan
-</div>
-</div>
-</div>
-</div>
-</a>
-</div>
-</div>
-<div class="listing-no-matching d-none">
-No matching items
-</div>
-</div></main> <!-- /main -->
+</qgis></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {

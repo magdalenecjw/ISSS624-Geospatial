@@ -40,7 +40,7 @@ mpsz
 
 ### Import Attribute data into R
 
-The code chunk below uses the `read_csv()` function of **readr** package to import `respopagsex2000to2018.csv` file into R and save it as a R dataframe called `popdata`.
+The code chunk below uses the `read_csv()` function of **readr** package to import `respopagesextod2011to2020.csv` file into R and save it as a R dataframe called `popdata`.
 
 ```{r}
 popdata <- read_csv("data/aspatial/respopagesextod2011to2020.csv")
