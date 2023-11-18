@@ -1,0 +1,33 @@
+---
+title: "In-Class Exercise 1"
+author: "Magdalene Chan"
+date: 2023-11-18
+---
+
+## Getting started
+
+The code chunk below uses p_load() of pacman package to check if the required packages have been installed on the computer. If they are, the packages will be launched.
+
+```{r}
+pacman::p_load(tmap, sf, tidyverse)
+```
+
+### Import Passenger Volume by Origin Destination Bus Stops
+
+```{r}
+odbus <- read_csv("data/aspatial/origin_destination_bus_202310.csv")
+```
+
+### Import Bus Stop Locations
+
+```{r}
+BusStop <- st_read(dsn = "data/geospatial", 
+                layer = "BusStop")
+```
+
+### Import Planning Subzone data
+
+```{r}
+mpsz <- st_read(dsn = "data/geospatial", 
+                layer = "MPSZ-2019")
+```

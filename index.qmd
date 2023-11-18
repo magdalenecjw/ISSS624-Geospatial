@@ -29,7 +29,7 @@ listing:
 
   - id: In_Class_Exercise
     contents: 
-    - /In_Class_Exercise/Lesson1.qmd
+    - /In_Class_Exercise/Ex1/In_Class_Ex1.qmd
     - "!index.qmd"
     type: grid
     categories: false
