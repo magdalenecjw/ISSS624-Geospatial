@@ -13,6 +13,8 @@
 <url>https://geospatial2023.netlify.app/Images/logo.png</url>
 <title>Geospatial Analytics</title>
 <link>https://geospatial2023.netlify.app/latest-content.html</link>
+<height>86</height>
+<width>144</width>
 </image>
 <generator>quarto-1.3.433</generator>
 <lastBuildDate>Fri, 17 Nov 2023 16:00:00 GMT</lastBuildDate>
@@ -168,20 +170,22 @@ font-style: inherit;">2</span>)</span></code></pre></div>
 </div>
 </div>
 <blockquote class="blockquote">
-<p>The choropleth map generated is based on equal intervals. All except nine regions have a GDPPC of either “0 to 20,000” or “20,000 to 40,000” – the distribution of GDPPC appears to be right-skewed.</p>
+<p>The choropleth map generated using <code>qtm()</code> is based on equal intervals. All except nine regions have a GDPPC of either “0 to 20,000” or “20,000 to 40,000” – the distribution of GDPPC appears to be right-skewed.</p>
 </blockquote>
 </section>
 <section id="computing-contiguity-spatial-weights" class="level2">
 <h2 class="anchored" data-anchor-id="computing-contiguity-spatial-weights">Computing Contiguity Spatial Weights</h2>
-<p><code>poly2nb()</code> of <strong>spdep</strong> package computes contiguity weight matrices for the study area by building a neighbours list based on regions with contiguous boundaries.</p>
-<p>Contiguity means that two spatial units share a common border of non-zero length. This can be further divided into rook, bishop or queen criterion of contiguity, in analogy to the moves allowed for the such-named pieces on a chess board.</p>
-<p>The <strong>rook</strong> criterion defines neighbors by the existence of a common edge between two spatial units, while the <strong>bishop</strong> criterion by the existence of a common vertex. The <strong>queen</strong> criterion defines neighbors as spatial units sharing a common edge <strong>or</strong> a common vertex – hence, the number of neighbors according to the queen criterion will always be larger than or equal to the rook or bishop criterion.</p>
+<p>Contiguity means that two spatial units share a common border of non-zero length. This can be further divided into rook or queen criterion of contiguity, in analogy to the moves allowed for the such-named pieces on a chess board.</p>
+<p>The <strong>rook</strong> criterion defines neighbors by the existence of a common edge between two spatial units, while the <strong>queen</strong> criterion defines neighbors as spatial units sharing a common edge <strong>or</strong> a common vertex.</p>
+<blockquote class="blockquote">
+<p>Hence, the number of neighbors according to the queen criterion will always be larger than or equal to the rook criterion.</p>
+</blockquote>
+<section id="compute-contiguity-based-neighbours-based-on-queen-criterion" class="level3">
+<h3 class="anchored" data-anchor-id="compute-contiguity-based-neighbours-based-on-queen-criterion">Compute contiguity based neighbours based on <strong>queen</strong> criterion</h3>
+<p><code>poly2nb()</code> of <strong>spdep</strong> package computes contiguity weight matrices for the study area by building a neighbours list based on regions with contiguous boundaries. The code chunk below computes the <strong>queen</strong> contiguity weight matrix.</p>
 <blockquote class="blockquote">
 <p>In <code>poly2nb()</code>, the <code>queen</code> argument takes <code>TRUE</code> (default) or <code>FALSE</code> as options.</p>
 </blockquote>
-<section id="compute-queen-contiguity-based-neighbours" class="level3">
-<h3 class="anchored" data-anchor-id="compute-queen-contiguity-based-neighbours">Compute (queen) contiguity based neighbours</h3>
-<p>The code chunk below computes the queen contiguity weight matrix.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1">wm_q <span class="ot" style="color: #003B4F;
 background-color: null;
@@ -212,7 +216,7 @@ Link number distribution:
 </div>
 </div>
 <p>Based on the summary report above, there are 88 area units in Hunan. The most connected area unit has 11 neighbours while there are two area units with only one neighbour each.</p>
-<p>For each polygon in the polygon object, <code>wm_q</code> lists all neighboring polygons. The code chunk below can be used to see the neighbors for the first polygon in the object.</p>
+<p>For each polygon in the polygon object, <code>wm_q</code> lists all neighboring polygons. The code chunk below can be used to see the neighbors for the individual polygons in the object.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="annotated-cell-7" style="background: #f1f3f5;"><pre class="sourceCode r code-annotation-code code-with-copy code-annotated"><code class="sourceCode r"><a class="code-annotation-anchor" data-target-cell="annotated-cell-7" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-7-1" class="code-annotation-target">wm_q[[<span class="dv" style="color: #AD0000;
 background-color: null;
@@ -236,30 +240,103 @@ font-style: inherit;">4</span>,<span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">57</span>,<span class="dv" style="color: #AD0000;
 background-color: null;
-font-style: inherit;">85</span>)]</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div>
+font-style: inherit;">85</span>)]</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-7" data-target-annotation="4" onclick="event.preventDefault();">4</a><span id="annotated-cell-7-4" class="code-annotation-target">nb1 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> wm_q[[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>]]</span>
+<span id="annotated-cell-7-5">hunan<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>GDPPC[nb1]</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code></pre></div>
 <div class="cell-annotation">
 <dl class="code-annotation-container-grid">
 <dt data-target-cell="annotated-cell-7" data-target-annotation="1">1</dt>
 <dd>
-<span data-code-annotation="1" data-code-cell="annotated-cell-7" data-code-lines="1">Show the neighbors for the first polygon in the object. Each number shown represents 1 polygon ID stored in <code>hunan</code> <strong>SpatialPolygonsDataFrame</strong> class.</span>
+<span data-code-cell="annotated-cell-7" data-code-lines="1" data-code-annotation="1">Show the neighbors for the first polygon. Each number shown represents one polygon ID stored in <code>hunan</code> SpatialPolygonsDataFrame class.</span>
 </dd>
 <dt data-target-cell="annotated-cell-7" data-target-annotation="2">2</dt>
 <dd>
-<span data-code-annotation="2" data-code-cell="annotated-cell-7" data-code-lines="2">Retrieve the county name of Polygon ID=1.</span>
+<span data-code-cell="annotated-cell-7" data-code-lines="2" data-code-annotation="2">Retrieve the county name of Polygon ID=1.</span>
 </dd>
 <dt data-target-cell="annotated-cell-7" data-target-annotation="3">3</dt>
 <dd>
-<span data-code-annotation="3" data-code-cell="annotated-cell-7" data-code-lines="3">Retrieve the county names of the five neighboring polygons.</span>
+<span data-code-cell="annotated-cell-7" data-code-lines="3" data-code-annotation="3">Retrieve the county names of the five neighboring polygons.</span>
+</dd>
+<dt data-target-cell="annotated-cell-7" data-target-annotation="4">4</dt>
+<dd>
+<span data-code-cell="annotated-cell-7" data-code-lines="4,5" data-code-annotation="4">Retrieve the GDPPC of the five neighboring counties.</span>
 </dd>
 </dl>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1]  2  3  4 57 85
 [1] "Anxiang"
-[1] "Hanshou" "Jinshi"  "Li"      "Nan"     "Taoyuan"</code></pre>
+[1] "Hanshou" "Jinshi"  "Li"      "Nan"     "Taoyuan"
+[1] 20981 34592 24473 21311 22879</code></pre>
 </div>
 </div>
-<p>The county name of Polygon ID=1 by using the code chunk below:</p>
+<p>The complete weight matrix can be displayed by using <code>str()</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">str</span>(wm_q)</span></code></pre></div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The output may cut across several pages. To print out the report, it is advised to save the trees.</p>
+</div>
+</div>
+</section>
+<section id="compute-contiguity-based-neighbours-based-on-rook-criterion" class="level3">
+<h3 class="anchored" data-anchor-id="compute-contiguity-based-neighbours-based-on-rook-criterion">Compute contiguity based neighbours based on <strong>rook</strong> criterion</h3>
+<p>The code chunk below computes the <strong>rook</strong> contiguity weight matrix.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1">wm_r <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">poly2nb</span>(hunan, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">queen=</span><span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>)</span>
+<span id="cb11-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">summary</span>(wm_r)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Neighbour list object:
+Number of regions: 88 
+Number of nonzero links: 440 
+Percentage nonzero weights: 5.681818 
+Average number of links: 5 
+Link number distribution:
+
+ 1  2  3  4  5  6  7  8  9 10 
+ 2  2 12 20 21 14 11  3  2  1 
+2 least connected regions:
+30 65 with 1 link
+1 most connected region:
+85 with 10 links</code></pre>
+</div>
+</div>
+<p>Based on the summary report above, there are 88 area units in Hunan. The most connected area unit has 10 neighbours while there are two area units with only one neighbour each.</p>
+</section>
+</section>
+<section id="visualising-contiguity-weights" class="level2">
+<h2 class="anchored" data-anchor-id="visualising-contiguity-weights">Visualising contiguity weights</h2>
+<p>Connectivity graphs can be used to visualise contiguity weights. It takes a point and displays a line to each neighboring point. However, as the <code>hunan</code> simple feature data frame contains polygon geometry, points are needed in order to create the connectivity graphs. The most typical method to do so is to use polygon centroids, which can be calculated using the <code>sf</code> packages.</p>
+<section id="getting-latitude-and-longitude-of-polygon-centroids" class="level3">
+<h3 class="anchored" data-anchor-id="getting-latitude-and-longitude-of-polygon-centroids">Getting Latitude and Longitude of Polygon Centroids</h3>
+<p>We will need points to associate with each polygon before we can make our connectivity graph. It will be a little more complicated than just running st_centroid on the sf object: us.bound. We need the coordinates in a separate data frame for this to work. To do this we will use a mapping function. The mapping function applies a given function to each element of a vector and returns a vector of the same length. Our input vector will be the geometry column of us.bound. Our function will be st_centroid. We will be using map_dbl variation of map from the purrr package. For more documentation, check out map documentation</p>
 
 
 </section>
@@ -3158,7 +3235,7 @@ font-style: inherit;">0.5</span>)</span></code></pre></div>
 
  ]]></description>
   <guid>https://geospatial2023.netlify.app/Hands_on_Exercise/Ex2/Hands_on_Ex2b.html</guid>
-  <pubDate>Sun, 19 Nov 2023 03:42:44 GMT</pubDate>
+  <pubDate>Sun, 19 Nov 2023 15:57:37 GMT</pubDate>
 </item>
 <item>
   <title>2c: Local Measures of Spatial Autocorrelation</title>
@@ -3174,7 +3251,7 @@ font-style: inherit;">0.5</span>)</span></code></pre></div>
 
  ]]></description>
   <guid>https://geospatial2023.netlify.app/Hands_on_Exercise/Ex2/Hands_on_Ex2c.html</guid>
-  <pubDate>Sun, 19 Nov 2023 03:42:44 GMT</pubDate>
+  <pubDate>Sun, 19 Nov 2023 15:57:37 GMT</pubDate>
 </item>
 <item>
   <title>3: Spatial Interaction Models</title>
@@ -3190,7 +3267,7 @@ font-style: inherit;">0.5</span>)</span></code></pre></div>
 
  ]]></description>
   <guid>https://geospatial2023.netlify.app/Hands_on_Exercise/Ex3/Hands_on_Ex3.html</guid>
-  <pubDate>Sun, 19 Nov 2023 03:42:44 GMT</pubDate>
+  <pubDate>Sun, 19 Nov 2023 15:57:37 GMT</pubDate>
 </item>
 <item>
   <title>4: Geographically Weighted Regression</title>
@@ -3206,7 +3283,7 @@ font-style: inherit;">0.5</span>)</span></code></pre></div>
 
  ]]></description>
   <guid>https://geospatial2023.netlify.app/Hands_on_Exercise/Ex4/Hands_on_Ex4.html</guid>
-  <pubDate>Sun, 19 Nov 2023 03:42:44 GMT</pubDate>
+  <pubDate>Sun, 19 Nov 2023 15:57:37 GMT</pubDate>
 </item>
 <item>
   <title>Take Home Exercise 1</title>
@@ -3222,7 +3299,7 @@ font-style: inherit;">0.5</span>)</span></code></pre></div>
 
  ]]></description>
   <guid>https://geospatial2023.netlify.app/Take_Home_Exercise/Ex1/Take_home_Ex1.html</guid>
-  <pubDate>Sun, 19 Nov 2023 03:42:44 GMT</pubDate>
+  <pubDate>Sun, 19 Nov 2023 15:57:37 GMT</pubDate>
 </item>
 <item>
   <title>Take Home Exercise 2</title>
@@ -3238,7 +3315,7 @@ font-style: inherit;">0.5</span>)</span></code></pre></div>
 
  ]]></description>
   <guid>https://geospatial2023.netlify.app/Take_Home_Exercise/Ex2/Take_home_Ex2.html</guid>
-  <pubDate>Sun, 19 Nov 2023 03:42:44 GMT</pubDate>
+  <pubDate>Sun, 19 Nov 2023 15:57:37 GMT</pubDate>
 </item>
 </channel>
 </rss>
