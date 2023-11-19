@@ -110,7 +110,7 @@ hunan$GDPPC[nb1] # <4>
 The complete weight matrix can be displayed by using `str()`.
 
 ```{r}
-# | echo: false
+#| echo: false
 str(wm_q)
 ```
 
