@@ -1,6 +1,106 @@
 ---
 title: "2a: Spatial Weights and Applications"
 author: "Magdalene Chan"
+date: 2023-11-18
+date-modified: "last-modified"
+execute: 
+  warning: false
 ---
 
-Placeholder
+**Spatial weights** (W~ij~) are a way to define spatial neighbourhoods.
+
+## Getting Started
+
+The code chunk below uses p_load() of pacman package to check if the required packages have been installed on the computer. If they are, the packages will be launched.
+
+-   **sf** package is used for importing, managing, and processing geospatial data.
+-   **tmap** package is used for thematic mapping.
+-   **spdep** package is used to create spatial weights matrix objects.
+
+```{r}
+pacman::p_load(sf, spdep, tmap, tidyverse, knitr)
+```
+
+The data sets used are:
+
+-   Hunan county boundary layer: a geospatial data set in ESRI shapefile format.
+-   Hunan_2012.csv: csv file that contains selected Hunan's local development indicators in 2012.
+
+## Importing Data
+
+### Import shapefile into R
+
+The code chunk below uses the `st_read()` function of **sf** package to import Hunan county boundary shapefile into R as a simple feature data frame called `hunan`.
+
+```{r}
+hunan <- st_read(dsn = "data/geospatial", 
+                 layer = "Hunan")
+```
+
+There are a total of 88 polygon features and 7 fields in `hunan` simple feature data frame. `hunan` is in **wgs84** GCS.
+
+### Import aspatial data into R
+
+The code chunk below uses the `read_csv()` function of **readr** package to import `Hunan_2012.csv` file into R and save it as a R dataframe called `hunan2012`.
+
+```{r}
+hunan2012 <- read_csv("data/aspatial/Hunan_2012.csv")
+```
+
+### Performing relational join
+
+`left_join()` of **dplyr** is used to join the geographical data and attribute table using `County` as the common identifier.
+
+```{r}
+hunan <- left_join(hunan,hunan2012)%>%
+  select(1:4, 7, 15)
+```
+
+## Visualising Regional Development Indicator
+
+Prepare a basemap and a choropleth map showing the distribution of GDPPC 2012 by using `qtm()` of **tmap** package.
+
+```{r}
+basemap <- tm_shape(hunan) +
+  tm_polygons() +
+  tm_text("NAME_3", size=0.5)
+
+gdppc <- qtm(hunan, "GDPPC")
+tmap_arrange(basemap, gdppc, asp=1, ncol=2)
+```
+
+> The choropleth map generated is based on equal intervals. All except nine regions have a GDPPC of either "0 to 20,000" or "20,000 to 40,000" -- the distribution of GDPPC appears to be right-skewed.
+
+## Computing Contiguity Spatial Weights
+
+`poly2nb()` of **spdep** package computes contiguity weight matrices for the study area by building a neighbours list based on regions with contiguous boundaries.
+
+Contiguity means that two spatial units share a common border of non-zero length. 
+This can be further divided into rook, bishop or queen criterion of contiguity, in analogy to the moves allowed for the such-named pieces on a chess board.
+
+The **rook** criterion defines neighbors by the existence of a common edge between two spatial units, while the **bishop** criterion by the existence of a common vertex. The **queen** criterion defines neighbors as spatial units sharing a common edge **or** a common vertex -- hence, the number of neighbors according to the queen criterion will always be larger than or equal to the rook or bishop criterion.
+
+> In `poly2nb()`, the `queen` argument takes `TRUE` (default) or `FALSE` as options.
+
+### Compute (queen) contiguity based neighbours
+
+The code chunk below computes the queen contiguity weight matrix.
+
+```{r}
+wm_q <- poly2nb(hunan, queen=TRUE)
+summary(wm_q)
+```
+
+Based on the summary report above, there are 88 area units in Hunan. The most connected area unit has 11 neighbours while there are two area units with only one neighbour each. 
+
+For each polygon in the polygon object, `wm_q` lists all neighboring polygons. The code chunk below can be used to see the neighbors for the individual polygons in the object. 
+
+```{r}
+wm_q[[1]] # <1>
+hunan$County[1] # <2>
+hunan$NAME_3[c(2,3,4,57,85)] # <3>
+
+```
+1. Show the neighbors for the first polygon. Each number shown represents one polygon ID stored in `hunan` Spatial Polygons Data Frame class.
+2. Retrieve the county name of Polygon ID=1.
+3. Retrieve the county names of the five neighboring polygons.

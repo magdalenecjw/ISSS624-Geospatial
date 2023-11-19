@@ -254,13 +254,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </header>
 
-<p>A choropleth map is a type of thematic map in which areas are shaded or patterned in proportion to a statistical variable that represents an aggregate summary of a geographic characteristic within each area, such as population or per-capita income. For example, the spatial distribution of aged population of Singapore could be represented on a choropleth map using the Master Plan 2014 Subzone Boundary. In R, choropleth maps can be plotted using the <strong>tmap</strong> package.</p>
+<p>A <strong>choropleth map</strong> is a type of thematic map in which areas are shaded or patterned in proportion to a statistical variable that represents an aggregate summary of a geographic characteristic within each area, such as population or per-capita income. For example, the spatial distribution of aged population of Singapore could be represented on a choropleth map using the Master Plan 2014 Subzone Boundary. In R, choropleth maps can be plotted using the <strong>tmap</strong> package.</p>
 <section id="getting-started" class="level2">
 <h2 class="anchored" data-anchor-id="getting-started">Getting started</h2>
 <p>The code chunk below uses <code>p_load()</code> of <strong>pacman</strong> package to check if the required packages have been installed on the computer. If they are, the packages will be launched.</p>
-<blockquote class="blockquote">
-<p><strong>sf</strong> package is used for importing, managing, and processing geospatial data.</p>
-</blockquote>
+<ul>
+<li><strong>sf</strong> package is used for importing, managing, and processing geospatial data.</li>
+<li><strong>tmap</strong> package is used for thematic mapping.</li>
+</ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(sf, tmap, tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -494,7 +495,7 @@ First 10 features:
 </div>
 </div>
 <blockquote class="blockquote">
-<p>The <code>sd</code> style calculates a standard deviation of a given variable, and next use this value as the break width.</p>
+<p>The <code>sd</code> style calculates a standard deviation of a given variable, and next use this value as the break width. It is a measure of dispersion and suitable for use if the distribution approximates a normal distribution.</p>
 </blockquote>
 </div>
 <div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">

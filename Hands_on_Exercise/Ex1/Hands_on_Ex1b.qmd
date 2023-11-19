@@ -7,13 +7,14 @@ execute:
   warning: false
 ---
 
-A choropleth map is a type of thematic map in which areas are shaded or patterned in proportion to a statistical variable that represents an aggregate summary of a geographic characteristic within each area, such as population or per-capita income. For example, the spatial distribution of aged population of Singapore could be represented on a choropleth map using the Master Plan 2014 Subzone Boundary. In R, choropleth maps can be plotted using the **tmap** package.
+A **choropleth map** is a type of thematic map in which areas are shaded or patterned in proportion to a statistical variable that represents an aggregate summary of a geographic characteristic within each area, such as population or per-capita income. For example, the spatial distribution of aged population of Singapore could be represented on a choropleth map using the Master Plan 2014 Subzone Boundary. In R, choropleth maps can be plotted using the **tmap** package.
 
 ## Getting started
 
 The code chunk below uses `p_load()` of **pacman** package to check if the required packages have been installed on the computer. If they are, the packages will be launched.
 
-> **sf** package is used for importing, managing, and processing geospatial data.
+-   **sf** package is used for importing, managing, and processing geospatial data.
+-   **tmap** package is used for thematic mapping.
 
 ```{r}
 pacman::p_load(sf, tmap, tidyverse)
@@ -158,8 +159,8 @@ tm_shape(mpsz_pop2020)+
 
 Choropleth maps can be either classified or unclassified:
 
-* Classed choropleth maps: The point of classification is to take a large number of observations and group them into data ranges or classes. To define a data classification method, use the `style` argument of `tm_fill()` or `tm_polygons()`.
-* Unclassed choropleth maps: Similar to classed choropleth maps but they do not have an averaged statistic towards each particular colour.
+-   Classed choropleth maps: The point of classification is to take a large number of observations and group them into data ranges or classes. To define a data classification method, use the `style` argument of `tm_fill()` or `tm_polygons()`.
+-   Unclassed choropleth maps: Similar to classed choropleth maps but they do not have an averaged statistic towards each particular colour.
 
 There are many methods of choosing classes and could be based on the nature of distribution (e.g. quantile, equal interval, natural breaks) or arbitrary (e.g. fixed round numbers, census housing categories).
 
@@ -186,7 +187,7 @@ tm_shape(mpsz_pop2020)+
   tm_borders(alpha = 0.5)
 ```
 
-> The `sd` style calculates a standard deviation of a given variable, and next use this value as the break width.
+> The `sd` style calculates a standard deviation of a given variable, and next use this value as the break width. It is a measure of dispersion and suitable for use if the distribution approximates a normal distribution.
 
 ### Quantile: 5 classes
 

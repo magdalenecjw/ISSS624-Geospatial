@@ -104,10 +104,11 @@ Welcome to **Geospatial Analytics**. In this site, you will find a showcase of t
 ::: {.footer-text}
 ::: {.footer-container .black-background}
 ::: {.footer-block}
-::: grid
 
+Layout customised from <a href="https://realworlddatascience.net/">
+Real World Data Science
+</a>
 
-:::
 :::
 :::
 :::
