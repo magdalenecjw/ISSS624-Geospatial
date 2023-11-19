@@ -69,22 +69,22 @@ gdppc <- qtm(hunan, "GDPPC")
 tmap_arrange(basemap, gdppc, asp=1, ncol=2)
 ```
 
-> The choropleth map generated is based on equal intervals. All except nine regions have a GDPPC of either "0 to 20,000" or "20,000 to 40,000" -- the distribution of GDPPC appears to be right-skewed.
+> The choropleth map generated using `qtm()` is based on equal intervals. All except nine regions have a GDPPC of either "0 to 20,000" or "20,000 to 40,000" -- the distribution of GDPPC appears to be right-skewed.
 
 ## Computing Contiguity Spatial Weights
 
-`poly2nb()` of **spdep** package computes contiguity weight matrices for the study area by building a neighbours list based on regions with contiguous boundaries.
-
 Contiguity means that two spatial units share a common border of non-zero length. 
-This can be further divided into rook, bishop or queen criterion of contiguity, in analogy to the moves allowed for the such-named pieces on a chess board.
+This can be further divided into rook or queen criterion of contiguity, in analogy to the moves allowed for the such-named pieces on a chess board.
 
-The **rook** criterion defines neighbors by the existence of a common edge between two spatial units, while the **bishop** criterion by the existence of a common vertex. The **queen** criterion defines neighbors as spatial units sharing a common edge **or** a common vertex -- hence, the number of neighbors according to the queen criterion will always be larger than or equal to the rook or bishop criterion.
+The **rook** criterion defines neighbors by the existence of a common edge between two spatial units, while the **queen** criterion defines neighbors as spatial units sharing a common edge **or** a common vertex.
+
+> Hence, the number of neighbors according to the queen criterion will always be larger than or equal to the rook criterion.
+
+### Compute contiguity based neighbours based on **queen** criterion
+
+`poly2nb()` of **spdep** package computes contiguity weight matrices for the study area by building a neighbours list based on regions with contiguous boundaries. The code chunk below computes the **queen** contiguity weight matrix.
 
 > In `poly2nb()`, the `queen` argument takes `TRUE` (default) or `FALSE` as options.
-
-### Compute (queen) contiguity based neighbours
-
-The code chunk below computes the queen contiguity weight matrix.
 
 ```{r}
 wm_q <- poly2nb(hunan, queen=TRUE)
@@ -99,8 +99,40 @@ For each polygon in the polygon object, `wm_q` lists all neighboring polygons. T
 wm_q[[1]] # <1>
 hunan$County[1] # <2>
 hunan$NAME_3[c(2,3,4,57,85)] # <3>
-
+nb1 <- wm_q[[1]] # <4>
+hunan$GDPPC[nb1] # <4>
 ```
-1. Show the neighbors for the first polygon. Each number shown represents one polygon ID stored in `hunan` Spatial Polygons Data Frame class.
+1. Show the neighbors for the first polygon. Each number shown represents one polygon ID stored in `hunan` SpatialPolygonsDataFrame class.
 2. Retrieve the county name of Polygon ID=1.
 3. Retrieve the county names of the five neighboring polygons.
+4. Retrieve the GDPPC of the five neighboring counties.
+
+The complete weight matrix can be displayed by using `str()`.
+
+```{r}
+# | echo: false
+str(wm_q)
+```
+
+:::callout-warning
+The output may cut across several pages. To print out the report, it is advised to save the trees.
+:::
+
+### Compute contiguity based neighbours based on **rook** criterion
+
+The code chunk below computes the **rook** contiguity weight matrix.
+
+```{r}
+wm_r <- poly2nb(hunan, queen=FALSE)
+summary(wm_r)
+```
+
+Based on the summary report above, there are 88 area units in Hunan. The most connected area unit has 10 neighbours while there are two area units with only one neighbour each.
+
+## Visualising contiguity weights
+
+Connectivity graphs can be used to visualise contiguity weights. It takes a point and displays a line to each neighboring point. However, as the `hunan` simple feature data frame contains polygon geometry, points are needed in order to create the connectivity graphs. The most typical method to do so is to use polygon centroids, which can be calculated using the `sf` packages. 
+
+### Getting Latitude and Longitude of Polygon Centroids
+
+We will need points to associate with each polygon before we can make our connectivity graph. It will be a little more complicated than just running st_centroid on the sf object: us.bound. We need the coordinates in a separate data frame for this to work. To do this we will use a mapping function. The mapping function applies a given function to each element of a vector and returns a vector of the same length. Our input vector will be the geometry column of us.bound. Our function will be st_centroid. We will be using map_dbl variation of map from the purrr package. For more documentation, check out map documentation

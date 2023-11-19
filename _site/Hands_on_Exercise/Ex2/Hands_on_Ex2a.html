@@ -203,7 +203,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#visualising-regional-development-indicator" id="toc-visualising-regional-development-indicator" class="nav-link" data-scroll-target="#visualising-regional-development-indicator">Visualising Regional Development Indicator</a></li>
   <li><a href="#computing-contiguity-spatial-weights" id="toc-computing-contiguity-spatial-weights" class="nav-link" data-scroll-target="#computing-contiguity-spatial-weights">Computing Contiguity Spatial Weights</a>
   <ul class="collapse">
-  <li><a href="#compute-queen-contiguity-based-neighbours" id="toc-compute-queen-contiguity-based-neighbours" class="nav-link" data-scroll-target="#compute-queen-contiguity-based-neighbours">Compute (queen) contiguity based neighbours</a></li>
+  <li><a href="#compute-contiguity-based-neighbours-based-on-queen-criterion" id="toc-compute-contiguity-based-neighbours-based-on-queen-criterion" class="nav-link" data-scroll-target="#compute-contiguity-based-neighbours-based-on-queen-criterion">Compute contiguity based neighbours based on <strong>queen</strong> criterion</a></li>
+  <li><a href="#compute-contiguity-based-neighbours-based-on-rook-criterion" id="toc-compute-contiguity-based-neighbours-based-on-rook-criterion" class="nav-link" data-scroll-target="#compute-contiguity-based-neighbours-based-on-rook-criterion">Compute contiguity based neighbours based on <strong>rook</strong> criterion</a></li>
+  <li><a href="#visualising" id="toc-visualising" class="nav-link" data-scroll-target="#visualising">Visualising</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -321,15 +323,17 @@ Geodetic CRS:  WGS 84</code></pre>
 </section>
 <section id="computing-contiguity-spatial-weights" class="level2">
 <h2 class="anchored" data-anchor-id="computing-contiguity-spatial-weights">Computing Contiguity Spatial Weights</h2>
-<p><code>poly2nb()</code> of <strong>spdep</strong> package computes contiguity weight matrices for the study area by building a neighbours list based on regions with contiguous boundaries.</p>
-<p>Contiguity means that two spatial units share a common border of non-zero length. This can be further divided into rook, bishop or queen criterion of contiguity, in analogy to the moves allowed for the such-named pieces on a chess board.</p>
-<p>The <strong>rook</strong> criterion defines neighbors by the existence of a common edge between two spatial units, while the <strong>bishop</strong> criterion by the existence of a common vertex. The <strong>queen</strong> criterion defines neighbors as spatial units sharing a common edge <strong>or</strong> a common vertex – hence, the number of neighbors according to the queen criterion will always be larger than or equal to the rook or bishop criterion.</p>
+<p>Contiguity means that two spatial units share a common border of non-zero length. This can be further divided into rook or queen criterion of contiguity, in analogy to the moves allowed for the such-named pieces on a chess board.</p>
+<p>The <strong>rook</strong> criterion defines neighbors by the existence of a common edge between two spatial units, while the <strong>queen</strong> criterion defines neighbors as spatial units sharing a common edge <strong>or</strong> a common vertex.</p>
+<blockquote class="blockquote">
+<p>Hence, the number of neighbors according to the queen criterion will always be larger than or equal to the rook criterion.</p>
+</blockquote>
+<section id="compute-contiguity-based-neighbours-based-on-queen-criterion" class="level3">
+<h3 class="anchored" data-anchor-id="compute-contiguity-based-neighbours-based-on-queen-criterion">Compute contiguity based neighbours based on <strong>queen</strong> criterion</h3>
+<p><code>poly2nb()</code> of <strong>spdep</strong> package computes contiguity weight matrices for the study area by building a neighbours list based on regions with contiguous boundaries. The code chunk below computes the <strong>queen</strong> contiguity weight matrix.</p>
 <blockquote class="blockquote">
 <p>In <code>poly2nb()</code>, the <code>queen</code> argument takes <code>TRUE</code> (default) or <code>FALSE</code> as options.</p>
 </blockquote>
-<section id="compute-queen-contiguity-based-neighbours" class="level3">
-<h3 class="anchored" data-anchor-id="compute-queen-contiguity-based-neighbours">Compute (queen) contiguity based neighbours</h3>
-<p>The code chunk below computes the queen contiguity weight matrix.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>wm_q <span class="ot">&lt;-</span> <span class="fu">poly2nb</span>(hunan, <span class="at">queen=</span><span class="cn">TRUE</span>)</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(wm_q)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -350,33 +354,181 @@ Link number distribution:
 </div>
 </div>
 <p>Based on the summary report above, there are 88 area units in Hunan. The most connected area unit has 11 neighbours while there are two area units with only one neighbour each.</p>
-<p>For each polygon in the polygon object, <code>wm_q</code> lists all neighboring polygons. The code chunk below can be used to see the neighbors for the first polygon in the object.</p>
+<p>For each polygon in the polygon object, <code>wm_q</code> lists all neighboring polygons. The code chunk below can be used to see the neighbors for the individual polygons in the object.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="annotated-cell-7"><pre class="sourceCode r code-annotation-code code-with-copy code-annotated"><code class="sourceCode r"><a class="code-annotation-anchor" data-target-cell="annotated-cell-7" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-7-1" class="code-annotation-target"><a href="#annotated-cell-7-1" aria-hidden="true" tabindex="-1"></a>wm_q[[<span class="dv">1</span>]]</span>
 <a class="code-annotation-anchor" data-target-cell="annotated-cell-7" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-7-2" class="code-annotation-target"><a href="#annotated-cell-7-2" aria-hidden="true" tabindex="-1"></a>hunan<span class="sc">$</span>County[<span class="dv">1</span>]</span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-7" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-7-3" class="code-annotation-target"><a href="#annotated-cell-7-3" aria-hidden="true" tabindex="-1"></a>hunan<span class="sc">$</span>NAME_3[<span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">57</span>,<span class="dv">85</span>)]</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-7" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-7-3" class="code-annotation-target"><a href="#annotated-cell-7-3" aria-hidden="true" tabindex="-1"></a>hunan<span class="sc">$</span>NAME_3[<span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">57</span>,<span class="dv">85</span>)]</span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-7" data-target-annotation="4" onclick="event.preventDefault();">4</a><span id="annotated-cell-7-4" class="code-annotation-target"><a href="#annotated-cell-7-4" aria-hidden="true" tabindex="-1"></a>nb1 <span class="ot">&lt;-</span> wm_q[[<span class="dv">1</span>]]</span>
+<span id="annotated-cell-7-5"><a href="#annotated-cell-7-5" aria-hidden="true" tabindex="-1"></a>hunan<span class="sc">$</span>GDPPC[nb1]</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-annotation">
 <dl class="code-annotation-container-grid">
 <dt data-target-cell="annotated-cell-7" data-target-annotation="1">1</dt>
 <dd>
-<span data-code-cell="annotated-cell-7" data-code-lines="1" data-code-annotation="1">Show the neighbors for the first polygon in the object. Each number shown represents 1 polygon ID stored in <code>hunan</code> <strong>SpatialPolygonsDataFrame</strong> class.</span>
+<span data-code-lines="1" data-code-cell="annotated-cell-7" data-code-annotation="1">Show the neighbors for the first polygon. Each number shown represents one polygon ID stored in <code>hunan</code> Spatial Polygons Data Frame class.</span>
 </dd>
 <dt data-target-cell="annotated-cell-7" data-target-annotation="2">2</dt>
 <dd>
-<span data-code-cell="annotated-cell-7" data-code-lines="2" data-code-annotation="2">Retrieve the county name of Polygon ID=1.</span>
+<span data-code-lines="2" data-code-cell="annotated-cell-7" data-code-annotation="2">Retrieve the county name of Polygon ID=1.</span>
 </dd>
 <dt data-target-cell="annotated-cell-7" data-target-annotation="3">3</dt>
 <dd>
-<span data-code-cell="annotated-cell-7" data-code-lines="3" data-code-annotation="3">Retrieve the county names of the five neighboring polygons.</span>
+<span data-code-lines="3" data-code-cell="annotated-cell-7" data-code-annotation="3">Retrieve the county names of the five neighboring polygons.</span>
+</dd>
+<dt data-target-cell="annotated-cell-7" data-target-annotation="4">4</dt>
+<dd>
+<span data-code-lines="4,5" data-code-cell="annotated-cell-7" data-code-annotation="4">Retrieve the GDPPC of the five neighboring counties.</span>
 </dd>
 </dl>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1]  2  3  4 57 85
 [1] "Anxiang"
-[1] "Hanshou" "Jinshi"  "Li"      "Nan"     "Taoyuan"</code></pre>
+[1] "Hanshou" "Jinshi"  "Li"      "Nan"     "Taoyuan"
+[1] 20981 34592 24473 21311 22879</code></pre>
 </div>
 </div>
+<p>The complete weight matrix can be displayed by using <code>str()</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># | echo: false</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(wm_q)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>List of 88
+ $ : int [1:5] 2 3 4 57 85
+ $ : int [1:5] 1 57 58 78 85
+ $ : int [1:4] 1 4 5 85
+ $ : int [1:4] 1 3 5 6
+ $ : int [1:4] 3 4 6 85
+ $ : int [1:5] 4 5 69 75 85
+ $ : int [1:4] 67 71 74 84
+ $ : int [1:7] 9 46 47 56 78 80 86
+ $ : int [1:6] 8 66 68 78 84 86
+ $ : int [1:8] 16 17 19 20 22 70 72 73
+ $ : int [1:3] 14 17 72
+ $ : int [1:5] 13 60 61 63 83
+ $ : int [1:4] 12 15 60 83
+ $ : int [1:3] 11 15 17
+ $ : int [1:4] 13 14 17 83
+ $ : int [1:5] 10 17 22 72 83
+ $ : int [1:7] 10 11 14 15 16 72 83
+ $ : int [1:5] 20 22 23 77 83
+ $ : int [1:6] 10 20 21 73 74 86
+ $ : int [1:7] 10 18 19 21 22 23 82
+ $ : int [1:5] 19 20 35 82 86
+ $ : int [1:5] 10 16 18 20 83
+ $ : int [1:7] 18 20 38 41 77 79 82
+ $ : int [1:5] 25 28 31 32 54
+ $ : int [1:5] 24 28 31 33 81
+ $ : int [1:4] 27 33 42 81
+ $ : int [1:3] 26 29 42
+ $ : int [1:5] 24 25 33 49 54
+ $ : int [1:3] 27 37 42
+ $ : int 33
+ $ : int [1:8] 24 25 32 36 39 40 56 81
+ $ : int [1:8] 24 31 50 54 55 56 75 85
+ $ : int [1:5] 25 26 28 30 81
+ $ : int [1:3] 36 45 80
+ $ : int [1:6] 21 41 47 80 82 86
+ $ : int [1:6] 31 34 40 45 56 80
+ $ : int [1:4] 29 42 43 44
+ $ : int [1:4] 23 44 77 79
+ $ : int [1:5] 31 40 42 43 81
+ $ : int [1:6] 31 36 39 43 45 79
+ $ : int [1:6] 23 35 45 79 80 82
+ $ : int [1:7] 26 27 29 37 39 43 81
+ $ : int [1:6] 37 39 40 42 44 79
+ $ : int [1:4] 37 38 43 79
+ $ : int [1:6] 34 36 40 41 79 80
+ $ : int [1:3] 8 47 86
+ $ : int [1:5] 8 35 46 80 86
+ $ : int [1:5] 50 51 52 53 55
+ $ : int [1:4] 28 51 52 54
+ $ : int [1:5] 32 48 52 54 55
+ $ : int [1:3] 48 49 52
+ $ : int [1:5] 48 49 50 51 54
+ $ : int [1:3] 48 55 75
+ $ : int [1:6] 24 28 32 49 50 52
+ $ : int [1:5] 32 48 50 53 75
+ $ : int [1:7] 8 31 32 36 78 80 85
+ $ : int [1:6] 1 2 58 64 76 85
+ $ : int [1:5] 2 57 68 76 78
+ $ : int [1:4] 60 61 87 88
+ $ : int [1:4] 12 13 59 61
+ $ : int [1:7] 12 59 60 62 63 77 87
+ $ : int [1:3] 61 77 87
+ $ : int [1:4] 12 61 77 83
+ $ : int [1:2] 57 76
+ $ : int 76
+ $ : int [1:5] 9 67 68 76 84
+ $ : int [1:4] 7 66 76 84
+ $ : int [1:5] 9 58 66 76 78
+ $ : int [1:3] 6 75 85
+ $ : int [1:3] 10 72 73
+ $ : int [1:3] 7 73 74
+ $ : int [1:5] 10 11 16 17 70
+ $ : int [1:5] 10 19 70 71 74
+ $ : int [1:6] 7 19 71 73 84 86
+ $ : int [1:6] 6 32 53 55 69 85
+ $ : int [1:7] 57 58 64 65 66 67 68
+ $ : int [1:7] 18 23 38 61 62 63 83
+ $ : int [1:7] 2 8 9 56 58 68 85
+ $ : int [1:7] 23 38 40 41 43 44 45
+ $ : int [1:8] 8 34 35 36 41 45 47 56
+ $ : int [1:6] 25 26 31 33 39 42
+ $ : int [1:5] 20 21 23 35 41
+ $ : int [1:9] 12 13 15 16 17 18 22 63 77
+ $ : int [1:6] 7 9 66 67 74 86
+ $ : int [1:11] 1 2 3 5 6 32 56 57 69 75 ...
+ $ : int [1:9] 8 9 19 21 35 46 47 74 84
+ $ : int [1:4] 59 61 62 88
+ $ : int [1:2] 59 87
+ - attr(*, "class")= chr "nb"
+ - attr(*, "region.id")= chr [1:88] "1" "2" "3" "4" ...
+ - attr(*, "call")= language poly2nb(pl = hunan, queen = TRUE)
+ - attr(*, "type")= chr "queen"
+ - attr(*, "sym")= logi TRUE</code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The output may cut across several pages. To print out the report, it is advised to save the trees.</p>
+</div>
+</div>
+</section>
+<section id="compute-contiguity-based-neighbours-based-on-rook-criterion" class="level3">
+<h3 class="anchored" data-anchor-id="compute-contiguity-based-neighbours-based-on-rook-criterion">Compute contiguity based neighbours based on <strong>rook</strong> criterion</h3>
+<p>The code chunk below computes the <strong>rook</strong> contiguity weight matrix.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>wm_r <span class="ot">&lt;-</span> <span class="fu">poly2nb</span>(hunan, <span class="at">queen=</span><span class="cn">FALSE</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(wm_r)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Neighbour list object:
+Number of regions: 88 
+Number of nonzero links: 440 
+Percentage nonzero weights: 5.681818 
+Average number of links: 5 
+Link number distribution:
+
+ 1  2  3  4  5  6  7  8  9 10 
+ 2  2 12 20 21 14 11  3  2  1 
+2 least connected regions:
+30 65 with 1 link
+1 most connected region:
+85 with 10 links</code></pre>
+</div>
+</div>
+<p>Based on the summary report above, there are 88 area units in Hunan. The most connected area unit has 10 neighbours while there are two area units with only one neighbour each.</p>
+</section>
+<section id="visualising" class="level3">
+<h3 class="anchored" data-anchor-id="visualising">Visualising</h3>
 
 
 </section>
