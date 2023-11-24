@@ -248,19 +248,19 @@ font-style: inherit;">1</span>]]]</span><div class="code-annotation-gutter-bg"><
 <dl class="code-annotation-container-grid">
 <dt data-target-cell="annotated-cell-7" data-target-annotation="1">1</dt>
 <dd>
-<span data-code-cell="annotated-cell-7" data-code-annotation="1" data-code-lines="1">Show the neighbors for the first polygon. Each number shown represents one polygon ID stored in <code>hunan</code> SpatialPolygonsDataFrame class.</span>
+<span data-code-lines="1" data-code-cell="annotated-cell-7" data-code-annotation="1">Show the neighbors for the first polygon. Each number shown represents one polygon ID stored in <code>hunan</code> SpatialPolygonsDataFrame class.</span>
 </dd>
 <dt data-target-cell="annotated-cell-7" data-target-annotation="2">2</dt>
 <dd>
-<span data-code-cell="annotated-cell-7" data-code-annotation="2" data-code-lines="2">Retrieve the county name of Polygon ID=1.</span>
+<span data-code-lines="2" data-code-cell="annotated-cell-7" data-code-annotation="2">Retrieve the county name of Polygon ID=1.</span>
 </dd>
 <dt data-target-cell="annotated-cell-7" data-target-annotation="3">3</dt>
 <dd>
-<span data-code-cell="annotated-cell-7" data-code-annotation="3" data-code-lines="3">Retrieve the county names of the five neighboring polygons.</span>
+<span data-code-lines="3" data-code-cell="annotated-cell-7" data-code-annotation="3">Retrieve the county names of the five neighboring polygons.</span>
 </dd>
 <dt data-target-cell="annotated-cell-7" data-target-annotation="4">4</dt>
 <dd>
-<span data-code-cell="annotated-cell-7" data-code-annotation="4" data-code-lines="4">Retrieve the GDPPC of the five neighboring counties.</span>
+<span data-code-lines="4" data-code-cell="annotated-cell-7" data-code-annotation="4">Retrieve the GDPPC of the five neighboring counties.</span>
 </dd>
 </dl>
 </div>
@@ -596,11 +596,11 @@ font-style: inherit;">summary</span>(k1dists)</span><div class="code-annotation-
 <dl class="code-annotation-container-grid">
 <dt data-target-cell="annotated-cell-13" data-target-annotation="1">1</dt>
 <dd>
-<span data-code-cell="annotated-cell-13" data-code-annotation="1" data-code-lines="2">Return a matrix with the indices of points belonging to the set of the k nearest neighbours of each other by using <code>knearneigh()</code> of <strong>spdep</strong>. Convert the returned knn object into a neighbours list of class nb with a list of integer vectors containing neighbour region number ids by using <code>knn2nb()</code>.</span>
+<span data-code-lines="2" data-code-cell="annotated-cell-13" data-code-annotation="1">Return a matrix with the indices of points belonging to the set of the k nearest neighbours of each other by using <code>knearneigh()</code> of <strong>spdep</strong>. Convert the returned knn object into a neighbours list of class nb with a list of integer vectors containing neighbour region number ids by using <code>knn2nb()</code>.</span>
 </dd>
 <dt data-target-cell="annotated-cell-13" data-target-annotation="2">2</dt>
 <dd>
-<span data-code-cell="annotated-cell-13" data-code-annotation="2" data-code-lines="3">Return the length of neighbour relationship edges by using <code>nbdists()</code> of <strong>spdep</strong>. The function returns in the units of the coordinates if the coordinates are projected, and in km if otherwise. Remove the list structure of the returned object by using <code>unlist()</code>.</span>
+<span data-code-lines="3" data-code-cell="annotated-cell-13" data-code-annotation="2">Return the length of neighbour relationship edges by using <code>nbdists()</code> of <strong>spdep</strong>. The function returns in the units of the coordinates if the coordinates are projected, and in km if otherwise. Remove the list structure of the returned object by using <code>unlist()</code>.</span>
 </dd>
 </dl>
 </div>
@@ -6176,13 +6176,796 @@ font-style: inherit;">0.5</span>)</span></code></pre></div>
 
 
 
-<p>Placeholder</p>
+<p>Spatial autocorrelation is the term used to describe the presence of systematic spatial variation in a variable. Where there is positive (high) spatial autocorrelation, there is spatial clustering and neighbours are similar. Conversely, where there is negative (low) spatial autocorrelation, checkerboard patterns are observed and neighbours are dissimilar.</p>
+<p>Spatial autocorrelation can be used in the development of spatial policy, where one of the main development objectives of governments and planners is to ensure equal distribution of development in the area. Appropriate spatial statistical methods can be applied to discover if developments are evenly distributed geographically – if there are signs of spatial clustering and if so, where they are located.</p>
+<section id="getting-started" class="level2">
+<h2 class="anchored" data-anchor-id="getting-started">Getting Started</h2>
+<p>The code chunk below uses p_load() of pacman package to check if the required packages have been installed on the computer. If they are, the packages will be launched.</p>
+<ul>
+<li><strong>sf</strong> package is used for importing, managing, and processing geospatial data.</li>
+<li><strong>tmap</strong> package is used for thematic mapping.</li>
+<li><strong>spdep</strong> package is used to create spatial weights matrix objects.</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1">pacman<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">p_load</span>(sf, spdep, tmap, tidyverse)</span></code></pre></div>
+</div>
+<p>The data sets used are:</p>
+<ul>
+<li>Hunan county boundary layer: a geospatial data set in ESRI shapefile format.</li>
+<li>Hunan_2012.csv: csv file that contains selected Hunan’s local development indicators in 2012.</li>
+</ul>
+</section>
+<section id="importing-data" class="level2">
+<h2 class="anchored" data-anchor-id="importing-data">Importing Data</h2>
+<section id="import-shapefile-into-r" class="level3">
+<h3 class="anchored" data-anchor-id="import-shapefile-into-r">Import shapefile into R</h3>
+<p>The code chunk below uses the <code>st_read()</code> function of <strong>sf</strong> package to import Hunan county boundary shapefile into R as a simple feature data frame called <code>hunan</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1">hunan <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_read</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">dsn =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data/geospatial"</span>, </span>
+<span id="cb2-2">                 <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">layer =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Hunan"</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Reading layer `Hunan' from data source 
+  `C:\magdalenecjw\ISSS624 Geospatial\Hands_on_Exercise\Ex2\data\geospatial' 
+  using driver `ESRI Shapefile'
+Simple feature collection with 88 features and 7 fields
+Geometry type: POLYGON
+Dimension:     XY
+Bounding box:  xmin: 108.7831 ymin: 24.6342 xmax: 114.2544 ymax: 30.12812
+Geodetic CRS:  WGS 84</code></pre>
+</div>
+</div>
+<p>There are a total of 88 polygon features and 7 fields in <code>hunan</code> simple feature data frame. <code>hunan</code> is in <strong>wgs84</strong> GCS.</p>
+</section>
+<section id="import-aspatial-data-into-r" class="level3">
+<h3 class="anchored" data-anchor-id="import-aspatial-data-into-r">Import aspatial data into R</h3>
+<p>The code chunk below uses the <code>read_csv()</code> function of <strong>readr</strong> package to import <code>Hunan_2012.csv</code> file into R and save it as a R dataframe called <code>hunan2012</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1">hunan2012 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">read_csv</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data/aspatial/Hunan_2012.csv"</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 88 Columns: 29
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr  (2): County, City
+dbl (27): avg_wage, deposite, FAI, Gov_Rev, Gov_Exp, GDP, GDPPC, GIO, Loan, ...
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+</div>
+</section>
+<section id="performing-relational-join" class="level3">
+<h3 class="anchored" data-anchor-id="performing-relational-join">Performing relational join</h3>
+<p><code>left_join()</code> of <strong>dplyr</strong> is used to join the geographical data and attribute table using <code>County</code> as the common identifier.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1">hunan <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">left_join</span>(hunan,hunan2012)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb6-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">select</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">4</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">7</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">15</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Joining, by = "County"</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="visualising-regional-development-indicator" class="level2">
+<h2 class="anchored" data-anchor-id="visualising-regional-development-indicator">Visualising Regional Development Indicator</h2>
+<p>Prepare a basemap and a choropleth map showing the distribution of GDPPC 2012 by using <code>qtm()</code> of <strong>tmap</strong> package.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1">equal <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_shape</span>(hunan) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_fill</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"GDPPC"</span>,</span>
+<span id="cb8-3">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>,</span>
+<span id="cb8-4">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">style =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"equal"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_borders</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_layout</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">main.title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Equal interval classification"</span>)</span>
+<span id="cb8-7"></span>
+<span id="cb8-8">quantile <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_shape</span>(hunan) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-9">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_fill</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"GDPPC"</span>,</span>
+<span id="cb8-10">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">n =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">5</span>,</span>
+<span id="cb8-11">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">style =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"quantile"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-12">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_borders</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb8-13">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_layout</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">main.title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Equal quantile classification"</span>)</span>
+<span id="cb8-14"></span>
+<span id="cb8-15"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tmap_arrange</span>(equal, </span>
+<span id="cb8-16">             quantile, </span>
+<span id="cb8-17">             <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">asp=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, </span>
+<span id="cb8-18">             <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ncol=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://geospatial2023.netlify.app/Hands_on_Exercise/Ex2/Hands_on_Ex2b_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="global-spatial-autocorrelation" class="level2">
+<h2 class="anchored" data-anchor-id="global-spatial-autocorrelation">Global Spatial Autocorrelation</h2>
+<p>This section details the steps taken to compute global spatial autocorrelation statistics and to perform spatial complete randomness test for global spatial autocorrelation.</p>
+<section id="computing-contiguity-spatial-weights" class="level3">
+<h3 class="anchored" data-anchor-id="computing-contiguity-spatial-weights">Computing Contiguity Spatial Weights</h3>
+<p>Before computing the global spatial autocorrelation statistics, construct a spatial weights of the study area. The spatial weights is used to define the neighbourhood relationships between the geographical units (i.e.&nbsp;county) in the study area.</p>
+<p>In the code chunk below, <code>poly2nb()</code> of <strong>spdep</strong> package is used to compute contiguity weights matrices for the study area. This function builds a neighbours list based on regions with contiguous boundaries. The code chunk below computes the queen contiguity weights matrix.</p>
+<blockquote class="blockquote">
+<p>The <code>queen</code> argument takes <code>TRUE</code> (default) or <code>FALSE</code> as options. If <code>queen = TRUE</code>, this function will return a list of first order neighbours using the Queen criteria.</p>
+</blockquote>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1">wm_q <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">poly2nb</span>(hunan, </span>
+<span id="cb9-2">                <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">queen=</span><span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>)</span>
+<span id="cb9-3"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">summary</span>(wm_q)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Neighbour list object:
+Number of regions: 88 
+Number of nonzero links: 448 
+Percentage nonzero weights: 5.785124 
+Average number of links: 5.090909 
+Link number distribution:
+
+ 1  2  3  4  5  6  7  8  9 11 
+ 2  2 12 16 24 14 11  4  2  1 
+2 least connected regions:
+30 65 with 1 link
+1 most connected region:
+85 with 11 links</code></pre>
+</div>
+</div>
+<p>The summary report above shows that there are 88 area units in Hunan. The most connected area unit has 11 neighbours. There are two area units with only one neighbours.</p>
+</section>
+<section id="row-standardised-weights-matrix" class="level3">
+<h3 class="anchored" data-anchor-id="row-standardised-weights-matrix">Row-standardised weights matrix</h3>
+<p>Next, assign equal weights to each neighboring polygon (<code>style=“W”</code>). This is accomplished by assigning the fraction 1/(#ofneighbors) to each neighboring county then summing the weighted income values. While this is the most intuitive way to summarise the neighbors’ values, it has one drawback in that polygons along the edges of the study area will base their lagged values on fewer polygons thus potentially over- or under-estimating the true nature of the spatial autocorrelation in the data. Other more robust options are available to correct such drawbacks, notably <code>style=“B”</code>.</p>
+<blockquote class="blockquote">
+<p>The <code>zero.policy=TRUE</code> option allows for lists of non-neighbors. This should be used with caution since users may not be aware of missing neighbors in their dataset. Using <code>zero.policy=FALSE</code> at first instance may be more advised as it returns an error if there are empty neighbour sets.</p>
+</blockquote>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1">rswm_q <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">nb2listw</span>(wm_q, </span>
+<span id="cb11-2">                   <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">style=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"W"</span>, </span>
+<span id="cb11-3">                   <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">zero.policy =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>)</span>
+<span id="cb11-4">rswm_q</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Characteristics of weights list object:
+Neighbour list object:
+Number of regions: 88 
+Number of nonzero links: 448 
+Percentage nonzero weights: 5.785124 
+Average number of links: 5.090909 
+
+Weights style: W 
+Weights constants summary:
+   n   nn S0       S1       S2
+W 88 7744 88 37.86334 365.9147</code></pre>
+</div>
+</div>
+</section>
+<section id="global-spatial-autocorrelation-morans-i" class="level3">
+<h3 class="anchored" data-anchor-id="global-spatial-autocorrelation-morans-i">Global Spatial Autocorrelation: Moran’s I</h3>
+<p>The code chunk below performs Moran’s I statistical testing using <code>moran.test()</code> of <strong>spdep</strong> to compute Global Spatial Autocorrelation statistics.</p>
+<p>At a confidence interval of 95%,</p>
+<ul>
+<li>H<sub>0</sub>: There is no spatial autocorrelation in the dataset.</li>
+<li>H<sub>1</sub>: There is spatial autocorrelation in the dataset.</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">moran.test</span>(hunan<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>GDPPC, </span>
+<span id="cb13-2">           <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">listw=</span>rswm_q, </span>
+<span id="cb13-3">           <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">zero.policy =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>, </span>
+<span id="cb13-4">           <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">na.action=</span>na.omit)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Moran I test under randomisation
+
+data:  hunan$GDPPC  
+weights: rswm_q    
+
+Moran I statistic standard deviate = 4.7351, p-value = 1.095e-06
+alternative hypothesis: greater
+sample estimates:
+Moran I statistic       Expectation          Variance 
+      0.300749970      -0.011494253       0.004348351 </code></pre>
+</div>
+</div>
+<p>Given that p-value &lt; alpha value, we can reject the null hypothesis. Given that Moran I (Z value) is positive, it suggests that the features in the study area are clustered and observations tend to be similar.</p>
+<blockquote class="blockquote">
+<p>A positive Moran’s I value (I&gt;0) suggests clustering and similar observations. A negative Moran’s I value (I&lt;0) suggests dispersion and dissimilar observations. An approximately zero Moran’s I value suggests observations are arranged randomly over space.</p>
+</blockquote>
+</section>
+<section id="computing-monte-carlo-morans-i" class="level3">
+<h3 class="anchored" data-anchor-id="computing-monte-carlo-morans-i">Computing Monte Carlo Moran’s I</h3>
+<p>Monte Carlo simulation is used if there are doubts that the assumptions of Moran’s I are true (normality and randomization). The code chunk below performs permutation test for Moran’s I statistic by using <code>moran.mc()</code> of <strong>spdep</strong>. A total of 1000 simulations will be performed.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set.seed</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1234</span>)</span>
+<span id="cb15-2">bperm<span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">moran.mc</span>(hunan<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>GDPPC, </span>
+<span id="cb15-3">                <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">listw=</span>rswm_q, </span>
+<span id="cb15-4">                <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">nsim=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">999</span>, </span>
+<span id="cb15-5">                <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">zero.policy =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>, </span>
+<span id="cb15-6">                <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">na.action=</span>na.omit)</span>
+<span id="cb15-7">bperm</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Monte-Carlo simulation of Moran I
+
+data:  hunan$GDPPC 
+weights: rswm_q  
+number of simulations + 1: 1000 
+
+statistic = 0.30075, observed rank = 1000, p-value = 0.001
+alternative hypothesis: greater</code></pre>
+</div>
+</div>
+<p>Given that p-value &lt; alpha value, we can reject the null hypothesis. Given that the Z value remains positive, it supports the earlier drawn conclusion that the features in the study area are clustered and observations tend to be similar.</p>
+</section>
+<section id="visualising-monte-carlo-morans-i" class="level3">
+<h3 class="anchored" data-anchor-id="visualising-monte-carlo-morans-i">Visualising Monte Carlo Moran’s I</h3>
+<p>It is good practice to examine the simulated Moran’s I test statistics in greater detail. This can be achieved by plotting the distribution of the statistical values as a histogram by using the code chunk below, which uses <code>hist()</code> and <code>abline()</code> of R Graphics.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mean</span>(bperm<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>res[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">999</span>])</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] -0.01504572</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">var</span>(bperm<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>res[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">999</span>])</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.004371574</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">summary</span>(bperm<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>res[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">999</span>])</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+-0.18339 -0.06168 -0.02125 -0.01505  0.02611  0.27593 </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">hist</span>(bperm<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>res, </span>
+<span id="cb23-2">     <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">freq=</span><span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>, </span>
+<span id="cb23-3">     <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">breaks=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">20</span>, </span>
+<span id="cb23-4">     <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">xlab=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Simulated Moran's I"</span>)</span>
+<span id="cb23-5"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">abline</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">v=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>, </span>
+<span id="cb23-6">       <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">col=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"red"</span>) </span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://geospatial2023.netlify.app/Hands_on_Exercise/Ex2/Hands_on_Ex2b_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>When comparing the observed Moran’s I value with the distribution of Moran’s I values obtained from the Monte Carlo simulation, it can be noted that the observed value is in the extreme tails of the distribution. This further supports the conclusion drawn earlier that the spatial pattern in the data is significantly different from randomness and supports the presence of spatial autocorrelation.</p>
+</section>
+<section id="global-spatial-autocorrelation-gearys-c" class="level3">
+<h3 class="anchored" data-anchor-id="global-spatial-autocorrelation-gearys-c">Global Spatial Autocorrelation: Geary’s C</h3>
+<p>Another method that can be used to compute Global Spatial Autocorrelation statistics is Geary’s c statistics testing. The code chunk below performs Geary’s C test using <code>geary.test()</code> of <strong>spdep</strong>.</p>
+<p>At a confidence interval of 95%,</p>
+<ul>
+<li>H<sub>0</sub>: There is no spatial autocorrelation in the dataset.</li>
+<li>H<sub>1</sub>: There is spatial autocorrelation in the dataset.</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geary.test</span>(hunan<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>GDPPC, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">listw=</span>rswm_q)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Geary C test under randomisation
+
+data:  hunan$GDPPC 
+weights: rswm_q 
+
+Geary C statistic standard deviate = 3.6108, p-value = 0.0001526
+alternative hypothesis: Expectation greater than statistic
+sample estimates:
+Geary C statistic       Expectation          Variance 
+        0.6907223         1.0000000         0.0073364 </code></pre>
+</div>
+</div>
+<p>Given that p-value &lt; alpha value, we can reject the null hypothesis. Given that Geary C (Z value) is small (&lt;1), it suggests that the features in the study area are clustered and observations tend to be similar.</p>
+<blockquote class="blockquote">
+<p>A large Geary’s C value (C&gt;1) suggests dispersion and dissimilar observations. A small Geary’s C value (C&lt;1) suggests clustering and similar observations. A Geary’s C value of 1 suggests observations are arranged randomly over space.</p>
+</blockquote>
+</section>
+<section id="computing-monte-carlo-gearys-c" class="level3">
+<h3 class="anchored" data-anchor-id="computing-monte-carlo-gearys-c">Computing Monte Carlo Geary’s C</h3>
+<p>The code chunk below performs permutation test for Geary’s C statistic by using <code>geary.mc()</code> of <strong>spdep</strong>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">set.seed</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1234</span>)</span>
+<span id="cb26-2">bperm<span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geary.mc</span>(hunan<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>GDPPC, </span>
+<span id="cb26-3">               <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">listw=</span>rswm_q, </span>
+<span id="cb26-4">               <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">nsim=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">999</span>)</span>
+<span id="cb26-5">bperm</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Monte-Carlo simulation of Geary C
+
+data:  hunan$GDPPC 
+weights: rswm_q 
+number of simulations + 1: 1000 
+
+statistic = 0.69072, observed rank = 1, p-value = 0.001
+alternative hypothesis: greater</code></pre>
+</div>
+</div>
+<p>Given that p-value &lt; alpha value, we can reject the null hypothesis. Given that the Z value remains positive, it supports the earlier drawn conclusion that the features in the study area are clustered and observations tend to be similar.</p>
+</section>
+<section id="visualising-monte-carlo-gearys-c" class="level3">
+<h3 class="anchored" data-anchor-id="visualising-monte-carlo-gearys-c">Visualising Monte Carlo Geary’s C</h3>
+<p>Next, plot a histogram to reveal the distribution of the simulated values by using the code chunk below.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mean</span>(bperm<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>res[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">999</span>])</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1.004402</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">var</span>(bperm<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>res[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">999</span>])</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.007436493</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">summary</span>(bperm<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>res[<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">999</span>])</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+ 0.7142  0.9502  1.0052  1.0044  1.0595  1.2722 </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">hist</span>(bperm<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>res, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">freq=</span><span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">breaks=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">20</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">xlab=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Simulated Geary c"</span>)</span>
+<span id="cb34-2"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">abline</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">v=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">col=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"red"</span>) </span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://geospatial2023.netlify.app/Hands_on_Exercise/Ex2/Hands_on_Ex2b_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>When comparing the observed Geary’s C value with the distribution of Geary’s C values obtained from the Monte Carlo simulation, it can be noted that the observed value is in the extreme tails of the distribution. This further supports the conclusion drawn earlier that the spatial pattern in the data is significantly different from randomness and supports the presence of spatial autocorrelation.</p>
+</section>
+</section>
+<section id="spatial-correlogram" class="level2">
+<h2 class="anchored" data-anchor-id="spatial-correlogram">Spatial Correlogram</h2>
+<p>Spatial correlograms are used to examine patterns of spatial autocorrelation in the data or model residuals. They show how correlated the pairs of spatial observations are when the distance (lag) between them increases - they are plots of some index of autocorrelation (Moran’s I or Geary’s c) against distance.Although correlograms are not as fundamental as variograms (a keystone concept of geostatistics), they are very useful as an exploratory and descriptive tool. For this purpose, they provide richer information than variograms.</p>
+<section id="compute-morans-i-correlogram" class="level3">
+<h3 class="anchored" data-anchor-id="compute-morans-i-correlogram">Compute Moran’s I correlogram</h3>
+<p>In the code chunk below, <code>sp.correlogram()</code> of <strong>spdep</strong> package is used to compute a 6-lag spatial correlogram of GDPPC. The global spatial autocorrelation used in Moran’s I. The <code>plot()</code> of base Graph is then used to plot the output.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1">MI_corr <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sp.correlogram</span>(wm_q, </span>
+<span id="cb35-2">                          hunan<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>GDPPC, </span>
+<span id="cb35-3">                          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">order=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span>, </span>
+<span id="cb35-4">                          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">method=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"I"</span>, </span>
+<span id="cb35-5">                          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">style=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"W"</span>)</span>
+<span id="cb35-6"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot</span>(MI_corr)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://geospatial2023.netlify.app/Hands_on_Exercise/Ex2/Hands_on_Ex2b_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Plotting the output alone may not provide complete interpretation. This is because not all autocorrelation values are statistically significant. Hence, it is important to examine the full analysis report by printing out the analysis results as in the code chunk below.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(MI_corr)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Spatial correlogram for hunan$GDPPC 
+method: Moran's I
+         estimate expectation   variance standard deviate Pr(I) two sided    
+1 (88)  0.3007500  -0.0114943  0.0043484           4.7351       2.189e-06 ***
+2 (88)  0.2060084  -0.0114943  0.0020962           4.7505       2.029e-06 ***
+3 (88)  0.0668273  -0.0114943  0.0014602           2.0496        0.040400 *  
+4 (88)  0.0299470  -0.0114943  0.0011717           1.2107        0.226015    
+5 (88) -0.1530471  -0.0114943  0.0012440          -4.0134       5.984e-05 ***
+6 (88) -0.1187070  -0.0114943  0.0016791          -2.6164        0.008886 ** 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+How to read Spatial Correlogram
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>Each row represents a distance interval (lag) at which Moran’s I was calculated.</li>
+<li>The <code>estimate</code> column provides the calculated Moran’s I value at each distance interval.</li>
+<li>The <code>expected</code> column shows the value of Moran’s I under the null hypothesis of no spatial autocorrelation. Here, it’s the same constant value (-0.0114943) for all intervals, indicating the assumption of no spatial autocorrelation.</li>
+<li>The <code>Pr(I) two sided</code> column shows the p-value associated with Moran’s I at each lag.</li>
+</ul>
+</div>
+</div>
+<section id="observations" class="level4">
+<h4 class="anchored" data-anchor-id="observations">Observations</h4>
+<ul>
+<li>There are significant positive values in the first two rows, suggesting spatial clustering or positive spatial autocorrelation at the respective distances indicated by the lags. The positive values indicate that nearby regions have similar values of GDPPC being measured.</li>
+<li>There are significant negative values in the 5th and 6th rows, suggesting spatial dispersion or negative spatial autocorrelation at the respective distances indicated by the lags. The negative values suggest that neighboring regions tend to have dissimilar values of GDPPC.</li>
+<li>In conclusion, this correlogram suggests that there is significant spatial autocorrelation in GDPPC at various distance intervals.</li>
+</ul>
+</section>
+</section>
+<section id="compute-gearys-c-correlogram" class="level3">
+<h3 class="anchored" data-anchor-id="compute-gearys-c-correlogram">Compute Geary’s C correlogram</h3>
+<p>In the code chunk below, <code>sp.correlogram()</code> of <strong>spdep</strong> package is used to compute a 6-lag spatial correlogram of GDPPC. The global spatial autocorrelation used in Geary’s C. The <code>plot()</code> of base Graph is then used to plot the output.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1">GC_corr <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sp.correlogram</span>(wm_q, </span>
+<span id="cb38-2">                          hunan<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>GDPPC, </span>
+<span id="cb38-3">                          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">order=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">6</span>, </span>
+<span id="cb38-4">                          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">method=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"C"</span>, </span>
+<span id="cb38-5">                          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">style=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"W"</span>)</span>
+<span id="cb38-6"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">plot</span>(GC_corr)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://geospatial2023.netlify.app/Hands_on_Exercise/Ex2/Hands_on_Ex2b_files/figure-html/unnamed-chunk-22-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Similarly, print out the analysis report by using the code chunk below.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">print</span>(GC_corr)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Spatial correlogram for hunan$GDPPC 
+method: Geary's C
+        estimate expectation  variance standard deviate Pr(I) two sided    
+1 (88) 0.6907223   1.0000000 0.0073364          -3.6108       0.0003052 ***
+2 (88) 0.7630197   1.0000000 0.0049126          -3.3811       0.0007220 ***
+3 (88) 0.9397299   1.0000000 0.0049005          -0.8610       0.3892612    
+4 (88) 1.0098462   1.0000000 0.0039631           0.1564       0.8757128    
+5 (88) 1.2008204   1.0000000 0.0035568           3.3673       0.0007592 ***
+6 (88) 1.0773386   1.0000000 0.0058042           1.0151       0.3100407    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<section id="observations-1" class="level4">
+<h4 class="anchored" data-anchor-id="observations-1">Observations</h4>
+<ul>
+<li>There are significant low Geary’s C values (C&lt;1) in the first two rows, suggesting spatial clustering or positive spatial autocorrelation at the respective distances indicated by the lags. The low Geary’s C values indicate that nearby regions have similar values of GDPPC being measured.</li>
+<li>There is significant high Geary’s C value (C&gt;1) in the 5th row, suggesting spatial dispersion or negative spatial autocorrelation at the respective distances indicated by the lag. The high Geary’s C value suggest that neighboring regions tend to have dissimilar values of GDPPC.</li>
+<li>In conclusion, this correlogram suggests that there is significant spatial autocorrelation in GDPPC at various distance intervals.</li>
+</ul>
 
 
+</section>
+</section>
+</section>
 
  ]]></description>
   <guid>https://geospatial2023.netlify.app/Hands_on_Exercise/Ex2/Hands_on_Ex2b.html</guid>
-  <pubDate>Thu, 23 Nov 2023 15:22:08 GMT</pubDate>
+  <pubDate>Fri, 24 Nov 2023 03:41:00 GMT</pubDate>
 </item>
 <item>
   <title>2c: Local Measures of Spatial Autocorrelation</title>
@@ -6198,7 +6981,7 @@ font-style: inherit;">0.5</span>)</span></code></pre></div>
 
  ]]></description>
   <guid>https://geospatial2023.netlify.app/Hands_on_Exercise/Ex2/Hands_on_Ex2c.html</guid>
-  <pubDate>Thu, 23 Nov 2023 15:22:08 GMT</pubDate>
+  <pubDate>Fri, 24 Nov 2023 03:41:00 GMT</pubDate>
 </item>
 <item>
   <title>3: Spatial Interaction Models</title>
@@ -6214,7 +6997,7 @@ font-style: inherit;">0.5</span>)</span></code></pre></div>
 
  ]]></description>
   <guid>https://geospatial2023.netlify.app/Hands_on_Exercise/Ex3/Hands_on_Ex3.html</guid>
-  <pubDate>Thu, 23 Nov 2023 15:22:08 GMT</pubDate>
+  <pubDate>Fri, 24 Nov 2023 03:41:00 GMT</pubDate>
 </item>
 <item>
   <title>4: Geographically Weighted Regression</title>
@@ -6230,7 +7013,7 @@ font-style: inherit;">0.5</span>)</span></code></pre></div>
 
  ]]></description>
   <guid>https://geospatial2023.netlify.app/Hands_on_Exercise/Ex4/Hands_on_Ex4.html</guid>
-  <pubDate>Thu, 23 Nov 2023 15:22:08 GMT</pubDate>
+  <pubDate>Fri, 24 Nov 2023 03:41:00 GMT</pubDate>
 </item>
 </channel>
 </rss>
