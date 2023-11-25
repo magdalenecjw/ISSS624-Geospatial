@@ -263,10 +263,10 @@ The red lines show the links of 1st nearest neighbours and the black lines show 
 
 ```{r}
 par(mfrow=c(1,2))
-plot(hunan$geometry, border="lightgrey")
-plot(k1, coords, add=TRUE, col="red", length=0.08, main="1st nearest neighbours")
-plot(hunan$geometry, border="lightgrey")
-plot(wm_d62, coords, add=TRUE, pch = 19, cex = 0.6, main="Distance link")
+plot(hunan$geometry, border="lightgrey", main="1st nearest neighbours")
+plot(k1, coords, add=TRUE, col="red", length=0.08)
+plot(hunan$geometry, border="lightgrey", main="Distance link")
+plot(wm_d62, coords, add=TRUE, pch = 19, cex = 0.6)
 ```
 
 ### Computing adaptive distance weights matrix

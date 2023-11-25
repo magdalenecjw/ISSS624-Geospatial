@@ -951,27 +951,27 @@ Zixing        -7.6849e-01 -8.8210e-02  9.4057e-01 -7.0144e-01         0.4830</co
 <dl class="code-annotation-container-grid">
 <dt data-target-cell="annotated-cell-33" data-target-annotation="1">1</dt>
 <dd>
-<span data-code-annotation="1" data-code-lines="1" data-code-cell="annotated-cell-33">Create the quadrant objects.</span>
+<span data-code-lines="1" data-code-cell="annotated-cell-33" data-code-annotation="1">Create the quadrant objects.</span>
 </dd>
 <dt data-target-cell="annotated-cell-33" data-target-annotation="2">2</dt>
 <dd>
-<span data-code-annotation="2" data-code-lines="2,3" data-code-cell="annotated-cell-33">Derive the spatially lagged variable of interest (i.e.&nbsp;GDPPC) and center the spatially lagged variable around its mean.</span>
+<span data-code-lines="2,3" data-code-cell="annotated-cell-33" data-code-annotation="2">Derive the spatially lagged variable of interest (i.e.&nbsp;GDPPC) and center the spatially lagged variable around its mean.</span>
 </dd>
 <dt data-target-cell="annotated-cell-33" data-target-annotation="3">3</dt>
 <dd>
-<span data-code-annotation="3" data-code-lines="4" data-code-cell="annotated-cell-33">Center the local Moran’s around the mean.</span>
+<span data-code-lines="4" data-code-cell="annotated-cell-33" data-code-annotation="3">Center the local Moran’s around the mean.</span>
 </dd>
 <dt data-target-cell="annotated-cell-33" data-target-annotation="4">4</dt>
 <dd>
-<span data-code-annotation="4" data-code-lines="5" data-code-cell="annotated-cell-33">Set a statistical significance level for the local Moran.</span>
+<span data-code-lines="5" data-code-cell="annotated-cell-33" data-code-annotation="4">Set a statistical significance level for the local Moran.</span>
 </dd>
 <dt data-target-cell="annotated-cell-33" data-target-annotation="5">5</dt>
 <dd>
-<span data-code-annotation="5" data-code-lines="6,7,8,9" data-code-cell="annotated-cell-33">Define the low-low (1), low-high (2), high-low (3) and high-high (4) categories.</span>
+<span data-code-lines="6,7,8,9" data-code-cell="annotated-cell-33" data-code-annotation="5">Define the low-low (1), low-high (2), high-low (3) and high-high (4) categories.</span>
 </dd>
 <dt data-target-cell="annotated-cell-33" data-target-annotation="6">6</dt>
 <dd>
-<span data-code-annotation="6" data-code-lines="10" data-code-cell="annotated-cell-33">Assign non-significant Moran values to the category 0.</span>
+<span data-code-lines="10" data-code-cell="annotated-cell-33" data-code-annotation="6">Assign non-significant Moran values to the category 0.</span>
 </dd>
 </dl>
 </div>
@@ -1057,9 +1057,12 @@ Zixing        -7.6849e-01 -8.8210e-02  9.4057e-01 -7.0144e-01         0.4830</co
 </div>
 <p>Determine the cut-off distance:</p>
 <div class="cell">
+<details>
+<summary>Show code</summary>
 <div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>k1 <span class="ot">&lt;-</span> <span class="fu">knn2nb</span>(<span class="fu">knearneigh</span>(coords))</span>
 <span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>k1dists <span class="ot">&lt;-</span> <span class="fu">unlist</span>(<span class="fu">nbdists</span>(k1, coords, <span class="at">longlat =</span> <span class="cn">TRUE</span>))</span>
 <span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(k1dists)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
   24.79   32.57   38.01   39.07   44.52   61.79 </code></pre>
@@ -1140,9 +1143,12 @@ B 88 7744 704 1300 23014</code></pre>
 <div class="tab-content">
 <div id="tabset-2-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-2-1-tab">
 <div class="cell">
+<details>
+<summary>Show code</summary>
 <div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>fips <span class="ot">&lt;-</span> <span class="fu">order</span>(hunan<span class="sc">$</span>County)</span>
 <span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>gi.fixed <span class="ot">&lt;-</span> <span class="fu">localG</span>(hunan<span class="sc">$</span>GDPPC, wm62_lw)</span>
 <span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a>gi.fixed</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code> [1]  0.436075843 -0.265505650 -0.073033665  0.413017033  0.273070579
  [6] -0.377510776  2.863898821  2.794350420  5.216125401  0.228236603

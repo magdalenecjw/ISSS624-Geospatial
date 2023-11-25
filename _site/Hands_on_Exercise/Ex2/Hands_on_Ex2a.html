@@ -259,7 +259,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">November 24, 2023</p>
+      <p class="date-modified">November 25, 2023</p>
     </div>
   </div>
     
@@ -384,19 +384,19 @@ Link number distribution:
 <dl class="code-annotation-container-grid">
 <dt data-target-cell="annotated-cell-7" data-target-annotation="1">1</dt>
 <dd>
-<span data-code-cell="annotated-cell-7" data-code-lines="1" data-code-annotation="1">Show the neighbors for the first polygon. Each number shown represents one polygon ID stored in <code>hunan</code> SpatialPolygonsDataFrame class.</span>
+<span data-code-lines="1" data-code-annotation="1" data-code-cell="annotated-cell-7">Show the neighbors for the first polygon. Each number shown represents one polygon ID stored in <code>hunan</code> SpatialPolygonsDataFrame class.</span>
 </dd>
 <dt data-target-cell="annotated-cell-7" data-target-annotation="2">2</dt>
 <dd>
-<span data-code-cell="annotated-cell-7" data-code-lines="2" data-code-annotation="2">Retrieve the county name of Polygon ID=1.</span>
+<span data-code-lines="2" data-code-annotation="2" data-code-cell="annotated-cell-7">Retrieve the county name of Polygon ID=1.</span>
 </dd>
 <dt data-target-cell="annotated-cell-7" data-target-annotation="3">3</dt>
 <dd>
-<span data-code-cell="annotated-cell-7" data-code-lines="3" data-code-annotation="3">Retrieve the county names of the five neighboring polygons.</span>
+<span data-code-lines="3" data-code-annotation="3" data-code-cell="annotated-cell-7">Retrieve the county names of the five neighboring polygons.</span>
 </dd>
 <dt data-target-cell="annotated-cell-7" data-target-annotation="4">4</dt>
 <dd>
-<span data-code-cell="annotated-cell-7" data-code-lines="4" data-code-annotation="4">Retrieve the GDPPC of the five neighboring counties.</span>
+<span data-code-lines="4" data-code-annotation="4" data-code-cell="annotated-cell-7">Retrieve the GDPPC of the five neighboring counties.</span>
 </dd>
 </dl>
 </div>
@@ -645,11 +645,11 @@ Link number distribution:
 <dl class="code-annotation-container-grid">
 <dt data-target-cell="annotated-cell-10" data-target-annotation="1">1</dt>
 <dd>
-<span data-code-cell="annotated-cell-10" data-code-lines="2" data-code-annotation="1">Return a matrix with the indices of points belonging to the set of the k nearest neighbours of each other by using <code>knearneigh()</code> of <strong>spdep</strong>. Convert the returned knn object into a neighbours list of class nb with a list of integer vectors containing neighbour region number ids by using <code>knn2nb()</code>.</span>
+<span data-code-lines="2" data-code-annotation="1" data-code-cell="annotated-cell-10">Return a matrix with the indices of points belonging to the set of the k nearest neighbours of each other by using <code>knearneigh()</code> of <strong>spdep</strong>. Convert the returned knn object into a neighbours list of class nb with a list of integer vectors containing neighbour region number ids by using <code>knn2nb()</code>.</span>
 </dd>
 <dt data-target-cell="annotated-cell-10" data-target-annotation="2">2</dt>
 <dd>
-<span data-code-cell="annotated-cell-10" data-code-lines="3" data-code-annotation="2">Return the length of neighbour relationship edges by using <code>nbdists()</code> of <strong>spdep</strong>. The function returns in the units of the coordinates if the coordinates are projected, and in km if otherwise. Remove the list structure of the returned object by using <code>unlist()</code>.</span>
+<span data-code-lines="3" data-code-annotation="2" data-code-cell="annotated-cell-10">Return the length of neighbour relationship edges by using <code>nbdists()</code> of <strong>spdep</strong>. The function returns in the units of the coordinates if the coordinates are projected, and in km if otherwise. Remove the list structure of the returned object by using <code>unlist()</code>.</span>
 </dd>
 </dl>
 </div>
@@ -902,10 +902,10 @@ Average number of links: 4.727273 </code></pre>
 <p>The red lines show the links of 1st nearest neighbours and the black lines show the links of neighbours within the cut-off distance of 62km. Alternatively, the red and the black lines could be plotted in two separate graphs next to each other.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(hunan<span class="sc">$</span>geometry, <span class="at">border=</span><span class="st">"lightgrey"</span>)</span>
-<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(k1, coords, <span class="at">add=</span><span class="cn">TRUE</span>, <span class="at">col=</span><span class="st">"red"</span>, <span class="at">length=</span><span class="fl">0.08</span>, <span class="at">main=</span><span class="st">"1st nearest neighbours"</span>)</span>
-<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(hunan<span class="sc">$</span>geometry, <span class="at">border=</span><span class="st">"lightgrey"</span>)</span>
-<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(wm_d62, coords, <span class="at">add=</span><span class="cn">TRUE</span>, <span class="at">pch =</span> <span class="dv">19</span>, <span class="at">cex =</span> <span class="fl">0.6</span>, <span class="at">main=</span><span class="st">"Distance link"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(hunan<span class="sc">$</span>geometry, <span class="at">border=</span><span class="st">"lightgrey"</span>, <span class="at">main=</span><span class="st">"1st nearest neighbours"</span>)</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(k1, coords, <span class="at">add=</span><span class="cn">TRUE</span>, <span class="at">col=</span><span class="st">"red"</span>, <span class="at">length=</span><span class="fl">0.08</span>)</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(hunan<span class="sc">$</span>geometry, <span class="at">border=</span><span class="st">"lightgrey"</span>, <span class="at">main=</span><span class="st">"Distance link"</span>)</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(wm_d62, coords, <span class="at">add=</span><span class="cn">TRUE</span>, <span class="at">pch =</span> <span class="dv">19</span>, <span class="at">cex =</span> <span class="fl">0.6</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="Hands_on_Ex2a_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid" width="672"></p>
 </div>

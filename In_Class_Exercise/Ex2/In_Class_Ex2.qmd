@@ -1,5 +1,5 @@
 ---
-title: "2: Spatial Weights"
+title: "2: Spatial Weights, GLSA & EHSA"
 author: "Magdalene Chan"
 date: 2023-11-25
 date-modified: "last-modified"
@@ -7,18 +7,20 @@ execute:
   warning: false
 ---
 
-
-## Getting Started
+# Getting Started
 
 The code chunk below uses p_load() of pacman package to check if the required packages have been installed on the computer. If they are, the packages will be launched.
 
 -   **sf** package is used for importing, managing, and processing geospatial data.
 -   **tmap** package is used for thematic mapping.
 -   **sfdep** package is used to create spatial weights matrix and LISA objects using the `sf` class to represent spatial data.
+-   **plotly** package is used to create interactive graphs.
 
 ```{r}
 pacman::p_load(sf, sfdep, tmap, plotly, tidyverse, knitr)
 ```
+
+# Spatial Weights
 
 The data sets used are:
 
@@ -48,17 +50,421 @@ hunan2012 <- read_csv("data/aspatial/Hunan_2012.csv")
 
 ### Performing relational join
 
-`left_join()` of **dplyr** is used to join the geographical data and attribute table using `County` as the common identifier. Left join is done to ensure that the geometry of the `hunan` sf data frame is retained. After the join, a pipe operation is done to further select only the required columns. 
+`left_join()` of **dplyr** is used to join the geographical data and attribute table using `County` as the common identifier. Left join is done to ensure that the geospatial properties (`geometry` column) of the `hunan` sf data frame is retained. After the join, a pipe operation is done to further select only the required columns.
 
 ```{r}
-hunan_GDPPC <- left_join(hunan,hunan2012)%>%
+hunan <- left_join(hunan,hunan2012)%>%
   select(1:4, 7, 15)
 ```
 
-### Deriving continguity weights: Queen's method
+## Plot choropleth map
 
-```{r}
-wm_q <- hunan_GDPPC %>%
-  mutate(nb = st_contiguity(geometry), wt = st_weights(nb, style = "W"), .before=1)
+```{r, fig.height=9, fig.width=9}
+tmap_mode("plot")
+tm_shape(hunan) +
+  tm_fill("GDPPC", 
+          style = "quantile", 
+          palette = "Blues",
+          title = "GDPPC") +
+  tm_borders(alpha = 0.5) +
+  tm_layout(main.title = "Distribution of GDP per capita by district, Hunan Province",
+            main.title.position = "center",
+            legend.height = 0.45, 
+            legend.width = 0.35,
+            frame = TRUE) +
+  tm_scale_bar() +
+  tm_grid(alpha =0.2)
 ```
 
+## Deriving Contiguity Spatial Weights
+
+### Identify contiguity neighbours: Queen method
+
+The code chunk below computes contiguity based neighbours based on the Queen criterion using tidy method and **sfdep** package (instead of **spdep** package). 
+
+> In both packages, the `queen` argument takes `TRUE` (default) or `FALSE` as options. The `queen` argument is not specified in the code chunk below, hence, the default value of `TRUE` will be used. 
+
+```{r}
+nb_q <- hunan %>%
+  mutate(nb = st_contiguity(geometry), .before=1)
+```
+
+The code chunk below is used to print the summary of the first lag neighbour list.
+
+```{r}
+summary(nb_q$nb)
+```
+
+The summary report above shows that there are 88 area units in Hunan province. The most connected area unit has 11 neighbours. There are two are units with only one neighbour.
+
+View the content of the data tables using the code chunk below. 
+
+> Using **sfdep** instead of **spdep** gives an output that is a sf tibble data frame.
+
+```{r}
+kable(head(nb_q, n=10))
+```
+
+The table above shows that polygon 1 has five neighbours. They are polygons number 2, 3, 4, 57,and 85.
+
+### Identify contiguity neighbours: Rook method
+
+The code chunk below computes contiguity based neighbours based on the Rook criterion using the **sfdept** package. 
+
+> The `queen` argument is now set to `FALSE` to compute based on the Rook criterion. 
+
+```{r}
+nb_r <- hunan %>%
+  mutate(nb = st_contiguity(geometry, queen = FALSE), .before=1)
+```
+
+The code chunk below is used to print the summary of the first lag neighbour list.
+
+```{r}
+summary(nb_q$nb)
+```
+
+The summary report above shows that there are 88 area units in Hunan province. The most connected area unit has 11 neighbours. There are two are units with only one neighbour.
+
+View the content of the data tables using the code chunk below:
+
+```{r}
+kable(head(nb_r, n=10))
+```
+
+The table above shows that polygon 1 has four neighbours. They are polygons number 3, 4, 57,and 85.
+
+### Identifying higher order neighbours
+
+To identify higher order contiguity neighbours, use `st_nb_lag_cumul()` as shown in the code chunk below.
+
+```{r}
+nb2_queen <-  hunan %>% 
+  mutate(nb = st_contiguity(geometry),
+         nb2 = st_nb_lag_cumul(nb, 2),
+         .before = 1)
+```
+
+Note that if the order is 2, the result contains both 1st and 2nd order neighbors as shown on the print below.
+
+```{r}
+nb2_queen
+```
+
+### Compute contiguity weights: Queen method
+
+Compute the contiguity weights by using `st_weights()` of **sfdep** package. In the code chunk below, Queen method is used to derive the contiguity weights.
+
+> In the **spdep** package, the weights matrix can be retrieved together with the neighbour list from the `poly2nb()` argument. 
+
+```{r}
+wm_q <- hunan %>%
+  mutate(nb = st_contiguity(geometry),
+         wt = st_weights(nb, style = "W"),
+         .before = 1) 
+```
+
+`st_weights()` takes in three arguments:
+
+-   `nb`: A neighbor list object as created by `st_neighbors()`.
+-   `style`: Default `“W”` for row standardized weights. This value can also be `“B”` (basic binary coding), `“C”` (globally standardised, or sums over all links to n), `“U”` (C divided by the number of neighbours, or sums over all links to unity), `“minmax”`, and `“S”` (the variance-stabilizing coding scheme proposed by Tiefelsdorf et al. 1999, p. 167-168, or sums over all links to n).
+-   `allow_zero`: If `TRUE`, assigns zero as lagged value to zone without neighbors.
+
+```{r}
+wm_q
+```
+
+## Distance-based weights
+
+There are three popularly used distance-based spatial weights, they are:
+
+- fixed distance weights,
+- adaptive distance weights, and
+- inverse distance weights (IDW).
+
+### Deriving fixed distance weights
+
+Before deriving the fixed distance weights, determine the upper limit for distance band by using the steps below. 
+
+```{r}
+geo <- sf::st_geometry(hunan)
+nb <- st_knn(geo, longlat = TRUE)
+dists <- unlist(st_nb_dists(geo, nb))
+```
+
+> `st_nb_dists()` of **sfdep** is used to calculate the nearest neighbour distance. The output is a list of distances for each observation’s neighbors list.
+> `unlist()` of Base R is then used to return the output as a vector so that the summary statistics of the nearest neighbour distances can be derived.
+
+Next, derive summary statistics of the nearest neighbour distances vector (i.e. dists) by using the code chunk below.
+
+```{r}
+summary(dists)
+```
+
+The summary statistics report above shows that the maximum nearest neighbour distance is 65.80km. By using a threshold value of 66km will ensure that each area will have at least one neighbour. 
+
+Next, compute the fixed distance weights by using the code chunk below.
+
+```{r}
+wm_fd <- hunan %>%
+  mutate(nb = st_dist_band(geometry, upper = 66),
+               wt = st_weights(nb),
+               .before = 1)
+```
+
+> `st_dists_band()` of **sfdep** is used to identify neighbors based on a distance band (i.e. 66km). The output is a list of neighbours (i.e. nb).
+> `st_weights()` is then used to calculate polygon spatial weights of the nb list. Note that: (1) the default style argument is set to `“W”` for row standardized weights, and
+the default `allow_zero` is set to `TRUE`, which assigns zero as lagged value to zone without neighbors.
+
+```{r}
+kable(head(wm_fd, n=10))
+```
+
+### Deriving adaptive distance weights
+
+```{r}
+wm_ad <- hunan %>% 
+  mutate(nb = st_knn(geometry,
+                     k=8),
+         wt = st_weights(nb),
+               .before = 1)
+```
+
+> `st_knn()` of **sfdep** is used to identify neighbors based on k (i.e. `k = 8` indicates the nearest eight neighbours). The output is a list of neighbours (i.e. `nb`).
+> `st_weights()` is then used to calculate polygon spatial weights of the nb list. Note that: (1) the default style argument is set to `“W”` for row standardized weights, and
+the default `allow_zero` is set to `TRUE`, which assigns zero as lagged value to zone without neighbors.
+
+### Deriving inverse distance weights
+
+```{r}
+wm_idw <- hunan %>%
+  mutate(nb = st_contiguity(geometry),
+         wts = st_inverse_distance(nb, geometry, scale = 1, alpha = 1),
+         .before = 1)
+```
+
+> `st_contiguity()` of **sfdep** is used to identify the neighbours by using contiguity criteria. The output is a list of neighbours (i.e. `nb`).
+> `st_inverse_distance()` is then used to calculate inverse distance weights of neighbours on the `nb` list.
+
+:::callout-note
+
+#### Learnings from the above exercise
+
+**sfdep** package can be used to perform the same spatial weights computations as **spdep** package, but with additional functionalities and has a sf and tidyverse friendly interface to the package. There is also a mapping of the functions in **sfdep** against that of **spdep** in the [documentation](https://sfdep.josiahparry.com/articles/spdep-and-pysal). 
+
+:::
+
+# Global & Local Measures of Spatial Autocorrelation (GLSA)
+
+## Computing Global Moran's I
+
+In the code chunk below, `global_moran()` function is used to compute the Moran’s I value. Different from **spdep** package, the output is a tibble data.frame.
+
+```{r}
+moranI <- global_moran(wm_q$GDPPC,
+                       wm_q$nb,
+                       wm_q$wt)
+glimpse(moranI)
+```
+
+In general, Moran’s I test will be performed instead of just computing the Moran’s I statistics. With sfdep package, Moran’s I test can be performed by using `global_moran_test() `as shown in the code chunk below.
+
+```{r}
+global_moran_test(wm_q$GDPPC,
+                       wm_q$nb,
+                       wm_q$wt)
+```
+
+> The default for `alternative` argument is `“two.sided”`. Other supported arguments are `“greater”` or `“less”`.
+> The default for `randomization` argument is `TRUE`. If `FALSE`, there is an assumption of normality.
+
+## Performing Global Moran's I Permutation test
+
+In practice, monte carlo simulation should be used to perform the statistical test. For **sfdep**, it is supported by `globel_moran_perm()`. It is always a good practice to use `set.seed()` before performing simulation to ensure that the computation is reproducible.
+
+> The numbers of simulation is alway equal to `nsim` + 1. This mean that if `nsim = 99`, 100 simulations will be performed.
+
+```{r}
+set.seed(1234)
+global_moran_perm(wm_q$GDPPC, wm_q$nb, wm_q$wt, nsim = 99)
+```
+
+The report above show that the p-value is smaller than alpha value of 0.05. Hence, reject the null hypothesis that the spatial patterns spatial independent. Because the Moran’s I statistics is greater than 0, it can be inferred that the spatial distribution shows sign of clustering.
+
+## Computing Local Moran's I
+
+Compute local Moran's I of GDPPC at county level by using `local_moran()` of **sfdep** package. 
+
+> `unnest()` of **tidyr** package is used to expand a list-column containing data frames into rows and columns.
+
+```{r}
+lisa <- wm_q %>%
+  mutate(local_moran = local_moran(GDPPC, nb, wt, nsim = 99),
+         .before = 1) %>%
+  unnest(local_moran)
+```
+
+## Visualising Local Moran's I and p-values of Local Moran's I
+
+In this code chunk below, **tmap** functions are used prepare a choropleth map using values in the `ii` and `p_ii` fields.
+
+> For p-values, the appropriate classification should be 0.001, 0.01, 0.05 and not significant instead of using default classification scheme.
+
+```{r}
+tmap_mode("plot")
+map1 <- tm_shape(lisa) +
+  tm_fill("ii", palette = "Blues") + 
+  tm_borders(alpha = 0.5) +
+  tm_view(set.zoom.limits = c(6,8)) +
+  tm_layout(main.title = "local Moran's I of GDPPC",
+            main.title.size = 0.8)
+
+map2 <- tm_shape(lisa) +
+  tm_fill("p_ii", palette = "-Greys",
+          breaks = c(0, 0.001, 0.01, 0.05, 1),
+          labels = c("0.001", "0.01", "0.05", "Not sig")) + 
+  tm_borders(alpha = 0.5) +
+  tm_layout(main.title = "p-value of local Moran's I",
+            main.title.size = 0.8)
+
+tmap_arrange(map1, map2, ncol = 2)
+```
+
+## Visualising LISA map
+
+LISA map is a categorical map showing outliers and clusters. There are two types of outliers namely: High-Low and Low-High outliers. Likewise, there are two type of clusters namely: High-High and Low-Low clusters. 
+
+> LISA map is an interpreted map by combining local Moran’s I of geographical areas and their respective p-values.
+
+In `lisa` sf data.frame, there are three fields containing the LISA categories. They are `mean`, `median` and `pysal.` In general, classification in mean will be used as shown in the code chunk below.
+
+> If the distribution is skewed, it is not advisable to use mean.
+
+```{r}
+lisa_sig <- lisa  %>%
+  filter(p_ii < 0.05)
+tmap_mode("plot")
+tm_shape(lisa) +
+  tm_polygons() +
+  tm_borders(alpha = 0.5) +
+tm_shape(lisa_sig) +
+  tm_fill("mean") + 
+  tm_borders(alpha = 0.4)
+```
+
+# Emerging Hot Spot Analysis (EHSA)
+
+The data sets used are:
+
+-   Hunan county boundary layer: a geospatial data set in ESRI shapefile format (already loaded).
+-   Hunan_GDPPC.csv: csv file that contains Hunan's local GDPPC from 2005 to 2021.
+
+## Importing Data
+
+### Import aspatial data into R
+
+The code chunk below uses the `read_csv()` function of **readr** package to import `Hunan_GDPPC.csv` file into R and save it as a R dataframe called `hunan_gdppc`.
+
+```{r}
+GDPPC <- read_csv("data/aspatial/Hunan_GDPPC.csv")
+```
+
+### Create a Time Series Cube
+
+The code chunk below creates a time-space cube (spacetime cube) using `spacetime()` of **sfdep**.
+
+```{r}
+GDPPC_st <- spacetime(GDPPC, hunan, .loc_col = "County", .time_col = "Year")
+```
+
+The code chunk below checks that the time series cube has been created correctly.
+
+```{r}
+is_spacetime_cube(GDPPC_st)
+```
+
+The `TRUE` return confirms that `GDPPC_st` object is indeed a time-space cube.
+
+### Derive spatial weights
+
+The code chunk below will be used to identify neighbours and to derive an inverse distance weights.
+
+```{r}
+GDPPC_nb <- GDPPC_st %>%
+  activate("geometry") %>%
+  mutate(nb = include_self(st_contiguity(geometry)),
+         wt = st_inverse_distance(nb, geometry, scale = 1, alpha = 1),
+         .before = 1) %>%
+  set_nbs("nb") %>%
+  set_wts("wt")
+
+head(GDPPC_nb)
+```
+
+> `activate()` of **dplyr** package is used to activate the geometry context.
+> `mutate()` of **dplyr** package is used to create two new columns `nb` and `wt`. 
+> Then activate the data context again and copy over the `nb` and `wt` columns to each time-slice using `set_nbs()` and `set_wts()`.
+> Row order is very important so do not rearrange the observations after using `set_nbs()` or `set_wts()`.
+
+The dataset now has neighbors and weights for each time-slice.
+
+```{r}
+head(GDPPC_nb)
+```
+
+### Computing G~i~\*
+
+The new columns are then used to manually compute the local G~i~\* for each location by grouping `Year` and using `local_gstar_perm()` of **sfdep** package. After which, use `unnest()` to unnest `gi_star` column of the newly created `gi_stars` data frame.
+
+```{r}
+gi_stars <- GDPPC_nb %>%
+  group_by(Year) %>%
+  mutate(gi_star = local_gstar_perm(GDPPC, nb, wt)) %>%
+  tidyr::unnest(gi_star)
+```
+
+### Perform Emerging Hotspot Analysis
+
+Perform EHSA analysis by using `emerging_hotspot_analysis()` of **sfdep** package. It takes a spacetime object (i.e. `GDPPC_st`), and the quoted name of the variable of interest (i.e. `GDPPC`) for `.var` argument. The `k` argument is used to specify the number of time lags which is set to 1 by default. Lastly, `nsim` defines the number of simulations to be performed.
+
+```{r}
+ehsa <- emerging_hotspot_analysis(x = GDPPC_st, 
+                                  .var = "GDPPC", 
+                                  k = 1, 
+                                  nsim = 99)
+```
+
+### Visualising the distribution of EHSA classes
+
+In the code chunk below, **ggplot2** functions are used to reveal the distribution of EHSA classes as a bar chart.
+
+```{r}
+ggplot(data = ehsa,
+       aes(x = classification)) +
+  geom_bar()
+```
+
+Figure above shows that the "sporadic cold spots" class has the highest count of counties.
+
+### Visualising EHSA
+
+Before visualising the geographic distribution EHSA classes, the data frames `hunan` and `ehsa` must be joined together by using the code chunk below.
+
+```{r}
+hunan_ehsa <- hunan %>%
+  left_join(ehsa, by = c("County" = "location"))
+```
+
+Next, **tmap** functions will be used to plot a categorical choropleth map by using the code chunk below.
+
+```{r}
+ehsa_sig <- hunan_ehsa  %>%
+  filter(p_value < 0.05)
+tmap_mode("plot")
+tm_shape(hunan_ehsa) +
+  tm_polygons() +
+  tm_borders(alpha = 0.5) +
+tm_shape(ehsa_sig) +
+  tm_fill("classification") + 
+  tm_borders(alpha = 0.4)
+```

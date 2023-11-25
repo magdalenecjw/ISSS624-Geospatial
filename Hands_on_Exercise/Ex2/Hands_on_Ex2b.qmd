@@ -529,6 +529,8 @@ coords <- cbind(longitude, latitude)
 
 Determine the cut-off distance:
 ```{r}
+#| code-fold: true
+#| code-summary: "Show code"
 k1 <- knn2nb(knearneigh(coords))
 k1dists <- unlist(nbdists(k1, coords, longlat = TRUE))
 summary(k1dists)
@@ -565,6 +567,8 @@ summary(knn_lw)
 ### Using fixed distance weights matrix
 
 ```{r}
+#| code-fold: true
+#| code-summary: "Show code"
 fips <- order(hunan$County)
 gi.fixed <- localG(hunan$GDPPC, wm62_lw)
 gi.fixed
