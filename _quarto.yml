@@ -19,6 +19,8 @@ website:
         menu: 
         - text: "In-class Exercise 1"
           href: In_Class_Exercise/Ex1/In_Class_Ex1.qmd
+        - text: "In-class Exercise 2"
+          href: In_Class_Exercise/Ex2/In_Class_Ex2.qmd
       - text: "Hands-on Exercise"
         menu: 
         - text: "1a: Geospatial Data Wrangling"

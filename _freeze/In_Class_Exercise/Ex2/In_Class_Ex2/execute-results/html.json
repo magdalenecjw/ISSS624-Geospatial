@@ -1,0 +1,16 @@
+{
+  "hash": "9611742049d56d5a222491673516c325",
+  "result": {
+    "markdown": "---\ntitle: \"2: Spatial Weights\"\nauthor: \"Magdalene Chan\"\ndate: 2023-11-25\ndate-modified: \"last-modified\"\nexecute: \n  warning: false\n---\n\n\n\n## Getting Started\n\nThe code chunk below uses p_load() of pacman package to check if the required packages have been installed on the computer. If they are, the packages will be launched.\n\n-   **sf** package is used for importing, managing, and processing geospatial data.\n-   **tmap** package is used for thematic mapping.\n-   **sfdep** package is used to create spatial weights matrix and LISA objects using the `sf` class to represent spatial data.\n\n\n::: {.cell}\n\n```{.r .cell-code}\npacman::p_load(sf, sfdep, tmap, plotly, tidyverse, knitr)\n```\n:::\n\n\nThe data sets used are:\n\n-   Hunan county boundary layer: a geospatial data set in ESRI shapefile format.\n-   Hunan_2012.csv: csv file that contains selected Hunan's local development indicators in 2012.\n\n## Importing Data\n\n### Import shapefile into R\n\nThe code chunk below uses the `st_read()` function of **sf** package to import Hunan county boundary shapefile into R as a simple feature data frame called `hunan`.\n\n\n::: {.cell}\n\n```{.r .cell-code}\nhunan <- st_read(dsn = \"data/geospatial\", \n                 layer = \"Hunan\")\n```\n\n::: {.cell-output .cell-output-stdout}\n```\nReading layer `Hunan' from data source \n  `C:\\magdalenecjw\\ISSS624 Geospatial\\In_Class_Exercise\\Ex2\\data\\geospatial' \n  using driver `ESRI Shapefile'\nSimple feature collection with 88 features and 7 fields\nGeometry type: POLYGON\nDimension:     XY\nBounding box:  xmin: 108.7831 ymin: 24.6342 xmax: 114.2544 ymax: 30.12812\nGeodetic CRS:  WGS 84\n```\n:::\n:::\n\n\nThere are a total of 88 polygon features and 7 fields in `hunan` simple feature data frame. `hunan` is in **wgs84** GCS.\n\n### Import aspatial data into R\n\nThe code chunk below uses the `read_csv()` function of **readr** package to import `Hunan_2012.csv` file into R and save it as a R dataframe called `hunan2012`.\n\n\n::: {.cell}\n\n```{.r .cell-code}\nhunan2012 <- read_csv(\"data/aspatial/Hunan_2012.csv\")\n```\n:::\n\n\n### Performing relational join\n\n`left_join()` of **dplyr** is used to join the geographical data and attribute table using `County` as the common identifier.\n\n\n::: {.cell}\n\n```{.r .cell-code}\nhunan <- left_join(hunan,hunan2012)%>%\n  select(1:4, 7, 15)\n```\n:::\n",
+    "supporting": [
+      "In_Class_Ex2_files"
+    ],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}
