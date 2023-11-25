@@ -155,11 +155,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>  
         <li>
     <a class="dropdown-item" href="../../Hands_on_Exercise/Ex2/Hands_on_Ex2b.html" rel="" target="">
- <span class="dropdown-text">2b: Global Measures of Spatial Autocorrelation</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../../Hands_on_Exercise/Ex2/Hands_on_Ex2c.html" rel="" target="">
- <span class="dropdown-text">2c: Local Measures of Spatial Autocorrelation</span></a>
+ <span class="dropdown-text">2b: Measures of Spatial Autocorrelation</span></a>
   </li>  
     </ul>
   </li>
@@ -200,6 +196,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#import-shapefile-into-r" id="toc-import-shapefile-into-r" class="nav-link" data-scroll-target="#import-shapefile-into-r">Import shapefile into R</a></li>
   <li><a href="#import-aspatial-data-into-r" id="toc-import-aspatial-data-into-r" class="nav-link" data-scroll-target="#import-aspatial-data-into-r">Import aspatial data into R</a></li>
   <li><a href="#performing-relational-join" id="toc-performing-relational-join" class="nav-link" data-scroll-target="#performing-relational-join">Performing relational join</a></li>
+  <li><a href="#deriving-continguity-weights-queens-method" id="toc-deriving-continguity-weights-queens-method" class="nav-link" data-scroll-target="#deriving-continguity-weights-queens-method">Deriving continguity weights: Queen’s method</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -289,10 +286,17 @@ Geodetic CRS:  WGS 84</code></pre>
 </section>
 <section id="performing-relational-join" class="level3">
 <h3 class="anchored" data-anchor-id="performing-relational-join">Performing relational join</h3>
-<p><code>left_join()</code> of <strong>dplyr</strong> is used to join the geographical data and attribute table using <code>County</code> as the common identifier.</p>
+<p><code>left_join()</code> of <strong>dplyr</strong> is used to join the geographical data and attribute table using <code>County</code> as the common identifier. Left join is done to ensure that the geometry of the <code>hunan</code> sf data frame is retained. After the join, a pipe operation is done to further select only the required columns.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>hunan <span class="ot">&lt;-</span> <span class="fu">left_join</span>(hunan,hunan2012)<span class="sc">%&gt;%</span></span>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>hunan_GDPPC <span class="ot">&lt;-</span> <span class="fu">left_join</span>(hunan,hunan2012)<span class="sc">%&gt;%</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>, <span class="dv">7</span>, <span class="dv">15</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="deriving-continguity-weights-queens-method" class="level3">
+<h3 class="anchored" data-anchor-id="deriving-continguity-weights-queens-method">Deriving continguity weights: Queen’s method</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>wm_q <span class="ot">&lt;-</span> hunan_GDPPC <span class="sc">%&gt;%</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">nb =</span> <span class="fu">st_contiguity</span>(geometry), <span class="at">wt =</span> <span class="fu">st_weights</span>(nb, <span class="at">style =</span> <span class="st">"W"</span>), <span class="at">.before=</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 
 

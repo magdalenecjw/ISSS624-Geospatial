@@ -1,0 +1,64 @@
+---
+title: "2: Spatial Weights"
+author: "Magdalene Chan"
+date: 2023-11-25
+date-modified: "last-modified"
+execute: 
+  warning: false
+---
+
+
+## Getting Started
+
+The code chunk below uses p_load() of pacman package to check if the required packages have been installed on the computer. If they are, the packages will be launched.
+
+-   **sf** package is used for importing, managing, and processing geospatial data.
+-   **tmap** package is used for thematic mapping.
+-   **sfdep** package is used to create spatial weights matrix and LISA objects using the `sf` class to represent spatial data.
+
+```{r}
+pacman::p_load(sf, sfdep, tmap, plotly, tidyverse, knitr)
+```
+
+The data sets used are:
+
+-   Hunan county boundary layer: a geospatial data set in ESRI shapefile format.
+-   Hunan_2012.csv: csv file that contains selected Hunan's local development indicators in 2012.
+
+## Importing Data
+
+### Import shapefile into R
+
+The code chunk below uses the `st_read()` function of **sf** package to import Hunan county boundary shapefile into R as a simple feature data frame called `hunan`.
+
+```{r}
+hunan <- st_read(dsn = "data/geospatial", 
+                 layer = "Hunan")
+```
+
+There are a total of 88 polygon features and 7 fields in `hunan` simple feature data frame. `hunan` is in **wgs84** GCS.
+
+### Import aspatial data into R
+
+The code chunk below uses the `read_csv()` function of **readr** package to import `Hunan_2012.csv` file into R and save it as a R dataframe called `hunan2012`.
+
+```{r}
+hunan2012 <- read_csv("data/aspatial/Hunan_2012.csv")
+```
+
+### Performing relational join
+
+`left_join()` of **dplyr** is used to join the geographical data and attribute table using `County` as the common identifier. Left join is done to ensure that the geometry of the `hunan` sf data frame is retained. After the join, a pipe operation is done to further select only the required columns. 
+
+```{r}
+hunan_GDPPC <- left_join(hunan,hunan2012)%>%
+  select(1:4, 7, 15)
+```
+
+### Deriving continguity weights: Queen's method
+
+```{r}
+wm_q <- hunan_GDPPC %>%
+  mutate(nb = st_contiguity(geometry), wt = st_weights(nb, style = "W"), .before=1)
+```
+

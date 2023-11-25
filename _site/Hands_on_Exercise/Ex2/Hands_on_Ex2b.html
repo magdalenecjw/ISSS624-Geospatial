@@ -158,11 +158,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>  
         <li>
     <a class="dropdown-item" href="../../Hands_on_Exercise/Ex2/Hands_on_Ex2b.html" rel="" target="">
- <span class="dropdown-text">2b: Global Measures of Spatial Autocorrelation</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../../Hands_on_Exercise/Ex2/Hands_on_Ex2c.html" rel="" target="">
- <span class="dropdown-text">2c: Local Measures of Spatial Autocorrelation</span></a>
+ <span class="dropdown-text">2b: Measures of Spatial Autocorrelation</span></a>
   </li>  
     </ul>
   </li>
@@ -238,8 +234,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#getis-and-ords-g-statistics" id="toc-getis-and-ords-g-statistics" class="nav-link" data-scroll-target="#getis-and-ords-g-statistics">Getis and Ord’s G-Statistics</a></li>
   <li><a href="#deriving-distance-based-weights-matrix" id="toc-deriving-distance-based-weights-matrix" class="nav-link" data-scroll-target="#deriving-distance-based-weights-matrix">Deriving distance-based weights matrix</a></li>
   <li><a href="#computing-gi-statistics" id="toc-computing-gi-statistics" class="nav-link" data-scroll-target="#computing-gi-statistics">Computing G<sub>i</sub> statistics</a></li>
-  <li><a href="#using-fixed-distance-weights-matrix" id="toc-using-fixed-distance-weights-matrix" class="nav-link" data-scroll-target="#using-fixed-distance-weights-matrix">Using fixed distance weights matrix</a></li>
-  <li><a href="#using-adaptive-distance-weights-matrix" id="toc-using-adaptive-distance-weights-matrix" class="nav-link" data-scroll-target="#using-adaptive-distance-weights-matrix">Using adaptive distance weights matrix</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -957,27 +951,27 @@ Zixing        -7.6849e-01 -8.8210e-02  9.4057e-01 -7.0144e-01         0.4830</co
 <dl class="code-annotation-container-grid">
 <dt data-target-cell="annotated-cell-33" data-target-annotation="1">1</dt>
 <dd>
-<span data-code-cell="annotated-cell-33" data-code-lines="1" data-code-annotation="1">Create the quadrant objects.</span>
+<span data-code-cell="annotated-cell-33" data-code-annotation="1" data-code-lines="1">Create the quadrant objects.</span>
 </dd>
 <dt data-target-cell="annotated-cell-33" data-target-annotation="2">2</dt>
 <dd>
-<span data-code-cell="annotated-cell-33" data-code-lines="2,3" data-code-annotation="2">Derive the spatially lagged variable of interest (i.e.&nbsp;GDPPC) and center the spatially lagged variable around its mean.</span>
+<span data-code-cell="annotated-cell-33" data-code-annotation="2" data-code-lines="2,3">Derive the spatially lagged variable of interest (i.e.&nbsp;GDPPC) and center the spatially lagged variable around its mean.</span>
 </dd>
 <dt data-target-cell="annotated-cell-33" data-target-annotation="3">3</dt>
 <dd>
-<span data-code-cell="annotated-cell-33" data-code-lines="4" data-code-annotation="3">Center the local Moran’s around the mean.</span>
+<span data-code-cell="annotated-cell-33" data-code-annotation="3" data-code-lines="4">Center the local Moran’s around the mean.</span>
 </dd>
 <dt data-target-cell="annotated-cell-33" data-target-annotation="4">4</dt>
 <dd>
-<span data-code-cell="annotated-cell-33" data-code-lines="5" data-code-annotation="4">Set a statistical significance level for the local Moran.</span>
+<span data-code-cell="annotated-cell-33" data-code-annotation="4" data-code-lines="5">Set a statistical significance level for the local Moran.</span>
 </dd>
 <dt data-target-cell="annotated-cell-33" data-target-annotation="5">5</dt>
 <dd>
-<span data-code-cell="annotated-cell-33" data-code-lines="6,7,8,9" data-code-annotation="5">Define the low-low (1), low-high (2), high-low (3) and high-high (4) categories.</span>
+<span data-code-cell="annotated-cell-33" data-code-annotation="5" data-code-lines="6,7,8,9">Define the low-low (1), low-high (2), high-low (3) and high-high (4) categories.</span>
 </dd>
 <dt data-target-cell="annotated-cell-33" data-target-annotation="6">6</dt>
 <dd>
-<span data-code-cell="annotated-cell-33" data-code-lines="10" data-code-annotation="6">Assign non-significant Moran values to the category 0.</span>
+<span data-code-cell="annotated-cell-33" data-code-annotation="6" data-code-lines="10">Assign non-significant Moran values to the category 0.</span>
 </dd>
 </dl>
 </div>
@@ -1141,10 +1135,10 @@ B 88 7744 704 1300 23014</code></pre>
 </section>
 <section id="computing-gi-statistics" class="level3">
 <h3 class="anchored" data-anchor-id="computing-gi-statistics">Computing G<sub>i</sub> statistics</h3>
-<p>:::panel-tabset</p>
-</section>
-<section id="using-fixed-distance-weights-matrix" class="level3">
-<h3 class="anchored" data-anchor-id="using-fixed-distance-weights-matrix">Using fixed distance weights matrix</h3>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-2-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-1" role="tab" aria-controls="tabset-2-1" aria-selected="true">Using fixed distance weights matrix</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-2-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-2-2" role="tab" aria-controls="tabset-2-2" aria-selected="false">Using adaptive distance weights matrix</a></li></ul>
+<div class="tab-content">
+<div id="tabset-2-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-2-1-tab">
 <div class="cell">
 <div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>fips <span class="ot">&lt;-</span> <span class="fu">order</span>(hunan<span class="sc">$</span>County)</span>
 <span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>gi.fixed <span class="ot">&lt;-</span> <span class="fu">localG</span>(hunan<span class="sc">$</span>GDPPC, wm62_lw)</span>
@@ -1302,9 +1296,8 @@ attr(,"class")
 <p><img src="Hands_on_Ex2b_files/figure-html/unnamed-chunk-42-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-</section>
-<section id="using-adaptive-distance-weights-matrix" class="level3">
-<h3 class="anchored" data-anchor-id="using-adaptive-distance-weights-matrix">Using adaptive distance weights matrix</h3>
+</div>
+<div id="tabset-2-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-2-2-tab">
 <p>The code chunk below is used to compute the G<sub>i</sub> values for GDPPC2012 by using an adaptive distance weights matrix (i.e <code>knb_lw</code>).</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a>fips <span class="ot">&lt;-</span> <span class="fu">order</span>(hunan<span class="sc">$</span>County)</span>
@@ -1330,6 +1323,9 @@ attr(,"class")
 <span id="cb64-13"><a href="#cb64-13" aria-hidden="true" tabindex="-1"></a>             <span class="at">ncol=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="Hands_on_Ex2b_files/figure-html/unnamed-chunk-44-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</div>
 </div>
 </div>
 
