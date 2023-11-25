@@ -8,7 +8,6 @@ listing:
   - Ex1/Hands_on_Ex1b.qmd
   - Ex2/Hands_on_Ex2a.qmd
   - Ex2/Hands_on_Ex2b.qmd
-  - Ex2/Hands_on_Ex2c.qmd
   - Ex3/Hands_on_Ex3.qmd
   - Ex4/Hands_on_Ex4.qmd
   - "!index.qmd"

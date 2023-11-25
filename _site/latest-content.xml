@@ -1399,27 +1399,27 @@ font-style: inherit;">0</span></span><div class="code-annotation-gutter-bg"></di
 <dl class="code-annotation-container-grid">
 <dt data-target-cell="annotated-cell-33" data-target-annotation="1">1</dt>
 <dd>
-<span data-code-cell="annotated-cell-33" data-code-annotation="1" data-code-lines="1">Create the quadrant objects.</span>
+<span data-code-annotation="1" data-code-cell="annotated-cell-33" data-code-lines="1">Create the quadrant objects.</span>
 </dd>
 <dt data-target-cell="annotated-cell-33" data-target-annotation="2">2</dt>
 <dd>
-<span data-code-cell="annotated-cell-33" data-code-annotation="2" data-code-lines="2,3">Derive the spatially lagged variable of interest (i.e.&nbsp;GDPPC) and center the spatially lagged variable around its mean.</span>
+<span data-code-annotation="2" data-code-cell="annotated-cell-33" data-code-lines="2,3">Derive the spatially lagged variable of interest (i.e.&nbsp;GDPPC) and center the spatially lagged variable around its mean.</span>
 </dd>
 <dt data-target-cell="annotated-cell-33" data-target-annotation="3">3</dt>
 <dd>
-<span data-code-cell="annotated-cell-33" data-code-annotation="3" data-code-lines="4">Center the local Moran’s around the mean.</span>
+<span data-code-annotation="3" data-code-cell="annotated-cell-33" data-code-lines="4">Center the local Moran’s around the mean.</span>
 </dd>
 <dt data-target-cell="annotated-cell-33" data-target-annotation="4">4</dt>
 <dd>
-<span data-code-cell="annotated-cell-33" data-code-annotation="4" data-code-lines="5">Set a statistical significance level for the local Moran.</span>
+<span data-code-annotation="4" data-code-cell="annotated-cell-33" data-code-lines="5">Set a statistical significance level for the local Moran.</span>
 </dd>
 <dt data-target-cell="annotated-cell-33" data-target-annotation="5">5</dt>
 <dd>
-<span data-code-cell="annotated-cell-33" data-code-annotation="5" data-code-lines="6,7,8,9">Define the low-low (1), low-high (2), high-low (3) and high-high (4) categories.</span>
+<span data-code-annotation="5" data-code-cell="annotated-cell-33" data-code-lines="6,7,8,9">Define the low-low (1), low-high (2), high-low (3) and high-high (4) categories.</span>
 </dd>
 <dt data-target-cell="annotated-cell-33" data-target-annotation="6">6</dt>
 <dd>
-<span data-code-cell="annotated-cell-33" data-code-annotation="6" data-code-lines="10">Assign non-significant Moran values to the category 0.</span>
+<span data-code-annotation="6" data-code-cell="annotated-cell-33" data-code-lines="10">Assign non-significant Moran values to the category 0.</span>
 </dd>
 </dl>
 </div>
@@ -2459,19 +2459,19 @@ font-style: inherit;">1</span>]]]</span><div class="code-annotation-gutter-bg"><
 <dl class="code-annotation-container-grid">
 <dt data-target-cell="annotated-cell-7" data-target-annotation="1">1</dt>
 <dd>
-<span data-code-cell="annotated-cell-7" data-code-annotation="1" data-code-lines="1">Show the neighbors for the first polygon. Each number shown represents one polygon ID stored in <code>hunan</code> SpatialPolygonsDataFrame class.</span>
+<span data-code-cell="annotated-cell-7" data-code-lines="1" data-code-annotation="1">Show the neighbors for the first polygon. Each number shown represents one polygon ID stored in <code>hunan</code> SpatialPolygonsDataFrame class.</span>
 </dd>
 <dt data-target-cell="annotated-cell-7" data-target-annotation="2">2</dt>
 <dd>
-<span data-code-cell="annotated-cell-7" data-code-annotation="2" data-code-lines="2">Retrieve the county name of Polygon ID=1.</span>
+<span data-code-cell="annotated-cell-7" data-code-lines="2" data-code-annotation="2">Retrieve the county name of Polygon ID=1.</span>
 </dd>
 <dt data-target-cell="annotated-cell-7" data-target-annotation="3">3</dt>
 <dd>
-<span data-code-cell="annotated-cell-7" data-code-annotation="3" data-code-lines="3">Retrieve the county names of the five neighboring polygons.</span>
+<span data-code-cell="annotated-cell-7" data-code-lines="3" data-code-annotation="3">Retrieve the county names of the five neighboring polygons.</span>
 </dd>
 <dt data-target-cell="annotated-cell-7" data-target-annotation="4">4</dt>
 <dd>
-<span data-code-cell="annotated-cell-7" data-code-annotation="4" data-code-lines="4">Retrieve the GDPPC of the five neighboring counties.</span>
+<span data-code-cell="annotated-cell-7" data-code-lines="4" data-code-annotation="4">Retrieve the GDPPC of the five neighboring counties.</span>
 </dd>
 </dl>
 </div>
@@ -2904,11 +2904,11 @@ font-style: inherit;">summary</span>(k1dists)</span><div class="code-annotation-
 <dl class="code-annotation-container-grid">
 <dt data-target-cell="annotated-cell-10" data-target-annotation="1">1</dt>
 <dd>
-<span data-code-cell="annotated-cell-10" data-code-annotation="1" data-code-lines="2">Return a matrix with the indices of points belonging to the set of the k nearest neighbours of each other by using <code>knearneigh()</code> of <strong>spdep</strong>. Convert the returned knn object into a neighbours list of class nb with a list of integer vectors containing neighbour region number ids by using <code>knn2nb()</code>.</span>
+<span data-code-cell="annotated-cell-10" data-code-lines="2" data-code-annotation="1">Return a matrix with the indices of points belonging to the set of the k nearest neighbours of each other by using <code>knearneigh()</code> of <strong>spdep</strong>. Convert the returned knn object into a neighbours list of class nb with a list of integer vectors containing neighbour region number ids by using <code>knn2nb()</code>.</span>
 </dd>
 <dt data-target-cell="annotated-cell-10" data-target-annotation="2">2</dt>
 <dd>
-<span data-code-cell="annotated-cell-10" data-code-annotation="2" data-code-lines="3">Return the length of neighbour relationship edges by using <code>nbdists()</code> of <strong>spdep</strong>. The function returns in the units of the coordinates if the coordinates are projected, and in km if otherwise. Remove the list structure of the returned object by using <code>unlist()</code>.</span>
+<span data-code-cell="annotated-cell-10" data-code-lines="3" data-code-annotation="2">Return the length of neighbour relationship edges by using <code>nbdists()</code> of <strong>spdep</strong>. The function returns in the units of the coordinates if the coordinates are projected, and in km if otherwise. Remove the list structure of the returned object by using <code>unlist()</code>.</span>
 </dd>
 </dl>
 </div>
@@ -8491,7 +8491,7 @@ font-style: inherit;">0.5</span>)</span></code></pre></div>
 
  ]]></description>
   <guid>https://geospatial2023.netlify.app/Hands_on_Exercise/Ex3/Hands_on_Ex3.html</guid>
-  <pubDate>Sat, 25 Nov 2023 02:41:41 GMT</pubDate>
+  <pubDate>Sat, 25 Nov 2023 02:43:51 GMT</pubDate>
 </item>
 <item>
   <title>4: Geographically Weighted Regression</title>
@@ -8507,7 +8507,7 @@ font-style: inherit;">0.5</span>)</span></code></pre></div>
 
  ]]></description>
   <guid>https://geospatial2023.netlify.app/Hands_on_Exercise/Ex4/Hands_on_Ex4.html</guid>
-  <pubDate>Sat, 25 Nov 2023 02:41:41 GMT</pubDate>
+  <pubDate>Sat, 25 Nov 2023 02:43:51 GMT</pubDate>
 </item>
 <item>
   <title>Take Home Exercise 1</title>
@@ -8523,7 +8523,7 @@ font-style: inherit;">0.5</span>)</span></code></pre></div>
 
  ]]></description>
   <guid>https://geospatial2023.netlify.app/Take_Home_Exercise/Ex1/Take_home_Ex1.html</guid>
-  <pubDate>Sat, 25 Nov 2023 02:41:41 GMT</pubDate>
+  <pubDate>Sat, 25 Nov 2023 02:43:51 GMT</pubDate>
 </item>
 <item>
   <title>Take Home Exercise 2</title>
@@ -8539,7 +8539,7 @@ font-style: inherit;">0.5</span>)</span></code></pre></div>
 
  ]]></description>
   <guid>https://geospatial2023.netlify.app/Take_Home_Exercise/Ex2/Take_home_Ex2.html</guid>
-  <pubDate>Sat, 25 Nov 2023 02:41:41 GMT</pubDate>
+  <pubDate>Sat, 25 Nov 2023 02:43:51 GMT</pubDate>
 </item>
 </channel>
 </rss>
