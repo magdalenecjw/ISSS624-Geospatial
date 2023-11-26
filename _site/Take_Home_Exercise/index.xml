@@ -13,8 +13,6 @@
 <url>https://geospatial2023.netlify.app/Images/logo.png</url>
 <title>Geospatial Analytics</title>
 <link>https://geospatial2023.netlify.app/Take_Home_Exercise/index.html</link>
-<height>86</height>
-<width>144</width>
 </image>
 <generator>quarto-1.3.433</generator>
 <lastBuildDate>Fri, 24 Nov 2023 16:00:00 GMT</lastBuildDate>
@@ -52,6 +50,605 @@
 <li>Compute LISA of the passengers trips generate by origin at hexagon level. Display the LISA maps of the passengers trips generate by origin at hexagon level. The maps should only display the significant (i.e.&nbsp;p-value &lt; 0.05) With reference to the analysis results, draw statistical conclusions (not more than 200 words per visual). Emerging Hot Spot Analysis(EHSA) With reference to the passenger trips by origin at the hexagon level for the four time intervals given above:</li>
 </ol>
 <p>Perform Mann-Kendall Test by using the spatio-temporal local Gi* values, Prepared EHSA maps of the Gi* values of the passenger trips by origin at the hexagon level. The maps should only display the significant (i.e.&nbsp;p-value &lt; 0.05). With reference to the EHSA maps and data visualisation prepared, describe the spatial patterns reveled. (not more than 250 words per cluster).</p>
+</section>
+</section>
+<section id="getting-started" class="level1">
+<h1>Getting Started</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1">pacman<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">p_load</span>(sf, tidyverse, mapview, tmap)</span></code></pre></div>
+</div>
+<p>The data sets used are:</p>
+<ul>
+<li>Master Plan 2019 Subzone Boundary (No Sea) (last updated Dec 2019) from <a href="https://beta.data.gov.sg/collections/1749/view">data.gov.sg</a> - reformatted into shapefile format</li>
+<li>Bus Stop Location (Last updated Jul 2023) from <a href="https://datamall.lta.gov.sg/content/datamall/en/static-data.html">LTADataMall</a> retrieved on 18 Nov 2023</li>
+<li>Passenger Volume by Origin Destination Bus Stops for Aug-Oct 2023 from <a href="https://datamall.lta.gov.sg/content/datamall/en/dynamic-data.html">LTADataMall</a> retrieved on 18 Nov 2023</li>
+</ul>
+<section id="import-passenger-volume-by-origin-destination-bus-stops" class="level2">
+<h2 class="anchored" data-anchor-id="import-passenger-volume-by-origin-destination-bus-stops">Import Passenger Volume by Origin-Destination Bus Stops</h2>
+<p>The code chunk below uses the <code>read_csv()</code> function of <strong>readr</strong> package to import the csv file into R and save it as a R dataframe called <code>odbus</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1">odbus <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">read_csv</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data/aspatial/origin_destination_bus_202308.csv"</span>)</span></code></pre></div>
+</div>
+<p><code>ORIGIN_PT_CODE</code> and <code>DESTINATION_PT_CODE</code> are numeric variables that are categorical in nature. As such, they should be transformed to factor so that R treats them as a grouping variable.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1">odbus<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>ORIGIN_PT_CODE <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.factor</span>(odbus<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>ORIGIN_PT_CODE)</span>
+<span id="cb3-2">odbus<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>DESTINATION_PT_CODE <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">as.factor</span>(odbus<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>DESTINATION_PT_CODE)</span></code></pre></div>
+</div>
+</section>
+<section id="extract-commuting-flow-data" class="level2">
+<h2 class="anchored" data-anchor-id="extract-commuting-flow-data">Extract Commuting Flow data</h2>
+<p>The code chunk below extracts commuting flows on weekday during the rush hour (7am, 8am, 9am).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1">origtrip_7_9 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> odbus <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb4-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(DAY_TYPE <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">==</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"WEEKDAY"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb4-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(TIME_PER_HOUR <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">7</span> <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&amp;</span> TIME_PER_HOUR <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&lt;=</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">9</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb4-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">group_by</span>(ORIGIN_PT_CODE) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb4-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">summarise</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">TRIPS =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sum</span>(TOTAL_TRIPS))</span></code></pre></div>
+</div>
+</section>
+<section id="import-geospatial-data" class="level2">
+<h2 class="anchored" data-anchor-id="import-geospatial-data">Import Geospatial Data</h2>
+<p>Two geospatial data are used in this exercise.</p>
+</section>
+<section id="import-bus-stop-locations" class="level2">
+<h2 class="anchored" data-anchor-id="import-bus-stop-locations">Import Bus Stop Locations</h2>
+<p>The code chunk below uses the <code>st_read()</code> function of <strong>sf</strong> package to import <code>BusStop</code> shapefile into R as a simple feature data frame called <code>BusStop</code>. As <code>BusStop</code> uses <strong>svy21</strong> projected coordinate system, the <code>crs</code> is set to 3414.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1">BusStop <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_read</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">dsn =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data/geospatial"</span>, </span>
+<span id="cb5-2">                <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">layer =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"BusStop"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb5-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_transform</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3414</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Reading layer `BusStop' from data source 
+  `C:\magdalenecjw\ISSS624 Geospatial\Take_Home_Exercise\Ex1\data\geospatial' 
+  using driver `ESRI Shapefile'
+Simple feature collection with 5161 features and 3 fields
+Geometry type: POINT
+Dimension:     XY
+Bounding box:  xmin: 3970.122 ymin: 26482.1 xmax: 48284.56 ymax: 52983.82
+Projected CRS: SVY21</code></pre>
+</div>
+</div>
+</section>
+<section id="import-planning-subzone-data" class="level2">
+<h2 class="anchored" data-anchor-id="import-planning-subzone-data">Import Planning Subzone data</h2>
+<p>The code chunk below uses the <code>st_read()</code> function of <strong>sf</strong> package to import <code>MPSZ-2019</code> shapefile into R as a simple feature data frame called <code>mpsz</code>. To ensure we can use <code>mpsz</code> together with <code>BusStop</code>, <code>mpsz</code> is reprojected to the <strong>svy21</strong> projected coordinate system (<code>crs=3413</code>).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1">mpsz <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_read</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">dsn =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data/geospatial"</span>, </span>
+<span id="cb7-2">                <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">layer =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"MPSZ-2019"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb7-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_transform</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">crs=</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">3414</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Reading layer `MPSZ-2019' from data source 
+  `C:\magdalenecjw\ISSS624 Geospatial\Take_Home_Exercise\Ex1\data\geospatial' 
+  using driver `ESRI Shapefile'
+Simple feature collection with 332 features and 6 fields
+Geometry type: MULTIPOLYGON
+Dimension:     XY
+Bounding box:  xmin: 103.6057 ymin: 1.158699 xmax: 104.0885 ymax: 1.470775
+Geodetic CRS:  WGS 84</code></pre>
+</div>
+</div>
+</section>
+<section id="combine-bus-stop-locations-and-planning-subzone-data" class="level2">
+<h2 class="anchored" data-anchor-id="combine-bus-stop-locations-and-planning-subzone-data">Combine Bus Stop Locations and Planning Subzone data</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1">busstop_mpsz <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_intersection</span>(BusStop, mpsz) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb9-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">select</span>(BUS_STOP_N, SUBZONE_C) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb9-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_drop_geometry</span>()</span></code></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">write_rds</span>(busstop_mpsz, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"data/rds/busstop_mpsz.csv"</span>)  </span></code></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1">origin_SZ <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">left_join</span>(origtrip_7_9 , busstop_mpsz,</span>
+<span id="cb11-2">            <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">by =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ORIGIN_PT_CODE"</span> <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"BUS_STOP_N"</span>)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb11-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rename</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ORIGIN_BS =</span> ORIGIN_PT_CODE,</span>
+<span id="cb11-4">         <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">ORIGIN_SZ =</span> SUBZONE_C) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb11-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">group_by</span>(ORIGIN_SZ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb11-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">summarise</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">TOT_TRIPS =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">sum</span>(TRIPS))</span></code></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1">duplicate <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> origin_SZ <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb12-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">group_by_all</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb12-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">n</span>()<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span><span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb12-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ungroup</span>()</span></code></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1">origin_data <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">unique</span>(origin_SZ)</span></code></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1">origintrip_SZ <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">left_join</span>(mpsz, </span>
+<span id="cb14-2">                           origin_SZ,</span>
+<span id="cb14-3">                           <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">by =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"SUBZONE_C"</span> <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"ORIGIN_SZ"</span>))</span></code></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_shape</span>(origintrip_SZ)<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb15-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_fill</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"TOT_TRIPS"</span>, </span>
+<span id="cb15-3">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">style =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"quantile"</span>, </span>
+<span id="cb15-4">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">palette =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Blues"</span>,</span>
+<span id="cb15-5">          <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Passenger trips"</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb15-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_layout</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">main.title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Passenger trips generated at planning sub-zone level"</span>,</span>
+<span id="cb15-7">            <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">main.title.position =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"center"</span>,</span>
+<span id="cb15-8">            <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">main.title.size =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1.2</span>,</span>
+<span id="cb15-9">            <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.height =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.45</span>, </span>
+<span id="cb15-10">            <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">legend.width =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.35</span>,</span>
+<span id="cb15-11">            <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">frame =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">TRUE</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb15-12">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_borders</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.5</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb15-13">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_compass</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">type=</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"8star"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">size =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">2</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb15-14">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_scale_bar</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb15-15">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_grid</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span><span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.2</span>) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb15-16">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_credits</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Source: Planning Sub-zone boundary from URA</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">\n</span><span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;"> and Passenger trips data from LTA"</span>, </span>
+<span id="cb15-17">             <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">position =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"left"</span>, <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"bottom"</span>))</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://geospatial2023.netlify.app/Take_Home_Exercise/Ex1/Take_home_Ex1_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1">area_honeycomb_grid <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_make_grid</span>(origintrip_SZ, <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">300</span>, <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">300</span>), <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">what =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"polygons"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">square =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>)</span>
+<span id="cb16-2"></span>
+<span id="cb16-3"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># To sf and add grid ID</span></span>
+<span id="cb16-4">honeycomb_grid_sf <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_sf</span>(area_honeycomb_grid) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb16-5">  <span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># add grid ID</span></span>
+<span id="cb16-6">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">mutate</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">grid_id =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">1</span><span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">:</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">length</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">lengths</span>(area_honeycomb_grid)))</span>
+<span id="cb16-7"></span>
+<span id="cb16-8"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># count number of points in each grid</span></span>
+<span id="cb16-9"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># https://gis.stackexchange.com/questions/323698/counting-points-in-polygons-with-sf-package-of-r</span></span>
+<span id="cb16-10">honeycomb_grid_sf<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">$</span>TOT_TRIPS <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">lengths</span>(<span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">st_intersects</span>(honeycomb_grid_sf, origintrip_SZ))</span>
+<span id="cb16-11"></span>
+<span id="cb16-12"><span class="co" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;"># remove grid without value of 0 (i.e. no points in side that grid)</span></span>
+<span id="cb16-13">honeycomb_count <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">filter</span>(honeycomb_grid_sf, TOT_TRIPS <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">&gt;</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>)</span></code></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tmap_mode</span>(<span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"plot"</span>)</span>
+<span id="cb17-2">map_honeycomb <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_shape</span>(honeycomb_count) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb17-3">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_fill</span>(</span>
+<span id="cb17-4">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">col =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"TOT_TRIPS"</span>,</span>
+<span id="cb17-5">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">palette =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Blues"</span>,</span>
+<span id="cb17-6">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">style =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"cont"</span>,</span>
+<span id="cb17-7">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Number of trips"</span>,</span>
+<span id="cb17-8">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">id =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"grid_id"</span>,</span>
+<span id="cb17-9">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">showNA =</span> <span class="cn" style="color: #8f5902;
+background-color: null;
+font-style: inherit;">FALSE</span>,</span>
+<span id="cb17-10">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">alpha =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.6</span>,</span>
+<span id="cb17-11">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">popup.vars =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(</span>
+<span id="cb17-12">      <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"Number of trips: "</span> <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">=</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"TOT_TRIPS"</span></span>
+<span id="cb17-13">    ),</span>
+<span id="cb17-14">    <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">popup.format =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(</span>
+<span id="cb17-15">      <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">TOT_TRIPS =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">list</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">format =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"f"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">digits =</span> <span class="dv" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0</span>)</span>
+<span id="cb17-16">    )</span>
+<span id="cb17-17">  ) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb17-18">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">tm_borders</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">col =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"grey40"</span>, <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">lwd =</span> <span class="fl" style="color: #AD0000;
+background-color: null;
+font-style: inherit;">0.7</span>)</span>
+<span id="cb17-19">map_honeycomb</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="https://geospatial2023.netlify.app/Take_Home_Exercise/Ex1/Take_home_Ex1_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid" width="1152"></p>
+</div>
+</div>
 
 
 </section>
@@ -75,7 +672,7 @@
 
  ]]></description>
   <guid>https://geospatial2023.netlify.app/Take_Home_Exercise/Ex2/Take_home_Ex2.html</guid>
-  <pubDate>Sat, 25 Nov 2023 03:54:03 GMT</pubDate>
+  <pubDate>Sun, 26 Nov 2023 12:43:30 GMT</pubDate>
 </item>
 </channel>
 </rss>
