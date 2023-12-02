@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss  xmlns:atom="http://www.w3.org/2005/Atom" 
+      xmlns:media="http://search.yahoo.com/mrss/" 
+      xmlns:content="http://purl.org/rss/1.0/modules/content/" 
+      xmlns:dc="http://purl.org/dc/elements/1.1/" 
+      version="2.0">
+<channel>
+<title>Geospatial Analytics</title>
+<link>https://geospatial2023.netlify.app/Take_Home_Exercise/index.html</link>
+<atom:link href="https://geospatial2023.netlify.app/Take_Home_Exercise/index.xml" rel="self" type="application/rss+xml"/>
+<description></description>
+<image>
+<url>https://geospatial2023.netlify.app/Images/logo.png</url>
+<title>Geospatial Analytics</title>
+<link>https://geospatial2023.netlify.app/Take_Home_Exercise/index.html</link>
+<height>86</height>
+<width>144</width>
+</image>
+<generator>quarto-1.3.433</generator>
+<lastBuildDate>Fri, 24 Nov 2023 16:00:00 GMT</lastBuildDate>
+<item>
+  <title>1: Geospatial Analytics for Public Good</title>
+  <dc:creator>Magdalene Chan</dc:creator>
+  <link>https://geospatial2023.netlify.app/Take_Home_Exercise/Ex1/Take_home_Ex1.html</link>
+  <description><![CDATA[ 
+
+
+
+<section id="objectives" class="level1">
+<h1>Objectives</h1>
+<p>As city-wide urban infrastructures become increasingly digital, datasets from technologies like GPS and RFID on vehicles offer opportunities to track movement patterns over space and time. For instance, smart cards and GPS devices on public buses collect routes and ridership data, containing valuable structure and patterns for understanding human movement and behavior within cities. Despite their potential, the practical use of these extensive location-aware datasets often remains limited to basic tracking and mapping within GIS applications due to the lack of comprehensive spatial and spatio-temporal analysis functions in conventional GIS tools.</p>
+<p>Exploratory Spatial Data Analysis (ESDA) holds tremendous potential to address such complex problems. In this study, appropriate Local Indicators of Spatial Association (GLISA) and Emerging Hot Spot Analysis (EHSA) will be applied to undercover the spatial and spatio-temporal mobility patterns of public bus passengers in Singapore.</p>
+</section>
+<section id="tasks" class="level1">
+<h1>Tasks</h1>
+<p>The following tasks will be undertaken in this exercise:</p>
+
+
+</section>
+
+ ]]></description>
+  <guid>https://geospatial2023.netlify.app/Take_Home_Exercise/Ex1/Take_home_Ex1.html</guid>
+  <pubDate>Fri, 24 Nov 2023 16:00:00 GMT</pubDate>
+</item>
+<item>
+  <title>Take Home Exercise 2</title>
+  <dc:creator>Magdalene Chan</dc:creator>
+  <link>https://geospatial2023.netlify.app/Take_Home_Exercise/Ex2/Take_home_Ex2.html</link>
+  <description><![CDATA[ 
+
+
+
+<p>Placeholder</p>
+
+
+
+ ]]></description>
+  <guid>https://geospatial2023.netlify.app/Take_Home_Exercise/Ex2/Take_home_Ex2.html</guid>
+  <pubDate>Sat, 02 Dec 2023 11:55:26 GMT</pubDate>
+</item>
+</channel>
+</rss>

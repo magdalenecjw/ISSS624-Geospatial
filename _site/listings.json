@@ -1,5 +1,38 @@
 [
   {
+    "listing": "/Take_Home_Exercise/index.html",
+    "items": [
+      "/Take_Home_Exercise/Ex1/Take_home_Ex1.html",
+      "/Take_Home_Exercise/Ex2/Take_home_Ex2.html"
+    ]
+  },
+  {
+    "listing": "/latest-content.html",
+    "items": [
+      "/Hands_on_Exercise/Ex3/data/geospatial/MPSZ-2019.html",
+      "/Hands_on_Exercise/Ex4/Hands_on_Ex4.html",
+      "/Take_Home_Exercise/Ex1/data/geospatial/MPSZ-2019.html",
+      "/Take_Home_Exercise/Ex2/Take_home_Ex2.html",
+      "/Hands_on_Exercise/Ex3/Hands_on_Ex3.html",
+      "/Take_Home_Exercise/Ex1/Take_home_Ex1.html",
+      "/Hands_on_Exercise/Ex2/Hands_on_Ex2b.html",
+      "/Hands_on_Exercise/Ex2/Hands_on_Ex2a.html",
+      "/Hands_on_Exercise/Ex1/Hands_on_Ex1a.html",
+      "/Hands_on_Exercise/Ex1/Hands_on_Ex1b.html"
+    ]
+  },
+  {
+    "listing": "/Hands_on_Exercise/index.html",
+    "items": [
+      "/Hands_on_Exercise/Ex1/Hands_on_Ex1a.html",
+      "/Hands_on_Exercise/Ex1/Hands_on_Ex1b.html",
+      "/Hands_on_Exercise/Ex2/Hands_on_Ex2a.html",
+      "/Hands_on_Exercise/Ex2/Hands_on_Ex2b.html",
+      "/Hands_on_Exercise/Ex3/Hands_on_Ex3.html",
+      "/Hands_on_Exercise/Ex4/Hands_on_Ex4.html"
+    ]
+  },
+  {
     "listing": "/index.html",
     "items": [
       "/Hands_on_Exercise/Ex1/Hands_on_Ex1a.html",
@@ -13,6 +46,14 @@
       "/In_Class_Exercise/Ex3/In_Class_Ex3.html",
       "/Take_Home_Exercise/Ex1/Take_home_Ex1.html",
       "/Take_Home_Exercise/Ex2/Take_home_Ex2.html"
+    ]
+  },
+  {
+    "listing": "/In_Class_Exercise/index.html",
+    "items": [
+      "/In_Class_Exercise/Ex1/In_Class_Ex1.html",
+      "/In_Class_Exercise/Ex2/In_Class_Ex2.html",
+      "/In_Class_Exercise/Ex3/In_Class_Ex3.html"
     ]
   }
 ]
