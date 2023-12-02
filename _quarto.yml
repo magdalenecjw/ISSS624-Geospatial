@@ -17,9 +17,11 @@ website:
     right:
       - text: "In-class Exercise"
         menu: 
-        - text: "In-class Exercise 1"
+        - text: "1: Urban Mobility Data Wrangling"
           href: In_Class_Exercise/Ex1/In_Class_Ex1.qmd
-        - text: "In-class Exercise 2"
+        - text: "2: Spatial Weights, GLSA, EHSA"
+          href: In_Class_Exercise/Ex2/In_Class_Ex2.qmd
+        - text: "3: Spatial Interaction Models"
           href: In_Class_Exercise/Ex2/In_Class_Ex2.qmd
       - text: "Hands-on Exercise"
         menu: 

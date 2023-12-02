@@ -1,1 +1,0 @@
-Sitemap: https://geospatial2023.netlify.app/sitemap.xml
