@@ -4,7 +4,9 @@ title: In Class Exercise
 search: false
 listing:
   contents: 
-  - Lesson1.qmd
+  - Ex1/In_Class_Ex1.qmd
+  - Ex2/In_Class_Ex2.qmd
+  - Ex3/In_Class_Ex3.qmd
   - "!index.qmd"
   type: grid
   categories: true
