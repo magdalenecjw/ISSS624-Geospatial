@@ -247,6 +247,8 @@ hex_grid_count <- read_rds("data/rds/hex_grid_count.rds")
 
 ## Visualisation of Geographical Distribution of Commuting Flow
 
+**tmap** package can be used to help visualise the geographical distribution of the commuting flow over the four target time periods. Such geovisualisations can help identify areas with high commuting flow, which can be further used for other operational needs such as traffic management, bus route planning and crowd control management. 
+
 ### Continuous Scale
 
 For efficiency of plotting, select just the columns that will be used for this section.
@@ -281,13 +283,13 @@ tm_shape(hex_grid_count2) +
 ::: callout-tip
 ## Insights
 
-The visualisation above shows a heavily right-skewed distribution across all the weekday peak hour time periods. Most bus stops have less than 100k commuter trips at each of these time periods. Notable hexagon grids with significantly more commuting flow \>300k are:
+The visualisation above shows a heavily right-skewed distribution across all the weekday peak hour time periods. Most bus stops have less than 100k commuter trips at each of these time periods. Given the current geographical distribution, it is challenging to identify the areas with high commuting flow. However, notable hexagon grids that can be distinctively identified as having high commuting flow \>300k are:
 
 -   Weekday Mornings: 1251, 2411
 -   Weekday Evenings: 1251, 2411, 3239, 4349, 4539
 :::
 
-The code chunk below displays the hexagon grids with significantly more commuting flow \>300k in greater detail.
+The code chunk below displays the hexagon grids with significantly high commuting flow \>300k in greater detail.
 
 ```{r}
 weekday_300k <- hex_grid_count2 %>%
@@ -318,7 +320,7 @@ tm_shape(hex_grid_count2) +
 ::: callout-tip
 ## Insights
 
-Similarly, the visualisation above shows a heavily right-skewed distribution across all the weekend peak hour time periods. However, the continuous scale suggests that weekend peak hour commuting flow volume is approximately one-fifth of weekday peak hour commuting flow volume. Most bus stops have less than 20k commuter trips at each of these time periods. Notable hexagon grids with significantly more commuting flow \>80k are:
+Similarly, the visualisation above shows a heavily right-skewed distribution across all the weekend peak hour time periods. However, the continuous scale suggests that weekend peak hour commuting flow volume is approximately one-fifth of weekday peak hour commuting flow volume. Most bus stops have less than 20k commuter trips at each of these time periods. Again, it is challenging to identify the areas with high commuting flow but notable hexagon grids that can be distinctively identified as having high commuting flow \>80k are:
 
 -   Weekend/PH Mornings: 1251, 2411, 4349, 4539
 -   Weekend/PH Evenings: 1251, 2411, 3239, 3578, 4349, 4539
@@ -362,8 +364,6 @@ tm_shape(hex_grid_count2) +
   tm_facets(ncol = 1, free.scales = FALSE)
 ```
 
-The code chunk below displays the hexagon grids that fall into the last two classes (\>156k) in greater detail.
-
 ```{r}
 weekday_156k <- hex_grid_count2 %>%
   filter(weekday_morn >= 156000 | weekday_evening >= 156000) %>%
@@ -375,7 +375,7 @@ kable(weekday_156k)
 ::: callout-tip
 ## Insights
 
-Using Jenks Natural Breaks to classify the weekday peak hour commuting flow reveals more potential hot spots in the housing estates. This will be verified in the second part of this study on Emerging Hot Spots Analysis.
+The geographical distribution of weekday peak hour commuting flow is much clearer in this geovisualisation using Jenks Natural Breaks. Areas with high commuting flow could be defined as the last two classes (commuting flow \>156k) and the code chunk above displays these hexagon grids in greater detail. It can also be observed that all of the highest commuting flow areas are in the housing estates. 
 :::
 
 ### Geographical Distribution of Weekend/PH Peak Hour Commuting Flows
@@ -409,13 +409,15 @@ kable(weekend_31k)
 ::: callout-tip
 ## Insights
 
-Similarly, using Jenks Natural Breaks to classify the weekend peak hour commuting flow reveals more potential hot spots not just in the major housing estates, but also in the town area and the area surrounding Woodlands Checkpoint. This will be verified in the second part of this study on Emerging Hot Spots Analysis.
+For the weekend peak hour commuting flow, areas with high commuting flow could be defined as the last two classes (commuting flow \>31k) and the code chunk above displays these hexagon grids in greater detail. Using Jenks Natural Breaks for data classification also reveals more high commuting flow areas that are not just in the major housing estates, but also in the town area and the area surrounding Woodlands Checkpoint.
 :::
 :::
 
 # Emerging Hot Spot Analysis
 
-The aim of Emerging Hot Spot Analysis (EHSA) is to [classify each location into one of seventeen categories based on ESRI's emerging hot spot classification criteria](https://sfdep.josiahparry.com/reference/emerging_hotspot_analysis.html). To perform EHSA, time series cubes are needed.
+Given that each target time period spans across four whole hours, it would also be useful to identify time trends across the four hours among these high commuting flow areas. This could help guide better operational decisions such as staffing decisions. Emerging Hot Spot Analysis (EHSA) could be performed to uncover this as it aims to [classify each location into one of seventeen categories based on ESRI's emerging hot spot classification criteria](https://sfdep.josiahparry.com/reference/emerging_hotspot_analysis.html). 
+
+To perform EHSA, time series cubes are needed.
 
 ## Time Series Cube
 
@@ -688,82 +690,31 @@ With the above G~i~\* statistics, it is possible to evaluate each location for a
 
 ### Mann-Kendall Test for Weekday Morning
 
-The code chunk below performs the Mann-Kendall Test for hexagon grids 1251 and 2411. 
+The code chunk below performs the Mann-Kendall Test for the following high commuting flow hexagon grids:
+```{r}
+#| echo: false
+weekday_156k$index
+```
 
 ```{r}
-mk_weekdaymorn <- gi_weekday_morn %>% 
+plot_weekdaymorn <- gi_weekday_morn %>% 
   ungroup() %>% 
-  filter(index == 1251 | index == 2411) |> 
+  filter(index %in% weekday_156k$index) |> 
   select(index, TIME_PER_HOUR, gi_star)
 
 # Plot result using ggplot2 functions and ggplotly() of plotly package
-p1 <- ggplot(data = mk_weekdaymorn, 
+p1 <- ggplot(data = plot_weekdaymorn, 
        aes(x = TIME_PER_HOUR, 
            y = gi_star,
-           group = index,
            color = as.factor(index))) +
   geom_line() +
+  labs(color = "Hexagon Grid") + 
   theme_light()
 
 ggplotly(p1)
 ```
 
-```{r}
-mk_weekdaymorn %>%
-  summarise(mk = list(
-    unclass(
-      Kendall::MannKendall(gi_star)))) %>% 
-  tidyr::unnest_wider(mk)
-```
-
-> In the above result, sl is the p-value. 
-
-::: callout-tip
-## Insights
-
-The chart and table above suggests a downward trend over the 4 hours of the morning peak hour crowd for these two hexagon grids, albeit an insignificant one. 
-:::
-
-### Mann-Kendall Test for Weekday Evening
-
-The code chunk below performs the Mann-Kendall Test for hexagon grids 1251, 2411, 3239, 4349, and 4539.
-
-```{r}
-mk_weekdayevening <- gi_weekday_evening %>% 
-  ungroup() %>% 
-  filter(index %in% c(1251, 2411, 3239, 4349, 4539)) |> 
-  select(index, TIME_PER_HOUR, gi_star)
-
-# Plot result using ggplot2 functions and ggplotly() of plotly package
-p2 <- ggplot(data = mk_weekdayevening, 
-       aes(x = TIME_PER_HOUR, 
-           y = gi_star,
-           group = index,
-           color = as.factor(index))) +
-  geom_line() +
-  theme_light()
-
-ggplotly(p2)
-```
-
-```{r}
-mk_weekdayevening %>%
-  summarise(mk = list(
-    unclass(
-      Kendall::MannKendall(gi_star)))) %>% 
-  tidyr::unnest_wider(mk)
-```
-
-> In the above result, sl is the p-value. 
-
-::: callout-tip
-## Insights
-
-The chart and table above suggests no significant trend difference over the 4 hours of the weekday evening peak hour crowd for the top hexagon grids. 
-:::
-:::
-
-The Mann-Kendall test is replicated for each hexagon grid in the code chunk below. 
+The Mann-Kendall test is done for each hexagon grid in the code chunk below. 
 
 ```{r}
 #| eval: false
@@ -782,29 +733,239 @@ write_rds(weekdaymorn_ehsa, "data/rds/weekdaymorn_ehsa.rds")
 #| echo: false
 # Load the model
 weekdaymorn_ehsa <- read_rds("data/rds/weekdaymorn_ehsa.rds")
+
+weekdaymorn_ehsa %>%
+  filter(index %in% weekday_156k$index) %>%
+  arrange(sl, abs(tau))
 ```
 
-The output is then arranged to show significant emerging hot / cold spots. 
-
-```{r}
-weekdaymorn_emerging <- weekdaymorn_ehsa %>% 
-  arrange(sl, abs(tau)) %>% 
-  slice(1:10)
-
-weekdaymorn_emerging
-```
+> In the above result, sl is the p-value. 
 
 ::: callout-tip
 ## Insights
 
-At an alpha value of 0.05 (CI of 95%), the p-value > alpha value, suggesting there is insufficient evidence to reject the null hypothesis. 
+The chart and the table above suggests a slight upward trend across the 4 hours of the weekday morning peak period for hexagon grid 3859. 
+- At an alpha value of 0.05 (CI 95%), p-value > alpha value, suggesting that this trend is insignificant. 
+- At alpha value of 0.1 (CI 90%), p-value < alpha value, suggesting that this trend is significant. 
 
-At an alpha value of 0.1 (CI of 90%), the p-value < alpha value, suggesting there is sufficient evidence to reject the null hypothesis. 
+For all the other hexagon grids, there is no significant upward or downward trend in commuting flow across the 4 hours of the weekday morning peak period. 
+:::
+
+### Mann-Kendall Test for Weekday Evening
+
+The code chunk below performs the Mann-Kendall Test for the following high commuting flow hexagon grids:
+```{r}
+#| echo: false
+weekday_156k$index
+```
+
+```{r}
+plot_weekdayevening <- gi_weekday_evening %>% 
+  ungroup() %>% 
+  filter(index %in% weekday_156k$index) |> 
+  select(index, TIME_PER_HOUR, gi_star)
+
+# Plot result using ggplot2 functions and ggplotly() of plotly package
+p2 <- ggplot(data = plot_weekdayevening, 
+       aes(x = TIME_PER_HOUR, 
+           y = gi_star,
+           color = as.factor(index))) +
+  geom_line() +
+  labs(color = "Hexagon Grid") + 
+  theme_light()
+
+ggplotly(p2)
+```
+
+The Mann-Kendall test is done for each hexagon grid in the code chunk below. 
+
+```{r}
+#| eval: false
+weekdayevening_ehsa <- gi_weekday_evening %>%
+  group_by(index) %>%
+  summarise(mk = list(
+    unclass(
+      Kendall::MannKendall(gi_star)))) %>%
+  tidyr::unnest_wider(mk)
+
+# Save out the model
+write_rds(weekdayevening_ehsa, "data/rds/weekdayevening_ehsa.rds")
+```
+
+```{r}
+#| echo: false
+# Load the model
+weekdayevening_ehsa <- read_rds("data/rds/weekdayevening_ehsa.rds")
+
+weekdayevening_ehsa %>%
+  filter(index %in% weekday_156k$index) %>%
+  arrange(sl, abs(tau))
+```
+
+> In the above result, sl is the p-value. 
+
+::: callout-tip
+## Insights
+
+The chart and the table above suggests a slight downward trend across the 4 hours of the weekday evening peak period for hexagon grids 1094 and 4018.
+- At an alpha value of 0.05 (CI 95%), p-value > alpha value, suggesting that this trend is insignificant. 
+- At alpha value of 0.1 (CI 90%), p-value < alpha value, suggesting that this trend is significant. 
+
+For all the other hexagon grids, there is no significant upward or downward trend in commuting flow across the 4 hours of the weekday evening peak period. 
+:::
+
+### Mann-Kendall Test for Weekend/PH Morning
+
+The code chunk below performs the Mann-Kendall Test for the following high commuting flow hexagon grids:
+```{r}
+#| echo: false
+weekend_31k$index
+```
+
+```{r}
+plot_weekendmorn <- gi_weekend_morn %>% 
+  ungroup() %>% 
+  filter(index %in% weekend_31k$index) |> 
+  select(index, TIME_PER_HOUR, gi_star)
+
+# Plot result using ggplot2 functions and ggplotly() of plotly package
+p3 <- ggplot(data = plot_weekendmorn, 
+       aes(x = TIME_PER_HOUR, 
+           y = gi_star,
+           color = as.factor(index))) +
+  geom_line() +
+  labs(color = "Hexagon Grid") + 
+  theme_light()
+
+ggplotly(p3)
+```
+
+The Mann-Kendall test is done for each hexagon grid in the code chunk below. 
+
+```{r}
+#| eval: false
+weekendmorn_ehsa <- gi_weekend_morn %>%
+  group_by(index) %>%
+  summarise(mk = list(
+    unclass(
+      Kendall::MannKendall(gi_star)))) %>%
+  tidyr::unnest_wider(mk)
+
+# Save out the model
+write_rds(weekendmorn_ehsa, "data/rds/weekendmorn_ehsa.rds")
+```
+
+```{r}
+#| echo: false
+# Load the model
+weekendmorn_ehsa <- read_rds("data/rds/weekendmorn_ehsa.rds")
+
+weekendmorn_ehsa %>%
+  filter(index %in% weekend_31k$index) %>%
+  arrange(sl, abs(tau))
+```
+
+> In the above result, sl is the p-value. 
+
+::: callout-tip
+## Insights
+
+The chart and the table above suggests a slight downward trend across the 4 hours of the weekend morning peak period for hexagon grids 1438, 2102, 2133, 2950, 3859 and 4018.  
+- At an alpha value of 0.05 (CI 95%), p-value > alpha value, suggesting that this trend is insignificant. 
+- At alpha value of 0.1 (CI 90%), p-value < alpha value, suggesting that this trend is significant. 
+
+Conversely, there is a slight upward trend across the 4 hours of the weekend morning peak period for hexagon grids 1251, 1778, 2411, 2854, 3014, 3166, 3292, 3578, 3924, 3957, 4349, 4539 and 4635.  
+- At an alpha value of 0.05 (CI 95%), p-value > alpha value, suggesting that this trend is insignificant. 
+- At alpha value of 0.1 (CI 90%), p-value < alpha value, suggesting that this trend is significant. 
+
+For all the other hexagon grids, there is no significant upward or downward trend in commuting flow across the 4 hours of the weekend morning peak period. 
+:::
+
+### Mann-Kendall Test for Weekend/PH Evening
+
+The code chunk below performs the Mann-Kendall Test for the following high commuting flow hexagon grids:
+```{r}
+#| echo: false
+weekend_31k$index
+```
+
+```{r}
+plot_weekendevening <- gi_weekend_evening %>% 
+  ungroup() %>% 
+  filter(index %in% weekend_31k$index) |> 
+  select(index, TIME_PER_HOUR, gi_star)
+
+# Plot result using ggplot2 functions and ggplotly() of plotly package
+p4 <- ggplot(data = plot_weekendevening, 
+       aes(x = TIME_PER_HOUR, 
+           y = gi_star,
+           color = as.factor(index))) +
+  geom_line() +
+  labs(color = "Hexagon Grid") + 
+  theme_light()
+
+ggplotly(p4)
+```
+
+The Mann-Kendall test is done for each hexagon grid in the code chunk below. 
+
+```{r}
+#| eval: false
+weekendevening_ehsa <- gi_weekend_evening %>%
+  group_by(index) %>%
+  summarise(mk = list(
+    unclass(
+      Kendall::MannKendall(gi_star)))) %>%
+  tidyr::unnest_wider(mk)
+
+# Save out the model
+write_rds(weekendevening_ehsa, "data/rds/weekendevening_ehsa.rds")
+```
+
+```{r}
+#| echo: false
+# Load the model
+weekendevening_ehsa <- read_rds("data/rds/weekendevening_ehsa.rds")
+
+weekendevening_ehsa %>%
+  filter(index %in% weekend_31k$index) %>%
+  arrange(sl, abs(tau))
+```
+
+> In the above result, sl is the p-value. 
+
+::: callout-tip
+## Insights
+
+The chart and the table above suggests a slight downward trend across the 4 hours of the weekend evening peak period for hexagon grids 2950, 3166, 3292, 3924 and 4018.  
+- At an alpha value of 0.05 (CI 95%), p-value > alpha value, suggesting that this trend is insignificant. 
+- At alpha value of 0.1 (CI 90%), p-value < alpha value, suggesting that this trend is significant. 
+
+Conversely, there is a slight upward trend across the 4 hours of the weekend morning peak period for hexagon grids 1251, 1778, 2062, 2411, 2854 and 4635.  
+- At an alpha value of 0.05 (CI 95%), p-value > alpha value, suggesting that this trend is insignificant. 
+- At alpha value of 0.1 (CI 90%), p-value < alpha value, suggesting that this trend is significant. 
+
+For all the other hexagon grids, there is no significant upward or downward trend in commuting flow across the 4 hours of the weekend morning peak period. 
+:::
 :::
 
 ## Perform Emerging Hot Spot Analysis (EHSA)
 
-In the code chunks below, `emerging_hotspot_analysis()` of **sfdep** package is used to perform Emerging Hot Spot Analysis on a spacetime object e.g. `weekday_morn_cube`. The `.var` argument takes the name of a variable of interest (e.g. `TRIPS`), the `k` argument is used to specify the number of time lags which is set to 1 by default, and the `nsim` argument maps the number of simulations to be performed. Lastly, ggplot2 functions are used to reveal the distribution of EHSA classes as a bar chart.
+In the code chunks below, `emerging_hotspot_analysis()` of **sfdep** package is used to perform Emerging Hot Spot Analysis on a spacetime object e.g. `weekday_morn_cube`. The `.var` argument takes the name of a variable of interest (e.g. `TRIPS`), the `k` argument is used to specify the number of time lags which is set to 1 by default, and the `nsim` argument maps the number of simulations to be performed. 
+
+For visualisation, ggplot2 functions are used to reveal the distribution of [EHSA classes](https://pro.arcgis.com/en/pro-app/2.8/tool-reference/space-time-pattern-mining/learnmoreemerging.htm) as a bar chart. To visualise the geographic distribution of the EHSA classes, `hex_grid` sf data frame is joined to the EHSA data frames. Then, tmap functions will be used to plot categorical choropleth maps.
+
+```{r}
+# Creating a custom color palette for choropleth map
+my_palette <- c("no pattern detected" = "grey85",
+                "new hotspot" = "mistyrose1",
+                "sporadic hotspot" = "lightpink",
+                "consecutive hotspot" = "indianred",
+                "persistent hotspot" = "darkred",
+                "new coldspot" = "lightcyan",
+                "sporadic coldspot" = "lightblue",
+                "consecutive coldspot" = "steelblue")
+```
 
 ::: panel-tabset
 ### EHSA for Weekday Morning
@@ -812,7 +973,7 @@ In the code chunks below, `emerging_hotspot_analysis()` of **sfdep** package is 
 ```{r}
 #| eval: false
 wkd_morn_ehsa <- emerging_hotspot_analysis(
-  x = gi_weekday_morn, 
+  x = weekday_evening_cube, 
   .var = "TRIPS", 
   k = 1, 
   nsim = 99
@@ -829,16 +990,42 @@ wkd_morn_ehsa <- read_rds("data/rds/wkd_morn_ehsa.rds")
 
 ```{r, fig.width=12}
 # Visualise the distribution of classes
-ggplot(data = wkd_morn_ehsa,
-       aes(x = classification)) +
-  geom_bar()
+v1 <- ggplot(data = wkd_morn_ehsa,
+             aes(x = classification)) +
+  geom_bar() + 
+  theme(axis.text = element_text(size = 6))
+
+ggplotly(v1)
 ```
 
 ::: callout-tip
 ## Insights
 
-More than half of the hexagon grids had no pattern detected - likely due to the large number of 0s in the data frame. The next largest class of hexagon grids are "sporadic cold spots", which refers to locations that are on-again then off-again cold spots.
+More than half of the hexagon grids had no pattern detected - likely due to the large number of 0s in the data frame. The next largest class of hexagon grids are "sporadic cold spots", which refers to locations that are on-again then off-again cold spots. 
 :::
+
+#### Choropleth Map for Weekday Morning Hotspots 
+
+The following choropleth map is charted at an alpha value of 0.1 (CI 90%).
+- Based on the Mann-Kendall Test performed earlier, there are no areas with a significant trend observed at alpha value of 0.05 (CI 95%).
+
+```{r}
+wkd_morn_ehsa_grid <- hex_grid %>%
+  left_join(wkd_morn_ehsa,
+            by = c("index" = "location"))
+
+# Plot the choropleth map for significant values
+morn_ehsa_sig <- wkd_morn_ehsa_grid  %>%
+  # Remove coldspot areas since most of these areas have low bus stop density
+  filter(p_value < 0.1 & grepl("hotspot", classification))
+
+tmap_mode("view")
+
+tm_shape(morn_ehsa_sig) +
+  tm_fill("classification", palette = my_palette) + 
+  tm_borders(alpha = 0.4)
+```
+
 
 ### EHSA for Weekday Evening
 
@@ -862,9 +1049,12 @@ wkd_evening_ehsa <- read_rds("data/rds/wkd_evening_ehsa.rds")
 
 ```{r, fig.width=12}
 # Visualise the distribution of classes
-ggplot(data = wkd_evening_ehsa,
-       aes(x = classification)) +
-  geom_bar()
+v2 <- ggplot(data = wkd_evening_ehsa,
+             aes(x = classification)) +
+  geom_bar() + 
+  theme(axis.text = element_text(size = 6))
+
+ggplotly(v2)
 ```
 
 ::: callout-tip
@@ -872,6 +1062,26 @@ ggplot(data = wkd_evening_ehsa,
 
 xxx
 :::
+
+#### Choropleth Map for Weekday Evening
+
+The following choropleth map is charted at an alpha value of 0.1 (CI 90%).
+- Based on the Mann-Kendall Test performed earlier, there are no areas with a significant trend observed at alpha value of 0.05 (CI 95%).
+
+```{r}
+wkd_evening_ehsa_grid <- hex_grid %>%
+  left_join(wkd_evening_ehsa,
+            by = c("index" = "location"))
+
+# Plot the choropleth map for significant values
+ehsa_sig <- wkd_evening_ehsa_grid  %>%
+  # alpha value set at 0.1 based on Mann-Kendall Test performed earlier
+  filter(p_value < 0.1) 
+
+tm_shape(ehsa_sig) +
+  tm_fill("classification", palette = my_palette) + 
+  tm_borders(alpha = 0.4)
+```
 
 ### EHSA for Weekend/PH Morning
 
@@ -895,9 +1105,12 @@ wke_morn_ehsa <- read_rds("data/rds/wke_morn_ehsa.rds")
 
 ```{r, fig.width=12}
 # Visualise the distribution of classes
-ggplot(data = wke_morn_ehsa,
-       aes(x = classification)) +
-  geom_bar()
+v3 <- ggplot(data = wke_morn_ehsa,
+             aes(x = classification)) +
+  geom_bar() + 
+  theme(axis.text = element_text(size = 6))
+
+ggplotly(v3)
 ```
 
 ::: callout-tip
@@ -905,6 +1118,26 @@ ggplot(data = wke_morn_ehsa,
 
 xxx
 :::
+
+#### Choropleth Map for Weekend/PH Morning
+
+The following choropleth map is charted at an alpha value of 0.1 (CI 90%).
+- Based on the Mann-Kendall Test performed earlier, there are no areas with a significant trend observed at alpha value of 0.05 (CI 95%).
+
+```{r}
+wke_morn_ehsa_grid <- hex_grid %>%
+  left_join(wke_morn_ehsa,
+            by = c("index" = "location"))
+
+# Plot the choropleth map for significant values
+wkemorn_ehsa_sig <- wke_morn_ehsa_grid  %>%
+  # alpha value set at 0.1 based on Mann-Kendall Test performed earlier
+  filter(p_value < 0.1) 
+
+tm_shape(wkemorn_ehsa_sig) +
+  tm_fill("classification", palette = my_palette) + 
+  tm_borders(alpha = 0.4)
+```
 
 ### EHSA for Weekend/PH Evening
 
@@ -928,9 +1161,12 @@ wke_evening_ehsa <- read_rds("data/rds/wke_evening_ehsa.rds")
 
 ```{r, fig.width=12}
 # Visualise the distribution of classes
-ggplot(data = wke_evening_ehsa,
-       aes(x = classification)) +
-  geom_bar()
+v4 <- ggplot(data = wke_evening_ehsa,
+             aes(x = classification)) +
+  geom_bar() + 
+  theme(axis.text = element_text(size = 6))
+
+ggplotly(v4)
 ```
 
 ::: callout-tip
@@ -938,28 +1174,24 @@ ggplot(data = wke_evening_ehsa,
 
 xxx
 :::
-:::
 
-## Visualise EHSA
+#### Choropleth Map for Weekend/PH Evening
 
-Lastly, visualise the geographic distribution of the EHSA classes. In the code chunks below, `hex_grid` sf data frame is joined to the EHSA data frames. Then, tmap functions will be used to plot categorical choropleth maps.
-
-::: panel-tabset
-### Choropleth Map for Weekday Morning
+The following choropleth map is charted at an alpha value of 0.1 (CI 90%).
+- Based on the Mann-Kendall Test performed earlier, there are no areas with a significant trend observed at alpha value of 0.05 (CI 95%).
 
 ```{r}
-wkd_evening_ehsa_grid <- hex_grid %>%
-  left_join(wkd_evening_ehsa,
+wke_evening_ehsa_grid <- hex_grid %>%
+  left_join(wke_evening_ehsa,
             by = c("index" = "location"))
 
 # Plot the choropleth map for significant values
-ehsa_sig <- wkd_evening_ehsa_grid  %>%
-  filter(p_value < 0.1)
+evening_ehsa_sig <- wke_evening_ehsa_grid  %>%
+  # alpha value set at 0.1 based on Mann-Kendall Test performed earlier
+  filter(p_value < 0.1) 
 
-tmap_mode("view")
-
-tm_shape(ehsa_sig) +
-  tm_fill("classification") + 
+tm_shape(evening_ehsa_sig) +
+  tm_fill("classification", palette = my_palette) + 
   tm_borders(alpha = 0.4)
 ```
 :::
