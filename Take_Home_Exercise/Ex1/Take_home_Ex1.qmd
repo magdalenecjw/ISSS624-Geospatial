@@ -251,7 +251,7 @@ hex_grid_count <- read_rds("data/rds/hex_grid_count.rds")
 
 ### Continuous Scale
 
-For efficiency of plotting, select just the columns that will be used for this section.
+For efficiency of plotting, only the columns that will be used for this section will be selected.
 
 ```{r}
 hex_grid_count2 <- hex_grid_count %>%
@@ -276,7 +276,6 @@ tm_shape(hex_grid_count2) +
           popup.vars = c("Bus Stops" = "bus_stop_codes", 
                          "Weekday Morning" = "weekday_morn", 
                          "Weekday Evening" = "weekday_evening")) + 
-  tm_layout(title = c("Weekday Morning", "Weekday Evening")) +
   tm_facets(ncol = 1, free.scales = FALSE)
 ```
 
@@ -313,7 +312,6 @@ tm_shape(hex_grid_count2) +
           popup.vars = c("Bus Stops" = "bus_stop_codes", 
                          "Weekend/PH Morning" = "weekend_morn", 
                          "Weekend/PH Evening" = "weekend_evening")) + 
-  tm_layout(title = c("Weekend/PH Morning", "Weekend/PH Evening")) +
   tm_facets(ncol = 1, free.scales = FALSE)
 ```
 
@@ -360,7 +358,6 @@ tm_shape(hex_grid_count2) +
           popup.vars = c("Bus Stops" = "bus_stop_codes", 
                          "Weekday Morning" = "weekday_morn", 
                          "Weekday Evening" = "weekday_evening")) + 
-  tm_layout(title = c("Weekday Morning", "Weekday Evening")) +
   tm_facets(ncol = 1, free.scales = FALSE)
 ```
 
@@ -392,7 +389,6 @@ tm_shape(hex_grid_count2) +
           popup.vars = c("Bus Stops" = "bus_stop_codes", 
                          "Weekend/PH Morning" = "weekend_morn", 
                          "Weekend/PH Evening" = "weekend_evening")) + 
-  tm_layout(title = c("Weekend/PH Morning", "Weekend/PH Evening")) +
   tm_facets(ncol = 1, free.scales = FALSE)
 ```
 
@@ -745,6 +741,7 @@ weekdaymorn_ehsa %>%
 ## Insights
 
 The chart and the table above suggests a slight upward trend across the 4 hours of the weekday morning peak period for hexagon grid 3859. 
+
 - At an alpha value of 0.05 (CI 95%), p-value > alpha value, suggesting that this trend is insignificant. 
 - At alpha value of 0.1 (CI 90%), p-value < alpha value, suggesting that this trend is significant. 
 
@@ -807,7 +804,8 @@ weekdayevening_ehsa %>%
 ::: callout-tip
 ## Insights
 
-The chart and the table above suggests a slight downward trend across the 4 hours of the weekday evening peak period for hexagon grids 1094 and 4018.
+The chart and the table above suggests a slight downward trend across the 4 hours of the weekday evening peak period for hexagon grids 1904 and 4018.
+
 - At an alpha value of 0.05 (CI 95%), p-value > alpha value, suggesting that this trend is insignificant. 
 - At alpha value of 0.1 (CI 90%), p-value < alpha value, suggesting that this trend is significant. 
 
@@ -871,10 +869,12 @@ weekendmorn_ehsa %>%
 ## Insights
 
 The chart and the table above suggests a slight downward trend across the 4 hours of the weekend morning peak period for hexagon grids 1438, 2102, 2133, 2950, 3859 and 4018.  
+
 - At an alpha value of 0.05 (CI 95%), p-value > alpha value, suggesting that this trend is insignificant. 
 - At alpha value of 0.1 (CI 90%), p-value < alpha value, suggesting that this trend is significant. 
 
 Conversely, there is a slight upward trend across the 4 hours of the weekend morning peak period for hexagon grids 1251, 1778, 2411, 2854, 3014, 3166, 3292, 3578, 3924, 3957, 4349, 4539 and 4635.  
+
 - At an alpha value of 0.05 (CI 95%), p-value > alpha value, suggesting that this trend is insignificant. 
 - At alpha value of 0.1 (CI 90%), p-value < alpha value, suggesting that this trend is significant. 
 
@@ -938,10 +938,12 @@ weekendevening_ehsa %>%
 ## Insights
 
 The chart and the table above suggests a slight downward trend across the 4 hours of the weekend evening peak period for hexagon grids 2950, 3166, 3292, 3924 and 4018.  
+
 - At an alpha value of 0.05 (CI 95%), p-value > alpha value, suggesting that this trend is insignificant. 
 - At alpha value of 0.1 (CI 90%), p-value < alpha value, suggesting that this trend is significant. 
 
 Conversely, there is a slight upward trend across the 4 hours of the weekend morning peak period for hexagon grids 1251, 1778, 2062, 2411, 2854 and 4635.  
+
 - At an alpha value of 0.05 (CI 95%), p-value > alpha value, suggesting that this trend is insignificant. 
 - At alpha value of 0.1 (CI 90%), p-value < alpha value, suggesting that this trend is significant. 
 
@@ -961,10 +963,7 @@ my_palette <- c("no pattern detected" = "grey85",
                 "new hotspot" = "mistyrose1",
                 "sporadic hotspot" = "lightpink",
                 "consecutive hotspot" = "indianred",
-                "persistent hotspot" = "darkred",
-                "new coldspot" = "lightcyan",
-                "sporadic coldspot" = "lightblue",
-                "consecutive coldspot" = "steelblue")
+                "persistent hotspot" = "darkred")
 ```
 
 ::: panel-tabset
@@ -1017,7 +1016,7 @@ wkd_morn_ehsa_grid <- hex_grid %>%
 # Plot the choropleth map for significant values
 morn_ehsa_sig <- wkd_morn_ehsa_grid  %>%
   # Remove coldspot areas since most of these areas have low bus stop density
-  filter(p_value < 0.1 & grepl("hotspot", classification))
+  filter(p_value < 0.1)
 
 tmap_mode("view")
 
@@ -1026,6 +1025,12 @@ tm_shape(morn_ehsa_sig) +
   tm_borders(alpha = 0.4)
 ```
 
+::: callout-tip
+## Insights
+
+Based on the map, there are clusters of hot spots in several areas of Singapore during weekday morning peak hours. Among the grids identified earlier as high commuting flow regions, most are also hot spot areas. However, there are also clusters which were previously not identified as a high commuting flow region but should also be reviewed when doing further analysis. 
+
+:::
 
 ### EHSA for Weekday Evening
 
@@ -1060,7 +1065,7 @@ ggplotly(v2)
 ::: callout-tip
 ## Insights
 
-xxx
+More than half of the hexagon grids had no pattern detected - likely due to the large number of 0s in the data frame. The next largest class of hexagon grids are "sporadic cold spots". Among the "hot spots" classes, more areas are "sporadic hot spots". 
 :::
 
 #### Choropleth Map for Weekday Evening
@@ -1082,6 +1087,13 @@ tm_shape(ehsa_sig) +
   tm_fill("classification", palette = my_palette) + 
   tm_borders(alpha = 0.4)
 ```
+
+::: callout-tip
+## Insights
+
+Based on the map, there are clusters of hot spots in several areas of Singapore during weekday evening peak hours. Among the grids identified earlier as high commuting flow regions, most are also hot spot areas. However, there are also clusters which were previously not identified as a high commuting flow region but should also be reviewed when doing further analysis. 
+
+:::
 
 ### EHSA for Weekend/PH Morning
 
@@ -1116,7 +1128,7 @@ ggplotly(v3)
 ::: callout-tip
 ## Insights
 
-xxx
+More than half of the hexagon grids had no pattern detected - likely due to the large number of 0s in the data frame. The next largest class of hexagon grids are "sporadic cold spots", which refers to locations that are on-again then off-again cold spots. 
 :::
 
 #### Choropleth Map for Weekend/PH Morning
@@ -1138,6 +1150,13 @@ tm_shape(wkemorn_ehsa_sig) +
   tm_fill("classification", palette = my_palette) + 
   tm_borders(alpha = 0.4)
 ```
+
+::: callout-tip
+## Insights
+
+Based on the map, there are clusters of hot spots in several areas of Singapore during weekend morning peak hours. However, not all grids identified earlier as high commuting flow regions are also hot spot areas. The biggest cluster of hot spot area is in the Downtown region, though some larger housing estates such as Tampines, Boon Lay, Punggol/Sengkang are also hot spot areas. This could be due to the timings used for the weekend morning peak hour definition being around lunch time and considerably later than the weekday morning peak hours. 
+
+:::
 
 ### EHSA for Weekend/PH Evening
 
@@ -1172,7 +1191,7 @@ ggplotly(v4)
 ::: callout-tip
 ## Insights
 
-xxx
+More than half of the hexagon grids had no pattern detected - likely due to the large number of 0s in the data frame. The next largest class of hexagon grids are "sporadic cold spots", which refers to locations that are on-again then off-again cold spots. 
 :::
 
 #### Choropleth Map for Weekend/PH Evening
@@ -1194,4 +1213,19 @@ tm_shape(evening_ehsa_sig) +
   tm_fill("classification", palette = my_palette) + 
   tm_borders(alpha = 0.4)
 ```
+
+::: callout-tip
+## Insights
+
+Based on the map, there are clusters of hot spots in several areas of Singapore during weekend/PH evening peak hours. However, not all grids identified earlier as high commuting flow regions are also hot spot areas. Most of the clusters are found in the housing estates and around Woodlands Checkpoint. The Downtown area, while still a high commuting flow region, is no longer a hot spot area by evening time. 
+
 :::
+:::
+
+# Conclusion
+
+The geographical distribution of weekday and weekend peak hour commuting flow is heavily right-skewed, and can hence, be better identified in geovisualisation using Jenks Natural Breaks data classification. On weekdays, all of the highest commuting flow areas are in the housing estates, while on weekends / PH, high commuting flow areas that are not just in the major housing estates, but also in the town area and the area surrounding Woodlands Checkpoint.
+
+There are clusters of hot spots in several areas of Singapore during all four peak hour time periods. Among the grids identified earlier as high commuting flow regions for weekday mornings and evenings, most are also hot spot areas. However, there are also clusters which were previously not identified as a high commuting flow region but should also be reviewed when doing further analysis. 
+
+For weekends/PH, not all grids identified as high commuting flow regions are also hot spot areas. During the weekend / PH morning peak, the biggest cluster of hot spot area is in the Downtown region, though some larger housing estates such as Tampines, Boon Lay, Punggol/Sengkang are also hot spot areas. This could be due to the timings used for the weekend morning peak hour definition being around lunch time and considerably later than the weekday morning peak hours. Conversely, during the weekend / PH evening peak, most clusters are found in the housing estates and around Woodlands Checkpoint. The Downtown area, while still a high commuting flow region, is no longer a hot spot area by evening time.  
