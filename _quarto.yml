@@ -22,7 +22,7 @@ website:
         - text: "2: Spatial Weights, GLSA, EHSA"
           href: In_Class_Exercise/Ex2/In_Class_Ex2.qmd
         - text: "3: Spatial Interaction Models"
-          href: In_Class_Exercise/Ex2/In_Class_Ex2.qmd
+          href: In_Class_Exercise/Ex3/In_Class_Ex3.qmd
       - text: "Hands-on Exercise"
         menu: 
         - text: "1a: Geospatial Data Wrangling"
@@ -33,6 +33,8 @@ website:
           href: Hands_on_Exercise/Ex2/Hands_on_Ex2a.qmd
         - text: "2b: Measures of Spatial Autocorrelation"
           href: Hands_on_Exercise/Ex2/Hands_on_Ex2b.qmd
+        - text: "3: Spatial Interaction Models"
+          href: Hands_on_Exercise/Ex3/Hands_on_Ex3.qmd
       - text: "Take Home Exercise"
         menu: 
         - text: "Exercise 1"

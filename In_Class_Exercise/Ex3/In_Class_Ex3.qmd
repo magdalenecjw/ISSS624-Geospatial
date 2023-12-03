@@ -7,6 +7,8 @@ execute:
   warning: false
 ---
 
+Spatial interaction represents the flow of people, material, or information between locations in geographical space. 
+
 ## Getting started
 
 The code chunk below uses p_load() of pacman package to check if the required packages have been installed on the computer. If they are, the packages will be launched. The packages used are:

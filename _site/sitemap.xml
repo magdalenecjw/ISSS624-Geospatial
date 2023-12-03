@@ -2,86 +2,82 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://geospatial2023.netlify.app/Take_Home_Exercise/index.html</loc>
-    <lastmod>2023-12-02T11:55:26.130Z</lastmod>
+    <lastmod>2023-12-03T01:25:35.127Z</lastmod>
   </url>
   <url>
     <loc>https://geospatial2023.netlify.app/Take_Home_Exercise/Ex1/Take_home_Ex1.html</loc>
-    <lastmod>2023-12-02T11:55:24.975Z</lastmod>
-  </url>
-  <url>
-    <loc>https://geospatial2023.netlify.app/latest-content.html</loc>
-    <lastmod>2023-12-02T11:55:23.918Z</lastmod>
-  </url>
-  <url>
-    <loc>https://geospatial2023.netlify.app/In_Class_Exercise/Ex3/In_Class_Ex3.html</loc>
-    <lastmod>2023-12-02T11:55:21.947Z</lastmod>
-  </url>
-  <url>
-    <loc>https://geospatial2023.netlify.app/In_Class_Exercise/Ex2/In_Class_Ex2.html</loc>
-    <lastmod>2023-12-02T11:55:19.117Z</lastmod>
-  </url>
-  <url>
-    <loc>https://geospatial2023.netlify.app/In_Class_Exercise/Ex1/data/geospatial/MPSZ-2019.html</loc>
-    <lastmod>2023-12-02T11:55:15.691Z</lastmod>
-  </url>
-  <url>
-    <loc>https://geospatial2023.netlify.app/Hands_on_Exercise/index.html</loc>
-    <lastmod>2023-12-02T11:55:13.566Z</lastmod>
-  </url>
-  <url>
-    <loc>https://geospatial2023.netlify.app/Hands_on_Exercise/Ex3/Hands_on_Ex3.html</loc>
-    <lastmod>2023-12-02T11:55:11.936Z</lastmod>
-  </url>
-  <url>
-    <loc>https://geospatial2023.netlify.app/Hands_on_Exercise/Ex2/Hands_on_Ex2b.html</loc>
-    <lastmod>2023-12-02T11:55:03.905Z</lastmod>
-  </url>
-  <url>
-    <loc>https://geospatial2023.netlify.app/Hands_on_Exercise/Ex1/Hands_on_Ex1b.html</loc>
-    <lastmod>2023-12-02T11:54:54.432Z</lastmod>
-  </url>
-  <url>
-    <loc>https://geospatial2023.netlify.app/about.html</loc>
-    <lastmod>2023-12-02T11:54:50.608Z</lastmod>
-  </url>
-  <url>
-    <loc>https://geospatial2023.netlify.app/Hands_on_Exercise/Ex1/Hands_on_Ex1a.html</loc>
-    <lastmod>2023-12-02T11:54:52.395Z</lastmod>
-  </url>
-  <url>
-    <loc>https://geospatial2023.netlify.app/Hands_on_Exercise/Ex2/Hands_on_Ex2a.html</loc>
-    <lastmod>2023-12-02T11:54:59.905Z</lastmod>
-  </url>
-  <url>
-    <loc>https://geospatial2023.netlify.app/Hands_on_Exercise/Ex3/data/geospatial/MPSZ-2019.html</loc>
-    <lastmod>2023-12-02T11:55:04.420Z</lastmod>
-  </url>
-  <url>
-    <loc>https://geospatial2023.netlify.app/Hands_on_Exercise/Ex4/Hands_on_Ex4.html</loc>
-    <lastmod>2023-12-02T11:55:12.458Z</lastmod>
-  </url>
-  <url>
-    <loc>https://geospatial2023.netlify.app/index.html</loc>
-    <lastmod>2023-12-02T11:55:15.122Z</lastmod>
-  </url>
-  <url>
-    <loc>https://geospatial2023.netlify.app/In_Class_Exercise/Ex1/In_Class_Ex1.html</loc>
-    <lastmod>2023-12-02T11:55:16.678Z</lastmod>
-  </url>
-  <url>
-    <loc>https://geospatial2023.netlify.app/In_Class_Exercise/Ex3/data/geospatial/MPSZ-2019.html</loc>
-    <lastmod>2023-12-02T11:55:19.617Z</lastmod>
+    <lastmod>2023-12-03T01:57:53.157Z</lastmod>
   </url>
   <url>
     <loc>https://geospatial2023.netlify.app/In_Class_Exercise/index.html</loc>
-    <lastmod>2023-12-02T11:55:22.776Z</lastmod>
+    <lastmod>2023-12-03T01:23:24.202Z</lastmod>
   </url>
   <url>
-    <loc>https://geospatial2023.netlify.app/Take_Home_Exercise/Ex1/data/geospatial/MPSZ-2019.html</loc>
-    <lastmod>2023-12-02T11:55:24.456Z</lastmod>
+    <loc>https://geospatial2023.netlify.app/In_Class_Exercise/Ex3/data/geospatial/MPSZ-2019.html</loc>
+    <lastmod>2023-12-03T01:23:20.880Z</lastmod>
+  </url>
+  <url>
+    <loc>https://geospatial2023.netlify.app/In_Class_Exercise/Ex1/In_Class_Ex1.html</loc>
+    <lastmod>2023-12-03T01:23:17.937Z</lastmod>
+  </url>
+  <url>
+    <loc>https://geospatial2023.netlify.app/index.html</loc>
+    <lastmod>2023-12-03T01:23:16.442Z</lastmod>
+  </url>
+  <url>
+    <loc>https://geospatial2023.netlify.app/Hands_on_Exercise/Ex4/Hands_on_Ex4.html</loc>
+    <lastmod>2023-12-03T01:23:13.292Z</lastmod>
+  </url>
+  <url>
+    <loc>https://geospatial2023.netlify.app/Hands_on_Exercise/Ex3/data/geospatial/MPSZ-2019.html</loc>
+    <lastmod>2023-12-03T01:23:05.551Z</lastmod>
+  </url>
+  <url>
+    <loc>https://geospatial2023.netlify.app/Hands_on_Exercise/Ex2/Hands_on_Ex2a.html</loc>
+    <lastmod>2023-12-03T01:23:02.548Z</lastmod>
+  </url>
+  <url>
+    <loc>https://geospatial2023.netlify.app/Hands_on_Exercise/Ex1/Hands_on_Ex1a.html</loc>
+    <lastmod>2023-12-03T01:22:55.784Z</lastmod>
+  </url>
+  <url>
+    <loc>https://geospatial2023.netlify.app/about.html</loc>
+    <lastmod>2023-12-03T01:22:53.874Z</lastmod>
+  </url>
+  <url>
+    <loc>https://geospatial2023.netlify.app/Hands_on_Exercise/Ex1/Hands_on_Ex1b.html</loc>
+    <lastmod>2023-12-03T01:22:57.897Z</lastmod>
+  </url>
+  <url>
+    <loc>https://geospatial2023.netlify.app/Hands_on_Exercise/Ex2/Hands_on_Ex2b.html</loc>
+    <lastmod>2023-12-03T01:37:10.553Z</lastmod>
+  </url>
+  <url>
+    <loc>https://geospatial2023.netlify.app/Hands_on_Exercise/Ex3/Hands_on_Ex3.html</loc>
+    <lastmod>2023-12-03T01:39:04.915Z</lastmod>
+  </url>
+  <url>
+    <loc>https://geospatial2023.netlify.app/Hands_on_Exercise/index.html</loc>
+    <lastmod>2023-12-03T01:23:14.859Z</lastmod>
+  </url>
+  <url>
+    <loc>https://geospatial2023.netlify.app/In_Class_Exercise/Ex1/data/geospatial/MPSZ-2019.html</loc>
+    <lastmod>2023-12-03T01:23:16.960Z</lastmod>
+  </url>
+  <url>
+    <loc>https://geospatial2023.netlify.app/In_Class_Exercise/Ex2/In_Class_Ex2.html</loc>
+    <lastmod>2023-12-03T01:23:20.364Z</lastmod>
+  </url>
+  <url>
+    <loc>https://geospatial2023.netlify.app/In_Class_Exercise/Ex3/In_Class_Ex3.html</loc>
+    <lastmod>2023-12-03T01:36:36.439Z</lastmod>
+  </url>
+  <url>
+    <loc>https://geospatial2023.netlify.app/latest-content.html</loc>
+    <lastmod>2023-12-03T01:23:25.410Z</lastmod>
   </url>
   <url>
     <loc>https://geospatial2023.netlify.app/Take_Home_Exercise/Ex2/Take_home_Ex2.html</loc>
-    <lastmod>2023-12-02T11:55:25.446Z</lastmod>
+    <lastmod>2023-12-03T01:25:34.390Z</lastmod>
   </url>
 </urlset>
