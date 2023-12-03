@@ -270,7 +270,7 @@ tmap_mode("view")
 tm_shape(hex_grid_count2) +
   tm_fill(col = c("weekday_morn", "weekday_evening"),
           palette = "Blues",
-          n = 6, style = "jenks", 
+          style = "cont", 
           popup.vars = c("Bus Stops" = "bus_stop_codes", 
                          "Weekday Morning" = "weekday_morn", 
                          "Weekday Evening" = "weekday_evening")) + 
@@ -307,7 +307,7 @@ tmap_mode("view")
 tm_shape(hex_grid_count2) +
   tm_fill(col = c("weekend_morn", "weekend_evening"),
           palette = "Purples",
-          n = 6, style = "jenks", 
+          style = "cont", 
           popup.vars = c("Bus Stops" = "bus_stop_codes", 
                          "Weekend/PH Morning" = "weekend_morn", 
                          "Weekend/PH Evening" = "weekend_evening")) + 
@@ -415,11 +415,9 @@ Similarly, using Jenks Natural Breaks to classify the weekend peak hour commutin
 
 # Emerging Hot Spot Analysis
 
-Generally, 'hot spot' describes a region or value that is higher relative to its surroundings, while 'cold spot' describes a region or value that is lower relative to its surroundings. It aims to [classify each location into one of seventeen categories based on ESRI's emerging hot spot classification criteria](https://sfdep.josiahparry.com/reference/emerging_hotspot_analysis.html).
+The aim of Emerging Hot Spot Analysis (EHSA) is to [classify each location into one of seventeen categories based on ESRI's emerging hot spot classification criteria](https://sfdep.josiahparry.com/reference/emerging_hotspot_analysis.html). To perform EHSA, time series cubes are needed.
 
 ## Time Series Cube
-
-To perform Emerging Hot Spot Analysis (EHSA), time series cubes are needed.
 
 Spatio-temporal data are typically presented in long formats, where a row identifies a unique location and time observation represented by a column dedicated to time and another to locations. However, such data are traditionally not linked to the geographies as they contain only an identifier of the location, but not the spatial representation that makes the data meaningful for geospatial analysis.
 
@@ -690,6 +688,83 @@ With the above G~i~\* statistics, it is possible to evaluate each location for a
 
 ### Mann-Kendall Test for Weekday Morning
 
+The code chunk below performs the Mann-Kendall Test for hexagon grids 1251 and 2411. 
+
+```{r}
+mk_weekdaymorn <- gi_weekday_morn %>% 
+  ungroup() %>% 
+  filter(index == 1251 | index == 2411) |> 
+  select(index, TIME_PER_HOUR, gi_star)
+
+# Plot result using ggplot2 functions and ggplotly() of plotly package
+p1 <- ggplot(data = mk_weekdaymorn, 
+       aes(x = TIME_PER_HOUR, 
+           y = gi_star,
+           group = index,
+           color = as.factor(index))) +
+  geom_line() +
+  theme_light()
+
+ggplotly(p1)
+```
+
+```{r}
+mk_weekdaymorn %>%
+  summarise(mk = list(
+    unclass(
+      Kendall::MannKendall(gi_star)))) %>% 
+  tidyr::unnest_wider(mk)
+```
+
+> In the above result, sl is the p-value. 
+
+::: callout-tip
+## Insights
+
+The chart and table above suggests a downward trend over the 4 hours of the morning peak hour crowd for these two hexagon grids, albeit an insignificant one. 
+:::
+
+### Mann-Kendall Test for Weekday Evening
+
+The code chunk below performs the Mann-Kendall Test for hexagon grids 1251, 2411, 3239, 4349, and 4539.
+
+```{r}
+mk_weekdayevening <- gi_weekday_evening %>% 
+  ungroup() %>% 
+  filter(index %in% c(1251, 2411, 3239, 4349, 4539)) |> 
+  select(index, TIME_PER_HOUR, gi_star)
+
+# Plot result using ggplot2 functions and ggplotly() of plotly package
+p2 <- ggplot(data = mk_weekdayevening, 
+       aes(x = TIME_PER_HOUR, 
+           y = gi_star,
+           group = index,
+           color = as.factor(index))) +
+  geom_line() +
+  theme_light()
+
+ggplotly(p2)
+```
+
+```{r}
+mk_weekdayevening %>%
+  summarise(mk = list(
+    unclass(
+      Kendall::MannKendall(gi_star)))) %>% 
+  tidyr::unnest_wider(mk)
+```
+
+> In the above result, sl is the p-value. 
+
+::: callout-tip
+## Insights
+
+The chart and table above suggests no significant trend difference over the 4 hours of the weekday evening peak hour crowd for the top hexagon grids. 
+:::
+:::
+
+The Mann-Kendall test is replicated for each hexagon grid in the code chunk below. 
+
 ```{r}
 #| eval: false
 weekdaymorn_ehsa <- gi_weekday_morn %>%
@@ -709,13 +784,23 @@ write_rds(weekdaymorn_ehsa, "data/rds/weekdaymorn_ehsa.rds")
 weekdaymorn_ehsa <- read_rds("data/rds/weekdaymorn_ehsa.rds")
 ```
 
+The output is then arranged to show significant emerging hot / cold spots. 
+
 ```{r}
 weekdaymorn_emerging <- weekdaymorn_ehsa %>% 
   arrange(sl, abs(tau)) %>% 
-  slice(1:5)
+  slice(1:10)
 
 weekdaymorn_emerging
 ```
+
+::: callout-tip
+## Insights
+
+At an alpha value of 0.05 (CI of 95%), the p-value > alpha value, suggesting there is insufficient evidence to reject the null hypothesis. 
+
+At an alpha value of 0.1 (CI of 90%), the p-value < alpha value, suggesting there is sufficient evidence to reject the null hypothesis. 
+:::
 
 ## Perform Emerging Hot Spot Analysis (EHSA)
 
