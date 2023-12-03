@@ -45,9 +45,9 @@ The code chunk below uses `p_load()` of `pacman` package to check if the require
 -   `sf` package is used for importing, managing, and processing geospatial data.
 -   `sfdep` package is used to create spatial weights matrix and LISA objects using the sf class to represent spatial data.
 -   `tmap` package is used for thematic mapping.
--   `plotly` package is used to create interactive graphs and charts. 
+-   `plotly` package is used to create interactive graphs and charts.
 -   `tidyverse` package is used for aspatial data wrangling.
--   `knitr` package is used for dynamic report generation in R. 
+-   `knitr` package is used for dynamic report generation in R.
 
 ```{r}
 pacman::p_load(sf, sfdep, tmap, plotly, tidyverse, knitr)
@@ -83,7 +83,7 @@ BusStop$BUS_STOP_N <- as.factor(BusStop$BUS_STOP_N)
 str(BusStop)
 ```
 
-Based on the output above, `BUS_STOP_N` is now a factor of 5145 levels. However, there are a total of 5161 observations. As such, the duplicate records should be checked. The code chunk below shows a list of duplicated bus stop codes. 
+Based on the output above, `BUS_STOP_N` is now a factor of 5145 levels. However, there are a total of 5161 observations. As such, the duplicate records should be checked. The code chunk below shows a list of duplicated bus stop codes.
 
 ```{r}
 duplicate <- BusStop %>%
@@ -104,7 +104,7 @@ BusStop <- BusStop %>%
 str(BusStop)
 ```
 
-There are now a total of 5145 observations, aligned with the number of factor levels. 
+There are now a total of 5145 observations, aligned with the number of factor levels.
 
 ## Import Passenger Volume by Origin-Destination Bus Stops
 
@@ -134,7 +134,7 @@ Based on the output above, `ORIGIN_PT_CODE` and `DESTINATION_PT_CODE` are now fa
 
 ## Extract Commuting Flow data
 
-The code chunk below extracts commuting flows for the four target time periods. For completeness, a list of all possible Bus Stops x Day Time x Time combinations is created. Following which, the commuting flow for each Bus Stops x Day Time x Time combination within the `odbus` data frame is computed and missing combinations are imputed with a value of 0. Lastly the resultant data frame is pivoted wider to form a data frame where each row represents one bus stop code, similar to the BusStop sf data frame. 
+The code chunk below extracts commuting flows for the four target time periods. For completeness, a list of all possible Bus Stops x Day Time x Time combinations is created. Following which, the commuting flow for each Bus Stops x Day Time x Time combination within the `odbus` data frame is computed and missing combinations are imputed with a value of 0. Lastly the resultant data frame is pivoted wider to form a data frame where each row represents one bus stop code, similar to the BusStop sf data frame.
 
 ```{r}
 # Create a list of possible bus stop code, day type and time per hour for checking
@@ -202,7 +202,7 @@ There are a total of 5145 observations, which matches the number of features in 
 
 Spatial grids are commonly used in spatial analysis to divide the study area into equal-sized, regular polygons that can tessellate the whole study area. After that, a variable is summarized within each polygon. For this exercise, a hexagon layer of 250m (where 250m is the perpendicular distance between the hexagon centre and its edges) will be created.
 
-In the code chunk below, `st_make_grid` is used to create the hexagon grids using the `svy21` projected coordinate system. In `st_make_grid`, `cellsize` argument refers to the cell size in the units that the crs of the spatial data is using. The cellsize can be defined as the distance between opposite edges. Since the data is set in SVY21 projected coordinate system, which [uses metres as the unit](https://epsg.io/3414), the value is set as `c(500,500)` to create a hexagon layer of 250m. The resulting data frame is then converted into a sf data frame and an index is added for each hexagon grid. 
+In the code chunk below, `st_make_grid` is used to create the hexagon grids using the `svy21` projected coordinate system. In `st_make_grid`, `cellsize` argument refers to the cell size in the units that the crs of the spatial data is using. The cellsize can be defined as the distance between opposite edges. Since the data is set in SVY21 projected coordinate system, which [uses metres as the unit](https://epsg.io/3414), the value is set as `c(500,500)` to create a hexagon layer of 250m. The resulting data frame is then converted into a sf data frame and an index is added for each hexagon grid.
 
 ```{r}
 #| eval: false
@@ -212,7 +212,7 @@ hex_grid <- st_make_grid(odBusStop, cellsize = c(500, 500),
   mutate(index = row_number())
 ```
 
-In the code chunk below, `st_join` and `st_intersects()` is used to return a list of bus stops lying within each hexagon grid. A left join is done in this process (using the argument `left = TRUE`) to ensure that the geospatial properties (geometry column) of the `hex_grid` sf data frame is retained. After filtering out hexagon grids that do not contain any bus stops, the number of bus stops and the total number of trips at each time period is then computed for each hexagon grid. 
+In the code chunk below, `st_join` and `st_intersects()` is used to return a list of bus stops lying within each hexagon grid. A left join is done in this process (using the argument `left = TRUE`) to ensure that the geospatial properties (geometry column) of the `hex_grid` sf data frame is retained. After filtering out hexagon grids that do not contain any bus stops, the number of bus stops and the total number of trips at each time period is then computed for each hexagon grid.
 
 ```{r}
 #| eval: false
@@ -257,12 +257,12 @@ hex_grid_count2 <- hex_grid_count %>%
          weekday_evening, weekday_morn, weekend_evening, weekend_morn)
 ```
 
-The following code chunks will review the geographical distribution of the weekdays and weekends peak hour commuting flows using a continuous scale fill. 
+The following code chunks will review the geographical distribution of the weekdays and weekends peak hour commuting flows using a continuous scale fill.
 
-:::panel-tabset
+::: panel-tabset
 ### Geographical Distribution of Weekday Peak Hour Commuting Flows
 
-The geographical distribution of the weekdays peak hour commuting flows is plotted side by side using `tm_facets()` function. The `free.scales` argument is set to `FALSE` to show a consistent scale across both time periods. 
+The geographical distribution of the weekdays peak hour commuting flows is plotted side by side using `tm_facets()` function. The `free.scales` argument is set to `FALSE` to show a consistent scale across both time periods.
 
 ```{r}
 tmap_mode("view")
@@ -278,16 +278,16 @@ tm_shape(hex_grid_count2) +
   tm_facets(ncol = 1, free.scales = FALSE)
 ```
 
-::: {.callout-tip}
-## Takeaway
+::: callout-tip
+## Insights
 
-The visualisation above shows a heavily right-skewed distribution across all the weekday peak hour time periods. Most bus stops have less than 100k commuter trips at each of these time periods. Notable hexagon grids with significantly more commuting flow >300k are:
+The visualisation above shows a heavily right-skewed distribution across all the weekday peak hour time periods. Most bus stops have less than 100k commuter trips at each of these time periods. Notable hexagon grids with significantly more commuting flow \>300k are:
 
 -   Weekday Mornings: 1251, 2411
 -   Weekday Evenings: 1251, 2411, 3239, 4349, 4539
 :::
 
-The code chunk below displays the hexagon grids with significantly more commuting flow >300k in greater detail. 
+The code chunk below displays the hexagon grids with significantly more commuting flow \>300k in greater detail.
 
 ```{r}
 weekday_300k <- hex_grid_count2 %>%
@@ -299,7 +299,7 @@ kable(weekday_300k)
 
 ### Geographical Distribution of Weekend/PH Peak Hour Commuting Flows
 
-The geographical distribution of the weekends / holidays peak hour commuting flows is plotted side by side using `tm_facets()` function. The `free.scales` argument is set to `FALSE` to show a consistent scale across both time periods. 
+The geographical distribution of the weekends / holidays peak hour commuting flows is plotted side by side using `tm_facets()` function. The `free.scales` argument is set to `FALSE` to show a consistent scale across both time periods.
 
 ```{r}
 tmap_mode("view")
@@ -315,16 +315,16 @@ tm_shape(hex_grid_count2) +
   tm_facets(ncol = 1, free.scales = FALSE)
 ```
 
-::: {.callout-tip}
-## Takeaway
+::: callout-tip
+## Insights
 
-Similarly, the visualisation above shows a heavily right-skewed distribution across all the weekend peak hour time periods. However, the continuous scale suggests that weekend peak hour commuting flow volume is approximately one-fifth of weekday peak hour commuting flow volume. Most bus stops have less than 20k commuter trips at each of these time periods. Notable hexagon grids with significantly more commuting flow >80k are:
+Similarly, the visualisation above shows a heavily right-skewed distribution across all the weekend peak hour time periods. However, the continuous scale suggests that weekend peak hour commuting flow volume is approximately one-fifth of weekday peak hour commuting flow volume. Most bus stops have less than 20k commuter trips at each of these time periods. Notable hexagon grids with significantly more commuting flow \>80k are:
 
--   Weekday Mornings: 1251, 2411, 4349, 4539
--   Weekday Evenings: 1251, 2411, 3239, 3578, 4349, 4539
+-   Weekend/PH Mornings: 1251, 2411, 4349, 4539
+-   Weekend/PH Evenings: 1251, 2411, 3239, 3578, 4349, 4539
 :::
 
-The code chunk below displays the hexagon grids with significantly more commuting flow >80k in greater detail. 
+The code chunk below displays the hexagon grids with significantly more commuting flow \>80k in greater detail.
 
 ```{r}
 weekend_80k <- hex_grid_count2 %>%
@@ -333,21 +333,20 @@ weekend_80k <- hex_grid_count2 %>%
 
 kable(weekend_80k)
 ```
-
 :::
 
-However, due to the heavily right-skewed distribution, not much can be glimpsed from the current geovisualisation using continuous scale fill. A data classification method will be used to replot the maps. 
+However, due to the heavily right-skewed distribution, not much can be glimpsed from the current geovisualisation using continuous scale fill. A data classification method will be used to replot the maps.
 
 ### Jenks Natural Breaks
 
-The Jenks optimization method, also called the Jenks natural breaks classification method, is a data clustering method designed to determine the best arrangement of values into different classes by seeking to reduce the variance within classes and maximize the variance between classes. For this exercise, the number of breaks is defined at `n=6`. 
+The Jenks optimization method, also called the Jenks natural breaks classification method, is a data clustering method designed to determine the best arrangement of values into different classes by seeking to reduce the variance within classes and maximize the variance between classes. For this exercise, the number of breaks is defined at `n=6`.
 
-The following code chunks will review the geographical distribution of the weekdays and weekends peak hour commuting flows using a continuous scale fill. 
+The following code chunks will review the geographical distribution of the weekdays and weekends peak hour commuting flows using a continuous scale fill.
 
-:::panel-tabset
+::: panel-tabset
 ### Geographical Distribution of Weekday Peak Hour Commuting Flows
 
-The geographical distribution of the weekdays peak hour commuting flows is plotted side by side using `tm_facets()` function. The `free.scales` argument is set to `FALSE` to show a consistent scale across both time periods. 
+The geographical distribution of the weekdays peak hour commuting flows is plotted side by side using `tm_facets()` function. The `free.scales` argument is set to `FALSE` to show a consistent scale across both time periods.
 
 ```{r}
 tmap_mode("view")
@@ -363,14 +362,7 @@ tm_shape(hex_grid_count2) +
   tm_facets(ncol = 1, free.scales = FALSE)
 ```
 
-::: {.callout-tip}
-## Takeaway
-
-Using Jenks Natural Breaks to classify the weekday peak hour commuting flow reveals more potential hot spots in the housing estates. This will be verified in the second part of this study on Emerging Hot Spots Analysis.
-
-:::
-
-The code chunk below displays the hexagon grids that fall into the last two classes (>156k) in greater detail. 
+The code chunk below displays the hexagon grids that fall into the last two classes (\>156k) in greater detail.
 
 ```{r}
 weekday_156k <- hex_grid_count2 %>%
@@ -380,11 +372,15 @@ weekday_156k <- hex_grid_count2 %>%
 kable(weekday_156k)
 ```
 
-All the hexagon grids listed above are in housing estates. 
+::: callout-tip
+## Insights
+
+Using Jenks Natural Breaks to classify the weekday peak hour commuting flow reveals more potential hot spots in the housing estates. This will be verified in the second part of this study on Emerging Hot Spots Analysis.
+:::
 
 ### Geographical Distribution of Weekend/PH Peak Hour Commuting Flows
 
-The geographical distribution of the weekends / holidays peak hour commuting flows is plotted side by side using `tm_facets()` function. The `free.scales` argument is set to `FALSE` to show a consistent scale across both time periods. 
+The geographical distribution of the weekends / holidays peak hour commuting flows is plotted side by side using `tm_facets()` function. The `free.scales` argument is set to `FALSE` to show a consistent scale across both time periods.
 
 ```{r}
 tmap_mode("view")
@@ -400,14 +396,7 @@ tm_shape(hex_grid_count2) +
   tm_facets(ncol = 1, free.scales = FALSE)
 ```
 
-::: {.callout-tip}
-## Takeaway
-
-Similarly, using Jenks Natural Breaks to classify the weekend peak hour commuting flow reveals more potential hot spots not just in the major housing estates, but also in the town area and the area surrounding Woodlands Checkpoint. This will be verified in the second part of this study on Emerging Hot Spots Analysis.
-
-:::
-
-The code chunk below displays the hexagon grids that fall into the last two classes (>31k) in greater detail. 
+The code chunk below displays the hexagon grids that fall into the last two classes (\>31k) in greater detail.
 
 ```{r}
 weekend_31k <- hex_grid_count2 %>%
@@ -417,15 +406,22 @@ weekend_31k <- hex_grid_count2 %>%
 kable(weekend_31k)
 ```
 
-Apart from the hexagon grids in the housing estates, some hexagon grids in the downtown and Woodlands Checkpoint areas also fall into this list. 
+::: callout-tip
+## Insights
 
+Similarly, using Jenks Natural Breaks to classify the weekend peak hour commuting flow reveals more potential hot spots not just in the major housing estates, but also in the town area and the area surrounding Woodlands Checkpoint. This will be verified in the second part of this study on Emerging Hot Spots Analysis.
+:::
 :::
 
 # Emerging Hot Spot Analysis
 
+Generally, 'hot spot' describes a region or value that is higher relative to its surroundings, while 'cold spot' describes a region or value that is lower relative to its surroundings. It aims to [classify each location into one of seventeen categories based on ESRI's emerging hot spot classification criteria](https://sfdep.josiahparry.com/reference/emerging_hotspot_analysis.html).
+
 ## Time Series Cube
 
-Spatio-temporal data are typically presented in long formats, where a row identifies a unique location and time observation represented by a column dedicated to time and another to locations. However, such data are traditionally not linked to the geographies as they contain only an identifier of the location, but not the spatial representation that makes the data meaningful for geospatial analysis. 
+To perform Emerging Hot Spot Analysis (EHSA), time series cubes are needed.
+
+Spatio-temporal data are typically presented in long formats, where a row identifies a unique location and time observation represented by a column dedicated to time and another to locations. However, such data are traditionally not linked to the geographies as they contain only an identifier of the location, but not the spatial representation that makes the data meaningful for geospatial analysis.
 
 The `spacetime` class in **sfdep** package can be used to create lattice data that is a representation of spatio-temporal data for a set of regions containing the geometries over a number of different time-periods. There are two possible layouts: spatio-temporal full grid and sparse grids.
 
@@ -435,9 +431,9 @@ For this analysis, time series cubes will be created for each of the four target
 
 ## Create Time Series Cube
 
-In the code chunks below, relevant columns that correspond to the target time periods will be selected from `hex_grid_count` and joined with `hex_grid` to create the `n` number of spatial features. The corresponding sf data frame will then be pivoted longer to create a time series data containing the `m` time periods. Once the data frame has `nxm` rows, apply the `spacetime()` function to create the time series cube. 
+In the code chunks below, relevant columns that correspond to the target time periods will be selected from `hex_grid_count` and joined with `hex_grid` to create the `n` number of spatial features. The corresponding sf data frame will then be pivoted longer to create a time series data containing the `m` time periods. Once the data frame has `nxm` rows, apply the `spacetime()` function to create the time series cube.
 
-:::panel-tabset
+::: panel-tabset
 ### Weekday Morning Time Series Cube
 
 ```{r}
@@ -454,7 +450,9 @@ weekday_morn_full <- st_join(hex_grid, weekday_morn_hex, join = st_within) %>%
   pivot_longer(cols = c(`6`, `7`, `8`, `9`), 
                names_to = "TIME_PER_HOUR", values_to = "TRIPS",
                names_transform = as.integer, values_transform = as.integer) %>%
-  mutate(across(where(is.integer), ~ifelse(is.na(.), 0, .)))
+  mutate(across(where(is.integer), ~ifelse(is.na(.), 0, .))) %>%
+  select(index, TIME_PER_HOUR, TRIPS) %>%
+  st_set_geometry(NULL)
 
 # Apply spacetime() function
 weekday_morn_cube <- spacetime(weekday_morn_full, hex_grid,
@@ -482,7 +480,9 @@ weekday_evening_full <- st_join(hex_grid, weekday_evening_hex, join = st_within)
   pivot_longer(cols = c(`17`, `18`, `19`, `20`), 
                names_to = "TIME_PER_HOUR", values_to = "TRIPS",
                names_transform = as.integer, values_transform = as.integer) %>%
-  mutate(across(where(is.integer), ~ifelse(is.na(.), 0, .)))
+  mutate(across(where(is.integer), ~ifelse(is.na(.), 0, .))) %>%
+  select(index, TIME_PER_HOUR, TRIPS) %>%
+  st_set_geometry(NULL)
 
 # Apply spacetime() function
 weekday_evening_cube <- spacetime(weekday_evening_full, hex_grid,
@@ -511,7 +511,9 @@ weekend_morn_full <- st_join(hex_grid, weekend_morn_hex, join = st_within) %>%
   pivot_longer(cols = c(`11`, `12`, `13`, `14`), 
                names_to = "TIME_PER_HOUR", values_to = "TRIPS",
                names_transform = as.integer, values_transform = as.integer) %>%
-  mutate(across(where(is.integer), ~ifelse(is.na(.), 0, .)))
+  mutate(across(where(is.integer), ~ifelse(is.na(.), 0, .))) %>%
+  select(index, TIME_PER_HOUR, TRIPS) %>%
+  st_set_geometry(NULL)
 
 # Apply spacetime() function
 weekend_morn_cube <- spacetime(weekend_morn_full, hex_grid,
@@ -540,7 +542,9 @@ weekend_evening_full <- st_join(hex_grid, weekend_evening_hex, join = st_within)
   pivot_longer(cols = c(`16`, `17`, `18`, `19`), 
                names_to = "TIME_PER_HOUR", values_to = "TRIPS",
                names_transform = as.integer, values_transform = as.integer) %>%
-  mutate(across(where(is.integer), ~ifelse(is.na(.), 0, .)))
+  mutate(across(where(is.integer), ~ifelse(is.na(.), 0, .))) %>%
+  select(index, TIME_PER_HOUR, TRIPS) %>%
+  st_set_geometry(NULL)
 
 # Apply spacetime() function
 weekend_evening_cube <- spacetime(weekend_evening_full, hex_grid,
@@ -553,12 +557,11 @@ is_spacetime_cube(weekend_evening_cube)
 The `TRUE` return confirms that `weekend_evening_cube` object is indeed an time-space cube.
 :::
 
-## Computation of Local G~i~* statistics
+## Computation of Local G~i~\* statistics
 
-To compute the local G~i~* statistics, spatial weights must first be derived. The code chunks below will be used to identify neighbors and to derive an inverse distance weights for each target time period. `activate()` is used to first activate the geometry context, followed by 
-`mutate()` to create two new columns `nb` and `wt`. Then activate the data context again and copy over the `nb` and `wt` columns to each time-slice using `set_nbs()` and `set_wts()`.
+To compute the local G~i~\* statistics, spatial weights must first be derived. The code chunks below will be used to identify neighbors and to derive an inverse distance weights for each target time period. `activate()` is used to first activate the geometry context, followed by `mutate()` to create two new columns `nb` and `wt`. Then activate the data context again and copy over the `nb` and `wt` columns to each time-slice using `set_nbs()` and `set_wts()`.
 
-:::panel-tabset
+::: panel-tabset
 ### Spatial Weights for Weekday Morning
 
 ```{r}
@@ -616,10 +619,11 @@ weekend_evening_nb <- weekend_evening_cube %>%
 ```
 :::
 
-In the code chunks below, the new columns are used to manually calculate the local G~i~* for each location. This is done by grouping by `TIME_PER_HOUR` and using `local_gstar_perm()` of sfdep package. After which, `unnest()` is used to unnest the `gi_star` column of the newly created output. 
+In the code chunks below, the new columns are used to manually calculate the local G~i~\* for each location. This is done by grouping by `TIME_PER_HOUR` and using `local_gstar_perm()` of sfdep package. After which, `unnest()` is used to unnest the `gi_star` column of the newly created output.
 
-:::panel-tabset
-### G~i~* for Weekday Morning
+::: panel-tabset
+### G~i~\* for Weekday Morning
+
 ```{r}
 #| eval: false
 gi_weekday_morn <- weekday_morn_nb %>%
@@ -628,7 +632,8 @@ gi_weekday_morn <- weekday_morn_nb %>%
   tidyr::unnest(gi_star)
 ```
 
-### G~i~* for Weekday Evening
+### G~i~\* for Weekday Evening
+
 ```{r}
 #| eval: false
 gi_weekday_evening <- weekday_evening_nb %>%
@@ -637,7 +642,8 @@ gi_weekday_evening <- weekday_evening_nb %>%
   tidyr::unnest(gi_star)
 ```
 
-### G~i~* for Weekend/PH Morning
+### G~i~\* for Weekend/PH Morning
+
 ```{r}
 #| eval: false
 gi_weekend_morn <- weekend_morn_nb %>%
@@ -646,7 +652,8 @@ gi_weekend_morn <- weekend_morn_nb %>%
   tidyr::unnest(gi_star)
 ```
 
-### G~i~* for Weekend/PH Evening
+### G~i~\* for Weekend/PH Evening
+
 ```{r}
 #| eval: false
 gi_weekend_evening <- weekend_evening_nb %>%
@@ -675,15 +682,199 @@ gi_weekend_morn <- read_rds("data/rds/gi_weekend_morn.rds")
 gi_weekend_evening <- read_rds("data/rds/gi_weekend_evening.rds")
 ```
 
-## Perform Emerging Hot Spot Analysis
+## Mann-Kendall Test
 
-`emerging_hotspot_analysis()` of **sfdep** package is used to perform Emerging Hot Spot Analysis. It takes a spacetime object x (e.g. `weekday_morn_cube`) and the variable of interest (e.g. `TRIPS`) for the `.var` argument. The `k` argument is used to specify the number of time lags which is set to 1 by default. Lastly, the `nsim` argument maps the number of simulations to be performed.
+With the above G~i~\* statistics, it is possible to evaluate each location for a trend using the Mann-Kendall test.
+
+:::panel-tabset
+
+### Mann-Kendall Test for Weekday Morning
 
 ```{r}
+#| eval: false
+weekdaymorn_ehsa <- gi_weekday_morn %>%
+  group_by(index) %>%
+  summarise(mk = list(
+    unclass(
+      Kendall::MannKendall(gi_star)))) %>%
+  tidyr::unnest_wider(mk)
+
+# Save out the model
+write_rds(weekdaymorn_ehsa, "data/rds/weekdaymorn_ehsa.rds")
+```
+
+```{r}
+#| echo: false
+# Load the model
+weekdaymorn_ehsa <- read_rds("data/rds/weekdaymorn_ehsa.rds")
+```
+
+```{r}
+weekdaymorn_emerging <- weekdaymorn_ehsa %>% 
+  arrange(sl, abs(tau)) %>% 
+  slice(1:5)
+
+weekdaymorn_emerging
+```
+
+## Perform Emerging Hot Spot Analysis (EHSA)
+
+In the code chunks below, `emerging_hotspot_analysis()` of **sfdep** package is used to perform Emerging Hot Spot Analysis on a spacetime object e.g. `weekday_morn_cube`. The `.var` argument takes the name of a variable of interest (e.g. `TRIPS`), the `k` argument is used to specify the number of time lags which is set to 1 by default, and the `nsim` argument maps the number of simulations to be performed. Lastly, ggplot2 functions are used to reveal the distribution of EHSA classes as a bar chart.
+
+::: panel-tabset
+### EHSA for Weekday Morning
+
+```{r}
+#| eval: false
 wkd_morn_ehsa <- emerging_hotspot_analysis(
-  x = weekday_morn_cube, 
+  x = gi_weekday_morn, 
   .var = "TRIPS", 
   k = 1, 
   nsim = 99
 )
+
+# Save out the model
+write_rds(wkd_morn_ehsa, "data/rds/wkd_morn_ehsa.rds")
 ```
+
+```{r}
+#| echo: false
+wkd_morn_ehsa <- read_rds("data/rds/wkd_morn_ehsa.rds")
+```
+
+```{r, fig.width=12}
+# Visualise the distribution of classes
+ggplot(data = wkd_morn_ehsa,
+       aes(x = classification)) +
+  geom_bar()
+```
+
+::: callout-tip
+## Insights
+
+More than half of the hexagon grids had no pattern detected - likely due to the large number of 0s in the data frame. The next largest class of hexagon grids are "sporadic cold spots", which refers to locations that are on-again then off-again cold spots.
+:::
+
+### EHSA for Weekday Evening
+
+```{r}
+#| eval: false
+wkd_evening_ehsa <- emerging_hotspot_analysis(
+  x = weekday_evening_cube, 
+  .var = "TRIPS", 
+  k = 1, 
+  nsim = 99
+)
+
+# Save out the model
+write_rds(wkd_evening_ehsa, "data/rds/wkd_evening_ehsa.rds")
+```
+
+```{r}
+#| echo: false
+wkd_evening_ehsa <- read_rds("data/rds/wkd_evening_ehsa.rds")
+```
+
+```{r, fig.width=12}
+# Visualise the distribution of classes
+ggplot(data = wkd_evening_ehsa,
+       aes(x = classification)) +
+  geom_bar()
+```
+
+::: callout-tip
+## Insights
+
+xxx
+:::
+
+### EHSA for Weekend/PH Morning
+
+```{r}
+#| eval: false
+wke_morn_ehsa <- emerging_hotspot_analysis(
+  x = weekend_morn_cube, 
+  .var = "TRIPS", 
+  k = 1, 
+  nsim = 99
+)
+
+# Save out the model
+write_rds(wke_morn_ehsa, "data/rds/wke_morn_ehsa.rds")
+```
+
+```{r}
+#| echo: false
+wke_morn_ehsa <- read_rds("data/rds/wke_morn_ehsa.rds")
+```
+
+```{r, fig.width=12}
+# Visualise the distribution of classes
+ggplot(data = wke_morn_ehsa,
+       aes(x = classification)) +
+  geom_bar()
+```
+
+::: callout-tip
+## Insights
+
+xxx
+:::
+
+### EHSA for Weekend/PH Evening
+
+```{r}
+#| eval: false
+wke_evening_ehsa <- emerging_hotspot_analysis(
+  x = weekend_evening_cube, 
+  .var = "TRIPS", 
+  k = 1, 
+  nsim = 99
+)
+
+# Save out the model
+write_rds(wke_evening_ehsa, "data/rds/wke_evening_ehsa.rds")
+```
+
+```{r}
+#| echo: false
+wke_evening_ehsa <- read_rds("data/rds/wke_evening_ehsa.rds")
+```
+
+```{r, fig.width=12}
+# Visualise the distribution of classes
+ggplot(data = wke_evening_ehsa,
+       aes(x = classification)) +
+  geom_bar()
+```
+
+::: callout-tip
+## Insights
+
+xxx
+:::
+:::
+
+## Visualise EHSA
+
+Lastly, visualise the geographic distribution of the EHSA classes. In the code chunks below, `hex_grid` sf data frame is joined to the EHSA data frames. Then, tmap functions will be used to plot categorical choropleth maps.
+
+::: panel-tabset
+### Choropleth Map for Weekday Morning
+
+```{r}
+wkd_evening_ehsa_grid <- hex_grid %>%
+  left_join(wkd_evening_ehsa,
+            by = c("index" = "location"))
+
+# Plot the choropleth map for significant values
+ehsa_sig <- wkd_evening_ehsa_grid  %>%
+  filter(p_value < 0.1)
+
+tmap_mode("view")
+
+tm_shape(ehsa_sig) +
+  tm_fill("classification") + 
+  tm_borders(alpha = 0.4)
+```
+:::
