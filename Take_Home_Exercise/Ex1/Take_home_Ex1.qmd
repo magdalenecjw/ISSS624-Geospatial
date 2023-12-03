@@ -268,7 +268,7 @@ write_rds(hex_grid, "data/rds/hex_grid.rds")
 write_rds(hex_grid_count, "data/rds/hex_grid_count.rds")
 ```
 
-## Visualisation of Geographical Distribution of Commuting Flow
+## Visualization of Geographical Distribution of Commuting Flow
 
 For efficiency of plotting, select just the columns that will be used for this section.
 
@@ -280,7 +280,7 @@ hex_grid_count2 <- hex_grid_count %>%
 
 ### Continuous Scale
 
-Plotting the geographical distribution of the weekdays and weekends peak hour commuting flows side by side shows a heavily right-skewed distribution across all four target time periods i.e. most bus stops have less than 100k commuter trips at each of these time periods. 
+The geographical distribution of the weekdays and weekends peak hour commuting flows is plotted side by side using `tm_facet()` function. The `free.scales` argument is set to false to show a consistent scale across all four time periods. The visualization shows a heavily right-skewed distribution across all four target time periods i.e. most bus stops have less than 100k commuter trips at each of these time periods. 
 
 ```{r, fig.height=12, fig.width=15}
 tmap_mode("view")
