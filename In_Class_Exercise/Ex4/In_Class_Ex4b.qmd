@@ -1,0 +1,134 @@
+---
+title: "4b: Calibrating Spatial Interaction Models with R"
+author: "Magdalene Chan"
+date: 2023-12-9
+date-modified: "last-modified"
+execute: 
+  warning: false
+---
+
+## Getting started
+
+The code chunk below uses `p_load()` of **pacman** package to check if the required packages have been installed on the computer. If they are, the packages will be launched. The packages used are:
+
+-   **tmap**: for thematic mapping
+-   **sf**: for geospatial data wrangling
+-   **tidyverse**: for non-spatial data wrangling
+-   **performance**: for computing statistical metrics such as RMSE
+
+```{r}
+pacman::p_load(tmap, sf, performance, ggpubr, tidyverse)
+```
+
+## Importing flow data
+
+```{r}
+flow_data <- read_rds("data/rds/flow_data_tidy.rds")
+
+glimpse(flow_data)
+```
+
+```{r}
+flow_data$FlowNoIntra <- ifelse(
+  flow_data$ORIGIN_SZ == flow_data$DESTIN_SZ, 0, flow_data$MORNING_PEAK
+)
+flow_data$offset <- ifelse(
+  flow_data$ORIGIN_SZ == flow_data$DESTIN_SZ, 0.000001, 1
+)
+
+inter_zonal_flow <- flow_data %>%
+  filter(FlowNoIntra > 0)
+
+inter_zonal_flow <- inter_zonal_flow %>%
+  rename("DIST" = "dist",
+         "TRIPS" = "MORNING_PEAK")
+```
+
+## Origin (Production) constrained SIM
+
+> "-1" is added to the formula to remove the intercept as the origin has already been constrained, so the concept of an intercept does not make sense in this case.
+
+```{r}
+orcSIM_Poisson <- glm(formula = TRIPS ~ 
+                        ORIGIN_SZ + 
+                        log(SCHOOL_COUNT) + 
+                        log(RETAIL_COUNT) + 
+                        log(DIST) - 1,
+                      family = poisson(link = "log"),
+                      data = inter_zonal_flow,
+                      na.action = na.exclude)
+
+summary(orcSIM_Poisson)
+```
+
+Observe the following in the output:
+
+> `DIST` must be negative since it is an inverse relationship; usually the further it is, the less likely people are willing to travel, while the closer it is, the more likely people are willing to travel.
+
+## Goodness-of-Fit
+
+The code chunk below creates a function that takes in two input data: observed data and estimated data. It computes a correlation coefficient of the two input data and squares it to provides the R^2^ value.
+
+> R^2^ value is a measure of how well the variables explain the rate of change of flow.
+
+```{r}
+CalcRSquared <- function(observed, estimated){
+  r <- cor(observed, estimated)
+  R2 <- r^2
+  R2
+}
+```
+
+We can examine how the constraints hold for destinations this time.
+
+```{r}
+CalcRSquared(orcSIM_Poisson$data$TRIPS, orcSIM_Poisson$fitted.values)
+```
+
+RMSE is a measure of how closely the variables can estimate the rate of change of flow.
+
+> The `normalized` argument should be set to `TRUE` if the data follows a normal distribution.
+
+```{r}
+performance_rmse(orcSIM_Poisson, normalized = F)
+```
+
+## Doubly constrained SIM
+
+```{r}
+dbcSIM_Poisson <- glm(formula = TRIPS ~
+                        ORIGIN_SZ + 
+                        DESTIN_SZ + 
+                        log(DIST),
+                      family = poisson(link = "log"),
+                      data = inter_zonal_flow, 
+                      na.action = na.exclude)
+
+
+summary(dbcSIM_Poisson)
+```
+
+Examine how the constraints hold for destinations this time.
+
+```{r}
+CalcRSquared(dbcSIM_Poisson$data$TRIPS, dbcSIM_Poisson$fitted.values)
+```
+
+Notice that there is a relatively greater improvement in the R^2^ value.
+
+## Model Comparison
+
+Lastly, use `compare_performance()` of the **performance** package to identify the better model. First, create a list called `model_list` using the code chunk below.
+
+```{r}
+model_list <- list(originConstrained=orcSIM_Poisson,
+                   doublyConstrained=dbcSIM_Poisson)
+```
+
+Next, compute the RMSE of all the models in `model_list` using the code chunk below.
+
+```{r}
+compare_performance(model_list, metrics = "RMSE")
+```
+
+The print above reveals that doubly constrained SIM is the better model because it has the smaller RMSE value of 1906.694.

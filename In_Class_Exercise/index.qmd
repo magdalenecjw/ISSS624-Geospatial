@@ -7,6 +7,8 @@ listing:
   - Ex1/In_Class_Ex1.qmd
   - Ex2/In_Class_Ex2.qmd
   - Ex3/In_Class_Ex3.qmd
+  - Ex4/In_Class_Ex4a.qmd
+  - Ex4/In_Class_Ex4b.qmd
   - "!index.qmd"
   type: grid
   categories: true
