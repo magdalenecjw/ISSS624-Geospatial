@@ -27,6 +27,8 @@ website:
           href: In_Class_Exercise/Ex4/In_Class_Ex4a.qmd
         - text: "4b: Calibrating Spatial Interaction Models"
           href: In_Class_Exercise/Ex4/In_Class_Ex4b.qmd
+        - text: "5: Calibrating Spatial Economic Interaction Models"
+          href: In_Class_Exercise/Ex5/In_Class_Ex5.qmd
       - text: "Hands-on Exercise"
         menu: 
         - text: "1a: Geospatial Data Wrangling"

@@ -32,6 +32,7 @@ listing:
     - /In_Class_Exercise/Ex3/In_Class_Ex3.qmd
     - /In_Class_Exercise/Ex4/In_Class_Ex4a.qmd
     - /In_Class_Exercise/Ex4/In_Class_Ex4b.qmd
+    - /In_Class_Exercise/Ex5/In_Class_Ex5.qmd
     - "!index.qmd"
     type: grid
     categories: false
