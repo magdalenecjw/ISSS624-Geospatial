@@ -1,0 +1,254 @@
+---
+title: "5: Spatial Econometric Interaction Model"
+author: "Magdalene Chan"
+date: 2023-12-16
+date-modified: "last-modified"
+execute: 
+  warning: false
+---
+
+## Getting started
+
+The key packages to be used in this exercise are:
+
+-   **tmap**: for thematic mapping
+-   **sf**: for geospatial data wrangling
+-   **spdep**: for spatial weights matrix 
+-   **spflow**: for spatial econometric models of O-D flow
+-   **tidyverse**: for non-spatial data wrangling
+
+However, as the latest version of the **spflow** package is not available on CRAN yet, the `install_github()` function of **devtools** package will be used to install the **spflow** package first. 
+
+```{r}
+devtools::install_github("LukeCe/spflow")
+# Check that version number should be at least 0.1.0.9010
+```
+
+The code chunk below then uses `p_load()` of **pacman** package to check if the required packages have been installed on the computer. If they are, the packages will be launched. 
+
+```{r}
+pacman::p_load(tmap, sf, spdep, sp, Matrix, spflow, knitr, tidyverse)
+```
+
+## Data Preparation
+
+Before calibrating Spatial Econometric Interaction Models using **spflow**, three data sets are required:
+
+-   spatial weights
+-   tibble data frame O-D flow matrix (with distance)
+-   tibble data frame consisting of explanatory variables (does not need to differentiate origin vs. destination variables)
+
+```{r}
+mpsz_nb <- read_rds("data/rds/mpsz_nb.rds")
+mpsz_flow <- read_rds("data/rds/mpsz_flow.rds")
+mpsz_var <- read_rds("data/rds/mpsz_var.rds")
+```
+
+## Creating `spflow_network-class` objects
+
+`spflow_network-class` is an S4 class containing information on a spatial network which is composed by a set of nodes that are linked by some neighbourhood relation. It can be created using `spflow_network()` function of **spflow** package. For our model, we choose the contiguity based neighbourhood structure. 
+
+```{r}
+mpsz_net <- spflow_network(
+  id_net = "sg",  # assign an id name, can give it any input
+  node_neighborhood = nb2mat(mpsz_nb$by_contiguity),
+  node_data = mpsz_var,
+  node_key_column = "SZ_CODE"
+)
+
+mpsz_net
+```
+
+`spflow_network_pair-class` is an S4 class containing information on O-D pairs. It can be created using `spflow_network_pair()` function of **spflow** package. 
+
+```{r}
+mpsz_net_pairs <- spflow_network_pair(
+  id_orig_net = "sg",
+  id_dest_net = "sg",
+  pair_data = mpsz_flow,
+  orig_key_column = "ORIGIN_SZ",
+  dest_key_column = "DESTIN_SZ"
+)
+
+mpsz_net_pairs
+```
+
+`spflow_network_multi-class` is an S4 class containing information on the origins, the destinations, and the O-D pairs. It can be created using `spflow_network_multi()` function of **spflow** package and only works on `spflow_network-class` and `spflow_network_pair-class`.
+
+```{r}
+mpsz_multi_net <- spflow_network_multi(mpsz_net,
+                                       mpsz_net_pairs)
+
+mpsz_multi_net
+```
+
+## Check for Multicollinearity 
+
+```{r, fig.width=12 z}
+cor_formula <- log(1 + TRIPS) ~
+  BUSSTOP_COUNT + 
+  AGE7_12 + 
+  AGE13_24 + 
+  AGE25_64 + 
+  SCHOOL_COUNT + 
+  BUSINESS_COUNT + 
+  RETAILS_COUNT + 
+  FINSERV_COUNT + 
+  P_(log(DISTANCE + 1))   # P stands for the impedence
+
+cor_mat <- pair_cor(
+  mpsz_multi_net,
+  spflow_formula = cor_formula,
+  add_lags_x = FALSE
+)
+
+# Labels
+colnames(cor_mat) <- paste0(substr(colnames(cor_mat),1,3),"...")
+
+cor_image(cor_mat)
+```
+
+## Base Model Calibration
+
+There are currently three estimators of spatial econometric interaction models  supported by **spflow** package: 
+
+-   Maximum likelihood estimation (MLE) -- default estimation procedure.
+-   Spatial two-stage least squares (S2SLS) -- activate the S2SLS estimation via the `estimation_control` argument using the input `spflow_control(estimation_method = "s2sls")`.
+-   Bayesian Markov Chain Monte Carlo (MCMC) -- activate the MCMC estimation via the `estimation_control` argument using the input `spflow_control(estimation_method = "mcmc")`.
+
+The function offers a formula interface adapted to spatial interaction models, which has the following structure: 
+
+> Y ~ O_(X1) + D_(X2) + I_(X3) + P_(X4)
+
+-   O_(...) and D_(...) indicate which variables are used as characteristics of the origins and destinations respectively
+-   I_(...) indicates variables that should be used for the intra-regional parameters
+-   P_(...) declares which variables describe origin-destination pairs, which usually will include a measure of distance (distance decay).
+
+```{r}
+base_model <- spflow(
+  spflow_formula = log(1 + TRIPS) ~
+    O_(BUSSTOP_COUNT + 
+         AGE25_64) + 
+    D_(SCHOOL_COUNT + 
+         BUSINESS_COUNT + 
+         RETAILS_COUNT + 
+         FINSERV_COUNT) + 
+    P_(log(DISTANCE + 1)),
+  spflow_networks = mpsz_multi_net
+)
+
+base_model
+```
+
+:::callout-note
+### Insights and Interpretation of results
+
+Based on the print result above, model 9 and MLE estimator is used (defaults). The R^2^ value is 0.694, which means the model accounts for 69.42% of the variation of flows.
+
+rho_d - destination constrain
+rho_o - origin constrain
+rho_w - intrazonal constrain
+
+`D_SCHOOL_COUNT` has a t.stat that is statistically significant, but the t.stat of its lag is not statistically significant. Similarly for `D_BUSINESS_COUNT` and its lag. 
+
+- School and Business counts in the zone will affect the attractiveness, but not school and business counts in neighbouring zones.
+
+`D_RETAILS_COUNT` and its lag are both not statistically significant.
+
+- Not a good explanatory variable for weekday morning peak. 
+
+`D_FINSERV_COUNT` and its lag are both statistically significant. 
+
+- Good explanatory variable: Financial services counts in the zone and in neighbouring zones will affect the attractiveness
+
+`O_BUSSTOP_COUNT`	and its lag are both statistically significant. Simialrly for `O_AGE25_64` and and its lag. 
+
+- Good explanatory variable: Financial services counts in the zone and in neighbouring zones will affect the attractiveness
+
+:::
+
+```{r}
+old_par <- par(mfrow = c(1,3),
+               mar = c(2,2,2,2))
+spflow_moran_plots(base_model)
+par(old_par)
+```
+
+Next, `pair_cor()` can be used to inspect the relationship of the residual and the explanatory variables by using the code chunk below. 
+
+> Check for multi-collinearity again. 
+
+```{r, fig.height=10, fig.width=10}
+corr_residual <- pair_cor(base_model)
+colnames(corr_residual) <- substr(colnames(corr_residual),1,3)
+cor_image(corr_residual)
+```
+
+## Working with model control
+
+Example of running MLE Model 8:
+
+```{r}
+spflow_formula <- log(1 + TRIPS) ~
+    O_(BUSSTOP_COUNT + 
+         AGE25_64) + 
+    D_(SCHOOL_COUNT + 
+         BUSINESS_COUNT + 
+         RETAILS_COUNT + 
+         FINSERV_COUNT) + 
+    P_(log(DISTANCE + 1))
+
+model_control <- spflow_control(
+  estimation_method = "mle",
+  model = "model_8"
+)
+
+mle_model8 <- spflow(
+  spflow_formula,
+  spflow_networks = mpsz_multi_net,
+  estimation_control = model_control
+)
+
+mle_model8
+```
+
+> The R^2^ of Model 8 is 0.696, meaning the model accounts for 69.65% of the variation of flows -- slightly higher than that for Model 9. 
+
+Example of running MLE Model 1 (unconstrained):
+
+```{r}
+model_control <- spflow_control(
+  estimation_method = "mle",
+  model = "model_1"
+)
+
+mle_model1 <- spflow(
+  spflow_formula,
+  spflow_networks = mpsz_multi_net,
+  estimation_control = model_control
+)
+
+mle_model1
+```
+
+> The R^2^ of Model 1 (unconstrained) is only 0.2831, meaning the model accounts for 28.31% of the variation of flows.
+
+Example of running MLE Model 2 (constrained):
+
+```{r}
+model_control <- spflow_control(
+  estimation_method = "mle",
+  model = "model_2"
+)
+
+mle_model2 <- spflow(
+  spflow_formula,
+  spflow_networks = mpsz_multi_net,
+  estimation_control = model_control
+)
+
+mle_model2
+```
+
+> The R^2^ of Model 2 (constrained) is 0.5527, meaning the model accounts for 55.27% of the variation of flows -- higher than that of Model 1 (unconstrained).
+

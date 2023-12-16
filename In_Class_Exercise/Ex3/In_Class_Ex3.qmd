@@ -103,7 +103,6 @@ distPair$dist <- ifelse(distPair$dist == 0,
 The code chunk below will be used to check the result data.frame.
 
 ```{r}
-#| eval: false
 distPair %>%
   summary()
 ```

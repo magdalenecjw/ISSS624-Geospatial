@@ -13,8 +13,6 @@
 <url>https://geospatial2023.netlify.app/Images/logo.png</url>
 <title>Geospatial Analytics</title>
 <link>https://geospatial2023.netlify.app/In_Class_Exercise/index.html</link>
-<height>86</height>
-<width>144</width>
 </image>
 <generator>quarto-1.3.433</generator>
 <lastBuildDate>Fri, 08 Dec 2023 16:00:00 GMT</lastBuildDate>
@@ -1984,26 +1982,36 @@ font-style: inherit;">%&gt;%</span></span>
 <span id="cb15-2">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">summary</span>()</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      Var1             Var2             dist      
+ MESZ01 :   332   MESZ01 :   332   Min.   :   50  
+ RVSZ05 :   332   RVSZ05 :   332   1st Qu.: 7097  
+ SRSZ01 :   332   SRSZ01 :   332   Median :11864  
+ WISZ01 :   332   WISZ01 :   332   Mean   :12193  
+ MUSZ02 :   332   MUSZ02 :   332   3rd Qu.:16388  
+ MPSZ05 :   332   MPSZ05 :   332   Max.   :49894  
+ (Other):108232   (Other):108232                  </code></pre>
+</div>
 </div>
 <p>The code chunk below is used to rename the origin and destination fields.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1">distPair <span class="ot" style="color: #003B4F;
+<div class="sourceCode cell-code" id="cb17" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1">distPair <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> distPair <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">%&gt;%</span></span>
-<span id="cb16-2">  <span class="fu" style="color: #4758AB;
+<span id="cb17-2">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">rename</span>(<span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">orig =</span> Var1,</span>
-<span id="cb16-3">         <span class="at" style="color: #657422;
+<span id="cb17-3">         <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">dest =</span> Var2)</span></code></pre></div>
 </div>
 <p>Lastly, the code chunk below is used to save the dataframe for future use.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><span class="fu" style="color: #4758AB;
+<div class="sourceCode cell-code" id="cb18" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">write_rds</span>(distPair, <span class="st" style="color: #20794D;
 background-color: null;
@@ -2015,7 +2023,7 @@ font-style: inherit;">"data/rds/distPair.rds"</span>) </span></code></pre></div>
 <h2 class="anchored" data-anchor-id="preparing-flow-data">Preparing flow data</h2>
 <p>The code chunk below is used import <code>od_data</code> rds file that was saved in <a href="https://geospatial2023.netlify.app/hands_on_exercise/ex3/hands_on_ex3">Hands-on Exercise 3</a> into the R environment.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb18" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1">od_data <span class="ot" style="color: #003B4F;
+<div class="sourceCode cell-code" id="cb19" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1">od_data <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -2025,17 +2033,17 @@ font-style: inherit;">"data/rds/od_data.rds"</span>)</span></code></pre></div>
 </div>
 <p>Next, compute the total passenger trip between and within planning subzones by using the code chunk below to get the output <code>flow_data</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb19" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1">flow_data <span class="ot" style="color: #003B4F;
+<div class="sourceCode cell-code" id="cb20" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1">flow_data <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> od_data <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">%&gt;%</span></span>
-<span id="cb19-2">  <span class="fu" style="color: #4758AB;
+<span id="cb20-2">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">group_by</span>(ORIGIN_SZ, DESTIN_SZ) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">%&gt;%</span> </span>
-<span id="cb19-3">  <span class="fu" style="color: #4758AB;
+<span id="cb20-3">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">summarize</span>(<span class="at" style="color: #657422;
 background-color: null;
@@ -2045,7 +2053,7 @@ font-style: inherit;">sum</span>(MORNING_PEAK)) </span></code></pre></div>
 </div>
 <p>Use the code chunk below to display the <code>flow_data</code> dataframe.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb20" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><span class="fu" style="color: #4758AB;
+<div class="sourceCode cell-code" id="cb21" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">head</span>(flow_data, <span class="dv" style="color: #AD0000;
 background-color: null;
@@ -2071,14 +2079,14 @@ font-style: inherit;">10</span>)</span></code></pre></div>
 <h3 class="anchored" data-anchor-id="separating-intra-flow-from-passenger-volume-df">Separating intra-flow from passenger volume df</h3>
 <p>The code chunk below is used to add three new fields into the <code>flow_data</code> dataframe.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb22" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1">flow_data<span class="sc" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb23" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1">flow_data<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">$</span>FlowNoIntra <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">ifelse</span>(</span>
-<span id="cb22-2">  flow_data<span class="sc" style="color: #5E5E5E;
+<span id="cb23-2">  flow_data<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">$</span>ORIGIN_SZ <span class="sc" style="color: #5E5E5E;
 background-color: null;
@@ -2089,14 +2097,14 @@ background-color: null;
 font-style: inherit;">0</span>, flow_data<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">$</span>TRIPS)</span>
-<span id="cb22-3">flow_data<span class="sc" style="color: #5E5E5E;
+<span id="cb23-3">flow_data<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">$</span>offset <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">ifelse</span>(</span>
-<span id="cb22-4">  flow_data<span class="sc" style="color: #5E5E5E;
+<span id="cb23-4">  flow_data<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">$</span>ORIGIN_SZ <span class="sc" style="color: #5E5E5E;
 background-color: null;
@@ -2113,7 +2121,7 @@ font-style: inherit;">1</span>)</span></code></pre></div>
 <h3 class="anchored" data-anchor-id="combining-passenger-volume-data-with-distance-value">Combining passenger volume data with distance value</h3>
 <p>Before joining <code>flow_data</code> and <code>distPair</code>, convert data value type of <code>ORIGIN_SZ</code> and <code>DESTIN_SZ</code> fields of <code>flow_data</code> dataframe into factor data type.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb23" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1">flow_data<span class="sc" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb24" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1">flow_data<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">$</span>ORIGIN_SZ <span class="ot" style="color: #003B4F;
 background-color: null;
@@ -2122,7 +2130,7 @@ background-color: null;
 font-style: inherit;">as.factor</span>(flow_data<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">$</span>ORIGIN_SZ)</span>
-<span id="cb23-2">flow_data<span class="sc" style="color: #5E5E5E;
+<span id="cb24-2">flow_data<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">$</span>DESTIN_SZ <span class="ot" style="color: #003B4F;
 background-color: null;
@@ -2134,15 +2142,15 @@ font-style: inherit;">$</span>DESTIN_SZ)</span></code></pre></div>
 </div>
 <p>Now, <code>left_join()</code> of <strong>dplyr</strong> will be used to join <code>flow_data</code> dataframe and <code>distPair</code> dataframe to give an output called <code>flow_data1</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb24" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1">flow_data1 <span class="ot" style="color: #003B4F;
+<div class="sourceCode cell-code" id="cb25" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1">flow_data1 <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> flow_data <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">%&gt;%</span></span>
-<span id="cb24-2">  <span class="fu" style="color: #4758AB;
+<span id="cb25-2">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">left_join</span> (distPair,</span>
-<span id="cb24-3">             <span class="at" style="color: #657422;
+<span id="cb25-3">             <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">by =</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -2153,7 +2161,7 @@ background-color: null;
 font-style: inherit;">=</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"orig"</span>,</span>
-<span id="cb24-4">                    <span class="st" style="color: #20794D;
+<span id="cb25-4">                    <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"DESTIN_SZ"</span> <span class="ot" style="color: #003B4F;
 background-color: null;
@@ -2168,7 +2176,7 @@ font-style: inherit;">"dest"</span>))</span></code></pre></div>
 <section id="importing-population-data" class="level3">
 <h3 class="anchored" data-anchor-id="importing-population-data">Importing population data</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb25" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1">pop <span class="ot" style="color: #003B4F;
+<div class="sourceCode cell-code" id="cb26" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1">pop <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -2180,15 +2188,15 @@ font-style: inherit;">"data/aspatial/pop.csv"</span>)</span></code></pre></div>
 <section id="geospatial-data-wrangling" class="level3">
 <h3 class="anchored" data-anchor-id="geospatial-data-wrangling">Geospatial data wrangling</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb26" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1">pop <span class="ot" style="color: #003B4F;
+<div class="sourceCode cell-code" id="cb27" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1">pop <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> pop <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">%&gt;%</span></span>
-<span id="cb26-2">  <span class="fu" style="color: #4758AB;
+<span id="cb27-2">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">left_join</span>(mpsz,</span>
-<span id="cb26-3">            <span class="at" style="color: #657422;
+<span id="cb27-3">            <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">by =</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -2199,7 +2207,7 @@ background-color: null;
 font-style: inherit;">=</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"PLN_AREA_N"</span>,</span>
-<span id="cb26-4">                   <span class="st" style="color: #20794D;
+<span id="cb27-4">                   <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"SZ"</span> <span class="ot" style="color: #003B4F;
 background-color: null;
@@ -2208,7 +2216,7 @@ background-color: null;
 font-style: inherit;">"SUBZONE_N"</span>)) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">%&gt;%</span></span>
-<span id="cb26-5">  <span class="fu" style="color: #4758AB;
+<span id="cb27-5">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">select</span>(<span class="dv" style="color: #AD0000;
 background-color: null;
@@ -2219,62 +2227,18 @@ background-color: null;
 font-style: inherit;">6</span>) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">%&gt;%</span></span>
-<span id="cb26-6">  <span class="fu" style="color: #4758AB;
+<span id="cb27-6">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">rename</span>(<span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">SZ_NAME =</span> SZ,</span>
-<span id="cb26-7">         <span class="at" style="color: #657422;
+<span id="cb27-7">         <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">SZ =</span> SUBZONE_C)</span></code></pre></div>
 </div>
 </section>
 <section id="preparing-origin-attribute" class="level3">
 <h3 class="anchored" data-anchor-id="preparing-origin-attribute">Preparing origin attribute</h3>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb27" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1">flow_data1 <span class="ot" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">&lt;-</span> flow_data1 <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">%&gt;%</span></span>
-<span id="cb27-2">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">left_join</span>(pop,</span>
-<span id="cb27-3">            <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">by =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">ORIGIN_SZ =</span> <span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">"SZ"</span>)) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">%&gt;%</span></span>
-<span id="cb27-4">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">rename</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">ORIGIN_AGE7_12 =</span> AGE7_12,</span>
-<span id="cb27-5">         <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">ORIGIN_AGE13_24 =</span> AGE13_24,</span>
-<span id="cb27-6">         <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">ORIGIN_AGE25_64 =</span> AGE25_64) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">%&gt;%</span></span>
-<span id="cb27-7">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">select</span>(<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">-</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">c</span>(PA, SZ_NAME))</span></code></pre></div>
-</div>
-</section>
-<section id="preparing-destination-attribute" class="level3">
-<h3 class="anchored" data-anchor-id="preparing-destination-attribute">Preparing destination attribute</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb28" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1">flow_data1 <span class="ot" style="color: #003B4F;
 background-color: null;
@@ -2290,7 +2254,7 @@ font-style: inherit;">by =</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">c</span>(<span class="at" style="color: #657422;
 background-color: null;
-font-style: inherit;">DESTIN_SZ =</span> <span class="st" style="color: #20794D;
+font-style: inherit;">ORIGIN_SZ =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"SZ"</span>)) <span class="sc" style="color: #5E5E5E;
 background-color: null;
@@ -2299,13 +2263,13 @@ font-style: inherit;">%&gt;%</span></span>
 background-color: null;
 font-style: inherit;">rename</span>(<span class="at" style="color: #657422;
 background-color: null;
-font-style: inherit;">DESTIN_AGE7_12 =</span> AGE7_12,</span>
+font-style: inherit;">ORIGIN_AGE7_12 =</span> AGE7_12,</span>
 <span id="cb28-5">         <span class="at" style="color: #657422;
 background-color: null;
-font-style: inherit;">DESTIN_AGE13_24 =</span> AGE13_24,</span>
+font-style: inherit;">ORIGIN_AGE13_24 =</span> AGE13_24,</span>
 <span id="cb28-6">         <span class="at" style="color: #657422;
 background-color: null;
-font-style: inherit;">DESTIN_AGE25_64 =</span> AGE25_64) <span class="sc" style="color: #5E5E5E;
+font-style: inherit;">ORIGIN_AGE25_64 =</span> AGE25_64) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">%&gt;%</span></span>
 <span id="cb28-7">  <span class="fu" style="color: #4758AB;
@@ -2316,9 +2280,53 @@ font-style: inherit;">-</span><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">c</span>(PA, SZ_NAME))</span></code></pre></div>
 </div>
+</section>
+<section id="preparing-destination-attribute" class="level3">
+<h3 class="anchored" data-anchor-id="preparing-destination-attribute">Preparing destination attribute</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1">flow_data1 <span class="ot" style="color: #003B4F;
+background-color: null;
+font-style: inherit;">&lt;-</span> flow_data1 <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb29-2">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">left_join</span>(pop,</span>
+<span id="cb29-3">            <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">by =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">DESTIN_SZ =</span> <span class="st" style="color: #20794D;
+background-color: null;
+font-style: inherit;">"SZ"</span>)) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb29-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">rename</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">DESTIN_AGE7_12 =</span> AGE7_12,</span>
+<span id="cb29-5">         <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">DESTIN_AGE13_24 =</span> AGE13_24,</span>
+<span id="cb29-6">         <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">DESTIN_AGE25_64 =</span> AGE25_64) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">%&gt;%</span></span>
+<span id="cb29-7">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">select</span>(<span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">-</span><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">c</span>(PA, SZ_NAME))</span></code></pre></div>
+</div>
 <p>The output data file is named <code>SIM_data</code> and saved out in rds data file format.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb29" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><span class="fu" style="color: #4758AB;
+<div class="sourceCode cell-code" id="cb30" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">write_rds</span>(flow_data1, <span class="st" style="color: #20794D;
 background-color: null;
@@ -2333,7 +2341,7 @@ font-style: inherit;">"data/rds/SIM_data"</span>)</span></code></pre></div>
 <h3 class="anchored" data-anchor-id="importing-the-modelling-data">Importing the modelling data</h3>
 <p>Firstly, import the modelling data using the code chunk below.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb30" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1">SIM_data <span class="ot" style="color: #003B4F;
+<div class="sourceCode cell-code" id="cb31" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1">SIM_data <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -2346,28 +2354,6 @@ font-style: inherit;">"data/rds/SIM_data.rds"</span>)</span></code></pre></div>
 <h3 class="anchored" data-anchor-id="visualising-the-dependent-variable">Visualising the dependent variable</h3>
 <p>Plot the distribution of the dependent variable (i.e.&nbsp;<code>TRIPS</code>) as a histogram by using the code chunk below.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb31" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">ggplot</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">data =</span> SIM_data,</span>
-<span id="cb31-2">       <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">x =</span> TRIPS)) <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span></span>
-<span id="cb31-3">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">geom_histogram</span>()</span></code></pre></div>
-<div class="cell-output-display">
-<p><img src="https://geospatial2023.netlify.app/In_Class_Exercise/Ex3/In_Class_Ex3_files/figure-html/unnamed-chunk-25-1.png" class="img-fluid" width="672"></p>
-</div>
-</div>
-<p>Notice that the distribution is highly skewed and not resemble a bell shape (also known as a normal distribution).</p>
-<p>Next, visualise the relation between the dependent variable and one of the key independent variable in Spatial Interaction Model, namely distance.</p>
-<div class="cell">
 <div class="sourceCode cell-code" id="cb32" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">ggplot</span>(<span class="at" style="color: #657422;
@@ -2377,28 +2363,18 @@ font-style: inherit;">data =</span> SIM_data,</span>
 background-color: null;
 font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
 background-color: null;
-font-style: inherit;">x =</span> dist,</span>
-<span id="cb32-3">           <span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">y =</span> TRIPS)) <span class="sc" style="color: #5E5E5E;
+font-style: inherit;">x =</span> TRIPS)) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb32-4">  <span class="fu" style="color: #4758AB;
+<span id="cb32-3">  <span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">geom_point</span>() <span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">+</span></span>
-<span id="cb32-5">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">geom_smooth</span>(<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">method =</span> lm)</span></code></pre></div>
+font-style: inherit;">geom_histogram</span>()</span></code></pre></div>
 <div class="cell-output-display">
-<p><img src="https://geospatial2023.netlify.app/In_Class_Exercise/Ex3/In_Class_Ex3_files/figure-html/unnamed-chunk-26-1.png" class="img-fluid" width="672"></p>
+<p><img src="https://geospatial2023.netlify.app/In_Class_Exercise/Ex3/In_Class_Ex3_files/figure-html/unnamed-chunk-25-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>Notice that their relationship hardly resembles a linear relationship.</p>
-<p>On the other hand, plotting the scatter plot using the log transformed version of both variables reveals a closer resemblance to a linear relationship.</p>
+<p>Notice that the distribution is highly skewed and not resemble a bell shape (also known as a normal distribution).</p>
+<p>Next, visualise the relation between the dependent variable and one of the key independent variable in Spatial Interaction Model, namely distance.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb33" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><span class="fu" style="color: #4758AB;
 background-color: null;
@@ -2409,14 +2385,10 @@ font-style: inherit;">data =</span> SIM_data,</span>
 background-color: null;
 font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
 background-color: null;
-font-style: inherit;">x =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">log</span>(dist),</span>
+font-style: inherit;">x =</span> dist,</span>
 <span id="cb33-3">           <span class="at" style="color: #657422;
 background-color: null;
-font-style: inherit;">y =</span> <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">log</span>(TRIPS))) <span class="sc" style="color: #5E5E5E;
+font-style: inherit;">y =</span> TRIPS)) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
 <span id="cb33-4">  <span class="fu" style="color: #4758AB;
@@ -2430,6 +2402,42 @@ font-style: inherit;">geom_smooth</span>(<span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">method =</span> lm)</span></code></pre></div>
 <div class="cell-output-display">
+<p><img src="https://geospatial2023.netlify.app/In_Class_Exercise/Ex3/In_Class_Ex3_files/figure-html/unnamed-chunk-26-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Notice that their relationship hardly resembles a linear relationship.</p>
+<p>On the other hand, plotting the scatter plot using the log transformed version of both variables reveals a closer resemblance to a linear relationship.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">ggplot</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">data =</span> SIM_data,</span>
+<span id="cb34-2">       <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">x =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">log</span>(dist),</span>
+<span id="cb34-3">           <span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">y =</span> <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">log</span>(TRIPS))) <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb34-4">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_point</span>() <span class="sc" style="color: #5E5E5E;
+background-color: null;
+font-style: inherit;">+</span></span>
+<span id="cb34-5">  <span class="fu" style="color: #4758AB;
+background-color: null;
+font-style: inherit;">geom_smooth</span>(<span class="at" style="color: #657422;
+background-color: null;
+font-style: inherit;">method =</span> lm)</span></code></pre></div>
+<div class="cell-output-display">
 <p><img src="https://geospatial2023.netlify.app/In_Class_Exercise/Ex3/In_Class_Ex3_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
@@ -2438,7 +2446,7 @@ font-style: inherit;">method =</span> lm)</span></code></pre></div>
 <h3 class="anchored" data-anchor-id="checking-for-variables-with-zero-values">Checking for variables with zero values</h3>
 <p>Since Poisson Regression is based of log and log 0 is undefined, it is important to ensure that there are no 0 values in the explanatory variables. In the code chunk below, <code>summary()</code> of Base R is used to compute the summary statistics of all variables in <code>SIM_data</code> data frame.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb34" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><span class="fu" style="color: #4758AB;
+<div class="sourceCode cell-code" id="cb35" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">summary</span>(SIM_data)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -2467,14 +2475,14 @@ font-style: inherit;">summary</span>(SIM_data)</span></code></pre></div>
 </div>
 <p>The print report above reveals that variables <code>ORIGIN_AGE7_12</code>, <code>ORIGIN_AGE13_24</code>, <code>ORIGIN_AGE25_64</code>,<code>DESTIN_AGE7_12</code>, <code>DESTIN_AGE13_24</code>, <code>DESTIN_AGE25_64</code> all contain 0 values. In view of this, code chunk below will be used to replace zero values to 0.99.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb36" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1">SIM_data<span class="sc" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb37" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1">SIM_data<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">$</span>DESTIN_AGE7_12 <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">ifelse</span>(</span>
-<span id="cb36-2">  SIM_data<span class="sc" style="color: #5E5E5E;
+<span id="cb37-2">  SIM_data<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">$</span>DESTIN_AGE7_12 <span class="sc" style="color: #5E5E5E;
 background-color: null;
@@ -2485,14 +2493,14 @@ background-color: null;
 font-style: inherit;">0.99</span>, SIM_data<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">$</span>DESTIN_AGE7_12)</span>
-<span id="cb36-3">SIM_data<span class="sc" style="color: #5E5E5E;
+<span id="cb37-3">SIM_data<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">$</span>DESTIN_AGE13_24 <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">ifelse</span>(</span>
-<span id="cb36-4">  SIM_data<span class="sc" style="color: #5E5E5E;
+<span id="cb37-4">  SIM_data<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">$</span>DESTIN_AGE13_24 <span class="sc" style="color: #5E5E5E;
 background-color: null;
@@ -2503,14 +2511,14 @@ background-color: null;
 font-style: inherit;">0.99</span>, SIM_data<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">$</span>DESTIN_AGE13_24)</span>
-<span id="cb36-5">SIM_data<span class="sc" style="color: #5E5E5E;
+<span id="cb37-5">SIM_data<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">$</span>DESTIN_AGE25_64 <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">ifelse</span>(</span>
-<span id="cb36-6">  SIM_data<span class="sc" style="color: #5E5E5E;
+<span id="cb37-6">  SIM_data<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">$</span>DESTIN_AGE25_64 <span class="sc" style="color: #5E5E5E;
 background-color: null;
@@ -2521,14 +2529,14 @@ background-color: null;
 font-style: inherit;">0.99</span>, SIM_data<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">$</span>DESTIN_AGE25_64)</span>
-<span id="cb36-7">SIM_data<span class="sc" style="color: #5E5E5E;
+<span id="cb37-7">SIM_data<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">$</span>ORIGIN_AGE7_12 <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">ifelse</span>(</span>
-<span id="cb36-8">  SIM_data<span class="sc" style="color: #5E5E5E;
+<span id="cb37-8">  SIM_data<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">$</span>ORIGIN_AGE7_12 <span class="sc" style="color: #5E5E5E;
 background-color: null;
@@ -2539,14 +2547,14 @@ background-color: null;
 font-style: inherit;">0.99</span>, SIM_data<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">$</span>ORIGIN_AGE7_12)</span>
-<span id="cb36-9">SIM_data<span class="sc" style="color: #5E5E5E;
+<span id="cb37-9">SIM_data<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">$</span>ORIGIN_AGE13_24 <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">ifelse</span>(</span>
-<span id="cb36-10">  SIM_data<span class="sc" style="color: #5E5E5E;
+<span id="cb37-10">  SIM_data<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">$</span>ORIGIN_AGE13_24 <span class="sc" style="color: #5E5E5E;
 background-color: null;
@@ -2557,14 +2565,14 @@ background-color: null;
 font-style: inherit;">0.99</span>, SIM_data<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">$</span>ORIGIN_AGE13_24)</span>
-<span id="cb36-11">SIM_data<span class="sc" style="color: #5E5E5E;
+<span id="cb37-11">SIM_data<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">$</span>ORIGIN_AGE25_64 <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">ifelse</span>(</span>
-<span id="cb36-12">  SIM_data<span class="sc" style="color: #5E5E5E;
+<span id="cb37-12">  SIM_data<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">$</span>ORIGIN_AGE25_64 <span class="sc" style="color: #5E5E5E;
 background-color: null;
@@ -2578,7 +2586,7 @@ font-style: inherit;">$</span>ORIGIN_AGE25_64)</span></code></pre></div>
 </div>
 <p>Run <code>summary()</code> again to check that the replacement has been done correctly.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb37" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><span class="fu" style="color: #4758AB;
+<div class="sourceCode cell-code" id="cb38" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">summary</span>(SIM_data)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -2614,7 +2622,7 @@ font-style: inherit;">summary</span>(SIM_data)</span></code></pre></div>
 <p><img src="https://latex.codecogs.com/png.latex?%0A%5Clambda_%7Bij%7D%20=%20exp(k%20+%20%5Cmu%20lnV_i%20+%20%5Calpha%20lnW_j%20-%20%5Cbeta%20lnd_%7Bij%7D)%0A"></p>
 <p>The code chunk used to calibrate to model is shown below:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb39" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1">uncSIM <span class="ot" style="color: #003B4F;
+<div class="sourceCode cell-code" id="cb40" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1">uncSIM <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -2623,20 +2631,20 @@ background-color: null;
 font-style: inherit;">formula =</span> TRIPS <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">~</span> </span>
-<span id="cb39-2">                <span class="fu" style="color: #4758AB;
+<span id="cb40-2">                <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">log</span>(ORIGIN_AGE25_64) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span> </span>
-<span id="cb39-3">                <span class="fu" style="color: #4758AB;
+<span id="cb40-3">                <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">log</span>(DESTIN_AGE25_64) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb39-4">                <span class="fu" style="color: #4758AB;
+<span id="cb40-4">                <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">log</span>(dist),</span>
-<span id="cb39-5">              <span class="at" style="color: #657422;
+<span id="cb40-5">              <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">family =</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -2645,13 +2653,13 @@ background-color: null;
 font-style: inherit;">link =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"log"</span>),</span>
-<span id="cb39-6">              <span class="at" style="color: #657422;
+<span id="cb40-6">              <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">data =</span> SIM_data,</span>
-<span id="cb39-7">              <span class="at" style="color: #657422;
+<span id="cb40-7">              <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">na.action =</span> na.exclude)</span>
-<span id="cb39-8">uncSIM</span></code></pre></div>
+<span id="cb40-8">uncSIM</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:  glm(formula = TRIPS ~ log(ORIGIN_AGE25_64) + log(DESTIN_AGE25_64) + 
@@ -2673,29 +2681,29 @@ Residual Deviance: 19960000     AIC: 20040000</code></pre>
 <h4 class="anchored" data-anchor-id="r-squared-function">R-squared function</h4>
 <p>To measure how much variation of the trips can be accounted by the model, a function to calculate R-Squared value is written in the code chunk below.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb41" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1">CalcRSquared <span class="ot" style="color: #003B4F;
+<div class="sourceCode cell-code" id="cb42" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1">CalcRSquared <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">function</span>(observed,estimated){</span>
-<span id="cb41-2">  r <span class="ot" style="color: #003B4F;
+<span id="cb42-2">  r <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">cor</span>(observed,estimated)</span>
-<span id="cb41-3">  R2 <span class="ot" style="color: #003B4F;
+<span id="cb42-3">  R2 <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> r<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">^</span><span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">2</span></span>
-<span id="cb41-4">  R2</span>
-<span id="cb41-5">}</span></code></pre></div>
+<span id="cb42-4">  R2</span>
+<span id="cb42-5">}</span></code></pre></div>
 </div>
 <p>Next, compute the R-squared of the unconstrained SIM by using the code chunk below.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb42" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><span class="fu" style="color: #4758AB;
+<div class="sourceCode cell-code" id="cb43" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">CalcRSquared</span>(uncSIM<span class="sc" style="color: #5E5E5E;
 background-color: null;
@@ -2709,7 +2717,7 @@ font-style: inherit;">$</span>fitted.values)</span></code></pre></div>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb44" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><span class="fu" style="color: #4758AB;
+<div class="sourceCode cell-code" id="cb45" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">r2_mcfadden</span>(uncSIM)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -2726,7 +2734,7 @@ font-style: inherit;">r2_mcfadden</span>(uncSIM)</span></code></pre></div>
 <p>The general formula of <strong>Origin Constrained Spatial Interaction Model</strong> is:</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0A%5Clambda_%7Bij%7D%20=%20exp(k%20+%20%5Cmu_i%20+%20%5Calpha%20lnW_j%20-%20%5Cbeta%20lnd_%7Bij%7D)%0A"></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb46" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1">orcSIM <span class="ot" style="color: #003B4F;
+<div class="sourceCode cell-code" id="cb47" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1">orcSIM <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -2735,18 +2743,18 @@ background-color: null;
 font-style: inherit;">formula =</span> TRIPS <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">~</span> </span>
-<span id="cb46-2">                 ORIGIN_SZ <span class="sc" style="color: #5E5E5E;
+<span id="cb47-2">                 ORIGIN_SZ <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb46-3">                 <span class="fu" style="color: #4758AB;
+<span id="cb47-3">                 <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">log</span>(DESTIN_AGE25_64) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb46-4">                 <span class="fu" style="color: #4758AB;
+<span id="cb47-4">                 <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">log</span>(dist),</span>
-<span id="cb46-5">              <span class="at" style="color: #657422;
+<span id="cb47-5">              <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">family =</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -2755,13 +2763,13 @@ background-color: null;
 font-style: inherit;">link =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"log"</span>),</span>
-<span id="cb46-6">              <span class="at" style="color: #657422;
+<span id="cb47-6">              <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">data =</span> SIM_data,</span>
-<span id="cb46-7">              <span class="at" style="color: #657422;
+<span id="cb47-7">              <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">na.action =</span> na.exclude)</span>
-<span id="cb46-8"><span class="fu" style="color: #4758AB;
+<span id="cb47-8"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">summary</span>(orcSIM)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -3071,7 +3079,7 @@ Number of Fisher Scoring iterations: 6</code></pre>
 </div>
 <p>Examine how the constraints hold for destinations this time.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb48" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><span class="fu" style="color: #4758AB;
+<div class="sourceCode cell-code" id="cb49" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">CalcRSquared</span>(orcSIM<span class="sc" style="color: #5E5E5E;
 background-color: null;
@@ -3091,7 +3099,7 @@ font-style: inherit;">$</span>fitted.values)</span></code></pre></div>
 <p>The general formula of <strong>Destination Constrained Spatial Interaction Model</strong> is:</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0A%5Clambda_%7Bij%7D%20=%20exp(k%20+%20%5Cmu%20lnV_i%20+%20%5Calpha_i%20-%20%5Cbeta%20lnd_%7Bij%7D)%0A"></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb50" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1">decSIM <span class="ot" style="color: #003B4F;
+<div class="sourceCode cell-code" id="cb51" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1">decSIM <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -3100,18 +3108,18 @@ background-color: null;
 font-style: inherit;">formula =</span> TRIPS <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">~</span> </span>
-<span id="cb50-2">                DESTIN_SZ <span class="sc" style="color: #5E5E5E;
+<span id="cb51-2">                DESTIN_SZ <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span> </span>
-<span id="cb50-3">                <span class="fu" style="color: #4758AB;
+<span id="cb51-3">                <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">log</span>(ORIGIN_AGE25_64) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span> </span>
-<span id="cb50-4">                <span class="fu" style="color: #4758AB;
+<span id="cb51-4">                <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">log</span>(dist),</span>
-<span id="cb50-5">              <span class="at" style="color: #657422;
+<span id="cb51-5">              <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">family =</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -3120,13 +3128,13 @@ background-color: null;
 font-style: inherit;">link =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"log"</span>),</span>
-<span id="cb50-6">              <span class="at" style="color: #657422;
+<span id="cb51-6">              <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">data =</span> SIM_data,</span>
-<span id="cb50-7">              <span class="at" style="color: #657422;
+<span id="cb51-7">              <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">na.action =</span> na.exclude)</span>
-<span id="cb50-8"><span class="fu" style="color: #4758AB;
+<span id="cb51-8"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">summary</span>(decSIM)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -3437,7 +3445,7 @@ Number of Fisher Scoring iterations: 7</code></pre>
 </div>
 <p>Examine how the constraints hold for destinations this time.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb52" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><span class="fu" style="color: #4758AB;
+<div class="sourceCode cell-code" id="cb53" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">CalcRSquared</span>(decSIM<span class="sc" style="color: #5E5E5E;
 background-color: null;
@@ -3457,7 +3465,7 @@ font-style: inherit;">$</span>fitted.values)</span></code></pre></div>
 <p>The general formula of <strong>Doubly Constrained Spatial Interaction Model</strong> is:</p>
 <p><img src="https://latex.codecogs.com/png.latex?%0A%5Clambda_%7Bij%7D%20=%20exp(k%20+%20%5Cmu_i%20+%20%5Calpha_i%20-%20%5Cbeta%20lnd_%7Bij%7D)%0A"></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb54" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1">dbcSIM <span class="ot" style="color: #003B4F;
+<div class="sourceCode cell-code" id="cb55" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1">dbcSIM <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -3466,16 +3474,16 @@ background-color: null;
 font-style: inherit;">formula =</span> TRIPS <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">~</span> </span>
-<span id="cb54-2">                ORIGIN_SZ <span class="sc" style="color: #5E5E5E;
+<span id="cb55-2">                ORIGIN_SZ <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span> </span>
-<span id="cb54-3">                DESTIN_SZ <span class="sc" style="color: #5E5E5E;
+<span id="cb55-3">                DESTIN_SZ <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span> </span>
-<span id="cb54-4">                <span class="fu" style="color: #4758AB;
+<span id="cb55-4">                <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">log</span>(dist),</span>
-<span id="cb54-5">              <span class="at" style="color: #657422;
+<span id="cb55-5">              <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">family =</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -3484,13 +3492,13 @@ background-color: null;
 font-style: inherit;">link =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"log"</span>),</span>
-<span id="cb54-6">              <span class="at" style="color: #657422;
+<span id="cb55-6">              <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">data =</span> SIM_data,</span>
-<span id="cb54-7">              <span class="at" style="color: #657422;
+<span id="cb55-7">              <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">na.action =</span> na.exclude)</span>
-<span id="cb54-8"><span class="fu" style="color: #4758AB;
+<span id="cb55-8"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">summary</span>(dbcSIM)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -4078,7 +4086,7 @@ Number of Fisher Scoring iterations: 7</code></pre>
 </div>
 <p>Examine how the constraints hold for destinations this time.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb56" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><span class="fu" style="color: #4758AB;
+<div class="sourceCode cell-code" id="cb57" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">CalcRSquared</span>(dbcSIM<span class="sc" style="color: #5E5E5E;
 background-color: null;
@@ -4098,26 +4106,26 @@ font-style: inherit;">$</span>fitted.values)</span></code></pre></div>
 <p>Another useful model performance measure for continuous dependent variable is Root Mean Squared Error, which can be done using the <code>compare_performance()</code> of the <strong>performance</strong> package.</p>
 <p>First, create a list called <code>model_list</code> using the code chunk below.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb58" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1">model_list <span class="ot" style="color: #003B4F;
+<div class="sourceCode cell-code" id="cb59" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1">model_list <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">list</span>(<span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">unconstrained=</span>uncSIM,</span>
-<span id="cb58-2">                   <span class="at" style="color: #657422;
+<span id="cb59-2">                   <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">originConstrained=</span>orcSIM,</span>
-<span id="cb58-3">                   <span class="at" style="color: #657422;
+<span id="cb59-3">                   <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">destinationConstrained=</span>decSIM,</span>
-<span id="cb58-4">                   <span class="at" style="color: #657422;
+<span id="cb59-4">                   <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">doublyConstrained=</span>dbcSIM)</span></code></pre></div>
 </div>
 <p>Next, compute the RMSE of all the models in <code>model_list</code> using the code chunk below.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb59" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><span class="fu" style="color: #4758AB;
+<div class="sourceCode cell-code" id="cb60" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">compare_performance</span>(model_list, <span class="at" style="color: #657422;
 background-color: null;
@@ -4141,7 +4149,7 @@ doublyConstrained      |   glm | 1487.111</code></pre>
 <h3 class="anchored" data-anchor-id="visualising-fitted-values">Visualising Fitted Values</h3>
 <p>Next, to visualise the observed values and the fitted values, first extract the fitted values from each model by using the code chunk below.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb61" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1">df <span class="ot" style="color: #003B4F;
+<div class="sourceCode cell-code" id="cb62" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1">df <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -4150,7 +4158,7 @@ background-color: null;
 font-style: inherit;">$</span>fitted.values) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">%&gt;%</span></span>
-<span id="cb61-2">  <span class="fu" style="color: #4758AB;
+<span id="cb62-2">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">round</span>(<span class="at" style="color: #657422;
 background-color: null;
@@ -4160,17 +4168,17 @@ font-style: inherit;">0</span>)</span></code></pre></div>
 </div>
 <p>Next, join the values to <code>SIM_data</code> data frame.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb62" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1">SIM_data <span class="ot" style="color: #003B4F;
+<div class="sourceCode cell-code" id="cb63" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1">SIM_data <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> SIM_data <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">%&gt;%</span></span>
-<span id="cb62-2">  <span class="fu" style="color: #4758AB;
+<span id="cb63-2">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">cbind</span>(df) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">%&gt;%</span></span>
-<span id="cb62-3">  <span class="fu" style="color: #4758AB;
+<span id="cb63-3">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">rename</span>(<span class="at" style="color: #657422;
 background-color: null;
@@ -4180,7 +4188,7 @@ font-style: inherit;">"uncSIM$fitted.values"</span>)</span></code></pre></div>
 </div>
 <p>Repeat the same steps for Origin Constrained SIM (i.e.&nbsp;<code>orcSIM</code>).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb63" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1">df <span class="ot" style="color: #003B4F;
+<div class="sourceCode cell-code" id="cb64" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1">df <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -4189,7 +4197,7 @@ background-color: null;
 font-style: inherit;">$</span>fitted.values) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">%&gt;%</span></span>
-<span id="cb63-2">  <span class="fu" style="color: #4758AB;
+<span id="cb64-2">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">round</span>(<span class="at" style="color: #657422;
 background-color: null;
@@ -4198,17 +4206,17 @@ background-color: null;
 font-style: inherit;">0</span>)</span></code></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb64" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1">SIM_data <span class="ot" style="color: #003B4F;
+<div class="sourceCode cell-code" id="cb65" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1">SIM_data <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> SIM_data <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">%&gt;%</span></span>
-<span id="cb64-2">  <span class="fu" style="color: #4758AB;
+<span id="cb65-2">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">cbind</span>(df) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">%&gt;%</span></span>
-<span id="cb64-3">  <span class="fu" style="color: #4758AB;
+<span id="cb65-3">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">rename</span>(<span class="at" style="color: #657422;
 background-color: null;
@@ -4218,7 +4226,7 @@ font-style: inherit;">"orcSIM$fitted.values"</span>)</span></code></pre></div>
 </div>
 <p>Repeat the same step by for Destination Constrained SIM (i.e.&nbsp;<code>decSIM</code>).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb65" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1">df <span class="ot" style="color: #003B4F;
+<div class="sourceCode cell-code" id="cb66" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1">df <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -4227,7 +4235,7 @@ background-color: null;
 font-style: inherit;">$</span>fitted.values) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">%&gt;%</span></span>
-<span id="cb65-2">  <span class="fu" style="color: #4758AB;
+<span id="cb66-2">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">round</span>(<span class="at" style="color: #657422;
 background-color: null;
@@ -4236,17 +4244,17 @@ background-color: null;
 font-style: inherit;">0</span>)</span></code></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb66" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1">SIM_data <span class="ot" style="color: #003B4F;
+<div class="sourceCode cell-code" id="cb67" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1">SIM_data <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> SIM_data <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">%&gt;%</span></span>
-<span id="cb66-2">  <span class="fu" style="color: #4758AB;
+<span id="cb67-2">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">cbind</span>(df) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">%&gt;%</span></span>
-<span id="cb66-3">  <span class="fu" style="color: #4758AB;
+<span id="cb67-3">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">rename</span>(<span class="at" style="color: #657422;
 background-color: null;
@@ -4256,7 +4264,7 @@ font-style: inherit;">"decSIM$fitted.values"</span>)</span></code></pre></div>
 </div>
 <p>Repeat the same step by for Doubly Constrained SIM (i.e.&nbsp;<code>dbcSIM</code>).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb67" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1">df <span class="ot" style="color: #003B4F;
+<div class="sourceCode cell-code" id="cb68" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1">df <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -4265,7 +4273,7 @@ background-color: null;
 font-style: inherit;">$</span>fitted.values) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">%&gt;%</span></span>
-<span id="cb67-2">  <span class="fu" style="color: #4758AB;
+<span id="cb68-2">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">round</span>(<span class="at" style="color: #657422;
 background-color: null;
@@ -4274,17 +4282,17 @@ background-color: null;
 font-style: inherit;">0</span>)</span></code></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb68" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1">SIM_data <span class="ot" style="color: #003B4F;
+<div class="sourceCode cell-code" id="cb69" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1">SIM_data <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> SIM_data <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">%&gt;%</span></span>
-<span id="cb68-2">  <span class="fu" style="color: #4758AB;
+<span id="cb69-2">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">cbind</span>(df) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">%&gt;%</span></span>
-<span id="cb68-3">  <span class="fu" style="color: #4758AB;
+<span id="cb69-3">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">rename</span>(<span class="at" style="color: #657422;
 background-color: null;
@@ -4294,127 +4302,127 @@ font-style: inherit;">"dbcSIM$fitted.values"</span>)</span></code></pre></div>
 </div>
 <p>Finally, plot the fitted values for all four SIM.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb69" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1">unc_p <span class="ot" style="color: #003B4F;
+<div class="sourceCode cell-code" id="cb70" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1">unc_p <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">ggplot</span>(<span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">data =</span> SIM_data,</span>
-<span id="cb69-2">                <span class="fu" style="color: #4758AB;
+<span id="cb70-2">                <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">x =</span> uncTRIPS,</span>
-<span id="cb69-3">                    <span class="at" style="color: #657422;
+<span id="cb70-3">                    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">y =</span> TRIPS)) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb69-4">  <span class="fu" style="color: #4758AB;
+<span id="cb70-4">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">geom_point</span>() <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb69-5">  <span class="fu" style="color: #4758AB;
+<span id="cb70-5">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">geom_smooth</span>(<span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">method =</span> lm)</span>
-<span id="cb69-6"> </span>
-<span id="cb69-7">orc_p <span class="ot" style="color: #003B4F;
+<span id="cb70-6"> </span>
+<span id="cb70-7">orc_p <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">ggplot</span>(<span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">data =</span> SIM_data,</span>
-<span id="cb69-8">                <span class="fu" style="color: #4758AB;
+<span id="cb70-8">                <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">x =</span> orcTRIPS,</span>
-<span id="cb69-9">                    <span class="at" style="color: #657422;
+<span id="cb70-9">                    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">y =</span> TRIPS)) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb69-10">  <span class="fu" style="color: #4758AB;
+<span id="cb70-10">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">geom_point</span>() <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb69-11">  <span class="fu" style="color: #4758AB;
+<span id="cb70-11">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">geom_smooth</span>(<span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">method =</span> lm)</span>
-<span id="cb69-12"> </span>
-<span id="cb69-13">dec_p <span class="ot" style="color: #003B4F;
+<span id="cb70-12"> </span>
+<span id="cb70-13">dec_p <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">ggplot</span>(<span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">data =</span> SIM_data,</span>
-<span id="cb69-14">                <span class="fu" style="color: #4758AB;
+<span id="cb70-14">                <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">x =</span> decTRIPS,</span>
-<span id="cb69-15">                    <span class="at" style="color: #657422;
+<span id="cb70-15">                    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">y =</span> TRIPS)) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb69-16">  <span class="fu" style="color: #4758AB;
+<span id="cb70-16">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">geom_point</span>() <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb69-17">  <span class="fu" style="color: #4758AB;
+<span id="cb70-17">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">geom_smooth</span>(<span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">method =</span> lm)</span>
-<span id="cb69-18"> </span>
-<span id="cb69-19">dbc_p <span class="ot" style="color: #003B4F;
+<span id="cb70-18"> </span>
+<span id="cb70-19">dbc_p <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">ggplot</span>(<span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">data =</span> SIM_data,</span>
-<span id="cb69-20">                <span class="fu" style="color: #4758AB;
+<span id="cb70-20">                <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">aes</span>(<span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">x =</span> dbcTRIPS,</span>
-<span id="cb69-21">                    <span class="at" style="color: #657422;
+<span id="cb70-21">                    <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">y =</span> TRIPS)) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb69-22">  <span class="fu" style="color: #4758AB;
+<span id="cb70-22">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">geom_point</span>() <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb69-23">  <span class="fu" style="color: #4758AB;
+<span id="cb70-23">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">geom_smooth</span>(<span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">method =</span> lm)</span>
-<span id="cb69-24"> </span>
-<span id="cb69-25"><span class="fu" style="color: #4758AB;
+<span id="cb70-24"> </span>
+<span id="cb70-25"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">ggarrange</span>(unc_p, orc_p, dec_p, dbc_p,</span>
-<span id="cb69-26">          <span class="at" style="color: #657422;
+<span id="cb70-26">          <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">ncol =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">2</span>,</span>
-<span id="cb69-27">          <span class="at" style="color: #657422;
+<span id="cb70-27">          <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">nrow =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
