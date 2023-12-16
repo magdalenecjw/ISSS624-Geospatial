@@ -1,6 +1,1771 @@
 ---
-title: "Take Home Exercise 2"
+title: "2: Applied Spatial Interaction Models - Case study of Singapore public bus commuter flows"
 author: "Magdalene Chan"
+date: 2023-12-11
+date-modified: "last-modified"
+execute: 
+  warning: false
+format:
+  html:
+    code-fold: true
 ---
 
-Placeholder
+# Objectives
+
+Traditionally, commuter surveys are used by transport operators and urban managers to uncover insights related to urban mobility challenges. However, commuter surveys are costly, time-consuming and often yield outdated information due to their extended completion timelines. As urban infrastructures become increasingly digitized e.g. with widespread adoption of GPS in vehicles and transport cards, digital data sets offer a framework for tracking movement patterns over space and time, promising a new way to understand commuter behavior.
+
+Despite increasing amounts of open data available, there has not been significant practice research carried out to show how these disparate data sources can be integrated, analysed, and modelled to support policy making decisions. There is also a general lack of practical research to show how geospatial data science and analysis (GDSA) can be used to support decision-making.
+
+This study aims to demonstrate the potential value of GDSA to integrate publicly available data from multiple sources. Specifically, it seeks to build spatial interaction models to determine factors affecting urban mobility patterns of public bus commuter flows.
+
+# Tasks
+
+The following tasks will be undertaken in this exercise:
+
+## Geospatial Data Science
+
+1.  Derive an analytical hexagon data of 375m (this distance is the perpendicular distance between the hexagon centre and its edges) to represent the Traffic Analysis Zone (TAZ).
+2.  Construct an Origin-Destination (O-D) matrix of commuter flows at the analytics hexagon level for **Weekdays Morning Peak: 6am-9am (inclusive)** by integrating Passenger Volume by Origin Destination Bus Stops and Bus Stop Location from LTA DataMall.
+3.  Display the O-D flows of the passenger trips by using appropriate geovisualisation methods (not more than 5 maps).
+4.  Describe the spatial patterns revealed by the geovisualisation (not more than 100 words per visual).
+5.  Assemble at least three propulsive and three attractiveness variables by using aspatial and geospatial data from publicly available sources.
+6.  Compute a distance matrix by using the analytical hexagon data derived earlier.
+
+## Spatial Interaction Modelling
+
+1.  Calibrate spatial interactive models to determine factors affecting urban commuting flows at the selected time interval.
+2.  Present the modelling results by using appropriate geovisualisation and graphical visualisation method (not more than 5 visuals).
+3.  With reference to the Spatial Interaction Model output tables, maps and data visualisation prepared, describe the modelling results (not more than 100 words per visual).
+
+# Getting Started
+
+The code chunk below uses `p_load()` of `pacman` package to check if the required packages have been installed on the computer. If they are, the packages will be launched. The following packages will be used:
+
+-   `sf` package is used for importing, managing, and processing geospatial data.
+-   `sp` package is used for processing geospatial data.
+-   `spdep` package is used for computing spatial weights.
+-   `tmap` package is used for thematic mapping.
+-   `tidyverse` package is used for aspatial data wrangling.
+-   `knitr` package is used for dynamic report generation in R.
+-   `stplanr` package is used for plotting desire lines on maps.
+-   `httr` package is used for working with HTTP.
+-   `performance` package is used for computing statistical metrics such as RMSE.
+-   `ggpubr` package is used for creating publication quality statistical graphics.
+
+```{r}
+#| code-fold: false
+pacman::p_load(sf, sp, spdep, tmap, tidyverse, knitr, stplanr, httr, performance, ggpubr)
+```
+
+# Data Sets used
+
+The open data sets used are:
+
+-   Bus Stop Location (Last updated Jul 2023) from [LTADataMall](https://datamall.lta.gov.sg/content/datamall/en/static-data.html) retrieved on 18 Nov 2023.
+-   Passenger Volume by Origin Destination Bus Stops for August 2023 from [LTADataMall](https://datamall.lta.gov.sg/content/datamall/en/dynamic-data.html) retrieved on 18 Nov 2023.
+
+The derived data sets used are:
+
+-   Geospatial data sets of the locations of businesses and financial services [specially compiled for ISSS624 AY2023-2024 Nov Sem](https://isss624-ay2023-24nov.netlify.app/take-home_ex02#specially-collected-data).
+-   Geocoded HDB Property Information data set [based on Sep 2021 data](https://isss624-ay2023-24nov.netlify.app/take-home_ex02#specially-collected-data).
+-   Geocoded General Information of schools data set (Accurate as at 24 Mar 2021) from [data.gov.sg](https://beta.data.gov.sg/collections/457/datasets/d_688b934f82c1059ed0a6993d2a829089/view) retrieved on 8 Dec 2023.
+-   Train Station Location (Last updated Feb 2023) from [LTADataMall](https://datamall.lta.gov.sg/content/datamall/en/static-data.html) retrieved on 13 Dec 2023.
+
+# Derive Traffic Analysis Zone
+
+Traffic Analysis Zones (TAZ) are used in travel demand modeling to depict the spatial layout of trip origins, destinations, population, employment, and other influential factors shaping travel demand. Urban areas are divided into zones, simplifying trips from one zone to another, despite actual travel between points.
+
+There are at least two ways to define TAZ -- in Singapore, planning subzones have been marked out by URA for urban planning purposes. However, the use of such planning subzones would divide the study area into irregular-sized polygons. An alternative would be to create spatial grids that divide the study area into equal-sized, regular polygons. This study will make use of hexagon-spatial grids as the TAZ for analysis.
+
+## Import Geospatial data: MPSZ
+
+Firstly, `st_read()` function of **sf** package is used to import `MPSZ-2019` shapefile into R as a simple feature data frame called `mpsz`. As `MPSZ-2019` uses **svy21** projected coordinate system, the `crs` argument is set to 3414.
+
+```{r}
+#| code-fold: false
+mpsz <- st_read(dsn = "data/geospatial", layer = "MPSZ-2019") %>%
+  st_transform(crs = 3414)
+```
+
+## Create Spatial Grids
+
+For this study, a hexagon layer of 375m (where 375m is the perpendicular distance between the hexagon centre and its edges) will be created to represent the TAZ.
+
+In the code chunk below, `st_make_grid` is used to create the hexagon grid TAZ using the `svy21` projected coordinate system. The `cellsize` argument refers to the cell size in the units that the crs of the spatial data is using and can be defined as the distance between opposite edges. Since the data is set in **svy21** projected coordinate system, which [uses metres as the unit](https://epsg.io/3414), the value is set as `c(750,750)` to create a hexagon layer of 375m. The resulting data frame is then converted into a sf data frame and an index is added for each hexagon grid.
+
+However, this hexagon layer created covers the entire plot area, including non-land areas. As this study is only interested in the land areas of Singapore, the `mpsz` sf data frame is also used to create a border of the land areas. This border is then used to clip the hexagon grid layer using `st_intersection()`, resulting in the output `hex_grid_bounded` sf data frame.
+
+```{r}
+#| eval: false
+# Create hexagon grid layer
+hex_grid <- st_make_grid(mpsz, cellsize = c(750, 750), 
+                         crs = 3413, what = "polygons", square = FALSE) %>%
+  st_sf() %>%
+  # Apply as.factor() since index will be used as the identifier to link to other data sets
+  mutate(index = as.factor(row_number()))
+
+# Create border of Singapore's land area
+mpsz_border <- mpsz %>%
+  summarise()
+
+# Clip the hexagon grid layer
+hex_grid_bounded <- st_intersection(hex_grid, mpsz_border)
+```
+
+```{r}
+#| echo: false
+#| eval: false
+# Save the output as rds files instead of rendering the above code chunks
+write_rds(hex_grid, "data/rds/hex_grid.rds")
+write_rds(hex_grid_bounded, "data/rds/hex_grid_bounded.rds")
+```
+
+```{r}
+#| echo: false
+# Load the rds files instead of rendering the above code chunks
+hex_grid <- read_rds("data/rds/hex_grid.rds")
+hex_grid_bounded <- read_rds("data/rds/hex_grid_bounded.rds")
+```
+
+To ensure that the `hex_grid_bounded` sf data frame is created correctly, it will be plotted on a map for visual inspection.
+
+```{r}
+tmap_mode("plot")
+
+tm_shape(hex_grid_bounded) +
+  tm_polygons()
+```
+
+> While the map above shows the TAZ for the land areas correctly, some zones are cut off by the borders and hence, incomplete. This should be rectified such that all zones have a complete hexagon shape.
+
+The code chunk below checks if the `hex_grid` sf data frame intersects any polygons in the `hex_grid_bounded` sf data frame using `st_intersects()`. The grid index of these intersecting hexagons are then retrieved and filtered out from the `hex_grid` sf data frame to create a new `hex_grid_bounded2` sf data frame.
+
+```{r}
+# Check if hex grid intersects any polygons using st_intersects
+# Returns a list of intersecting hexagons
+intersection_list = hex_grid$index[lengths(st_intersects(hex_grid, hex_grid_bounded)) > 0]
+
+# Filter for the intersecting hexagons
+hex_grid_bounded2 = hex_grid %>%
+  filter(index %in% intersection_list)
+```
+
+```{r}
+#| echo: false
+#| eval: false
+# Save the output as rds files instead of rendering the above code chunks
+write_rds(hex_grid_bounded2, "data/rds/hex_grid_bounded2.rds")
+```
+
+```{r}
+#| echo: false
+# Load the rds files instead of rendering the above code chunks
+hex_grid_bounded2 <- read_rds("data/rds/hex_grid_bounded2.rds")
+```
+
+To ensure that the `hex_grid_bounded2` sf data frame is created correctly, it will be plotted on a map for visual inspection.
+
+```{r}
+tm_shape(hex_grid_bounded2) +
+  tm_polygons()
+```
+
+The map above now shows the complete analytical hexagon data of 375m (perpendicular distance between the centre of hexagon and its edges) that represents the TAZ.
+
+> As not all TAZ have bus stops, the map could be further refined to reflect the Bus Stop Density within each TAZ.
+
+## Import Geospatial Data: Bus Stop Locations
+
+The code chunk below uses the `st_read()` function of **sf** package to import `BusStop` shapefile into R as a simple feature data frame called `BusStop`. As `BusStop` uses **svy21** projected coordinate system, the `crs` argument is set to 3414.
+
+```{r}
+#| code-fold: false
+BusStop <- st_read(dsn = "data/geospatial", 
+                layer = "BusStop") %>%
+  st_transform(crs=3414)
+
+# Examine the structure of the data frame
+str(BusStop)
+```
+
+There are a total of 5161 features in the `BusStop` shapefile. Notably, `BUS_STOP_N` is listed as a character variable. As this variable will be used as the identifier to link to the aspatial data, it should be transformed to a factor so that R treats it as a grouping variable.
+
+```{r}
+# Apply as.factor() to the column
+BusStop$BUS_STOP_N <- as.factor(BusStop$BUS_STOP_N)
+
+# Re-examine the structure of the data frame
+str(BusStop)
+```
+
+Based on the output above, `BUS_STOP_N` is now a factor of 5145 levels. However, there are a total of 5161 observations. As such, the duplicate records should be checked. The code chunk below generates a list of duplicated bus stop codes using `group_by()` and `filter()` functions of **dplyr** package and displays them using `datatable()` function of **DT** package.
+
+```{r}
+duplicate <- BusStop %>%
+  group_by(BUS_STOP_N) %>%
+  filter(n() > 1) %>%
+  arrange(BUS_STOP_N, LOC_DESC)
+
+DT::datatable(duplicate)
+```
+
+The code chunk below uses the `distinct()` function to keep only the unique rows based on the `BUS_STOP_N` while preserving all other fields (`.keep_all = TRUE`). By default, `distinct()` keeps the first occurrence of each unique combination of values in the specified columns. Once duplicates are removed, the resultant sf data frame is re-examined for its structure.
+
+```{r}
+BusStop <- BusStop %>%
+  distinct(BUS_STOP_N, .keep_all = TRUE)
+
+# Re-examine the structure of the data frame
+str(BusStop)
+```
+
+There are now a total of 5145 observations, aligned with the number of factor levels.
+
+## Compute Bus Stop Density
+
+The code chunk below uses `st_intersects()` to return lists of bus stops that lie inside each TAZ and `lengths()` to count the number of bus stops in each list. This is then appended back to `hex_grid_bounded2` sf data frame in a new column called `busstop_count`.
+
+```{r}
+hex_grid_bounded2$busstop_count <- lengths(st_intersects(hex_grid_bounded2, BusStop))
+```
+
+The map is then updated to fill by colour based on the bus stop density. This is the base map that will be used for future geovisualisation in this study.
+
+```{r}
+tm_shape(hex_grid_bounded2) +
+  tm_fill(col = "busstop_count",
+          palette = "Blues",
+          style = "cont", 
+          title = "Bus Stop Density") + 
+  tm_borders(col = "grey")
+```
+
+# Construct O-D matrix of Commuter Flow
+
+The O-D matrix is a description of movement in a certain area and is used to assess the demand for transportation. In an O-D matrix, each cell is an intersection of a trip from an origin to a destination, and a higher number of trips implies a more in-demand bus route.
+
+## Import Passenger Volume by Origin-Destination Bus Stops
+
+The code chunk below uses the `read_csv()` function of `readr` package (imported with the `tidyverse` package) to import the csv files into R and `glimpse()` is used to examine the data frame.
+
+```{r}
+#| code-fold: false
+odbus <- read_csv("data/aspatial/origin_destination_bus_202308.csv")
+
+# Examine the data frame
+glimpse(odbus)
+```
+
+Based on the data frame structure seen above, `ORIGIN_PT_CODE` and `DESTINATION_PT_CODE` are listed as character variables. These variables are equivalent to `BUS_STOP_N` of `BusStop` sf data frame and should be transformed to factors so that R treats them as grouping variables.
+
+```{r}
+# Columns to convert to factors
+columns_to_convert <- c("ORIGIN_PT_CODE", "DESTINATION_PT_CODE")
+
+# Apply as.factor() to the adjusted columns
+odbus[columns_to_convert] <- lapply(odbus[columns_to_convert], as.factor)
+
+# Re-examine the data frame
+glimpse(odbus)
+```
+
+Based on the output above, `ORIGIN_PT_CODE` and `DESTINATION_PT_CODE` are now factors.
+
+## Extract Commuting Flow data
+
+The code chunk below extracts commuting flows for the target time period: Weekdays morning peak.
+
+```{r}
+#| eval: false
+# Commute commuting flow for target time period
+od_wkday_morn <- odbus %>%
+  filter(DAY_TYPE == "WEEKDAY" & TIME_PER_HOUR >= 6 & TIME_PER_HOUR <=9) %>%
+  group_by(ORIGIN_PT_CODE, DESTINATION_PT_CODE) %>%
+  summarise(TRIPS = sum(TOTAL_TRIPS)) %>%
+  ungroup()
+```
+
+```{r}
+#| echo: false
+#| eval: false
+# Save the output as rds files instead of rendering the above code chunks
+write_rds(od_wkday_morn, "data/rds/od_wkday_morn.rds")
+```
+
+```{r}
+#| echo: false
+# Load the rds files instead of rendering the above code chunks
+od_wkday_morn <- read_rds("data/rds/od_wkday_morn.rds")
+```
+
+The extracted commuting flow data is displayed for inspection using `head()` function shown in the code chunk below.
+
+```{r}
+head(od_wkday_morn, 10)
+```
+
+## Geospatial Data Wrangling
+
+The extracted commuting flows above are in aspatial format and will need to be converted into geospatial data.
+
+The code chunk below populates the hexagon grid index (i.e. `index`) of `hex_grid_bounded2` sf data frame into `BusStop` sf data frame. `st_intersection()` is used to perform point and polygon overlay and the output will be in point sf object. `select()` of dplyr package is then use to retain only `BUS_STOP_N` and `index` in the `BusStop_hex` sf data frame.
+
+```{r}
+# Identify hexagon grid index for each bus stop
+BusStop_hex <- st_intersection(BusStop, hex_grid_bounded2) %>%
+  select(BUS_STOP_N, index) %>%
+  st_drop_geometry()
+
+glimpse(BusStop_hex)
+```
+
+There are now a total of 5140 observations. Five bus stops have been excluded in the resultant data frame as they are outside of Singapore's boundary.
+
+Next, append the hexagon grid index from `BusStop_hex` data frame onto `od_wkday_morn` data frame for both `ORIGIN_PT_CODE` and `DESTINATION_PT_CODE` fields.
+
+```{r}
+# Join hexagon grid index for ORIGIN_PT_CODE
+od_data <- left_join(od_wkday_morn , BusStop_hex,
+            by = c("ORIGIN_PT_CODE" = "BUS_STOP_N")) %>%
+  rename("ORIGIN_hex" = "index")
+
+# Join hexagon grid index for DESTINATION_PT_CODE
+od_data <- left_join(od_data , BusStop_hex,
+            by = c("DESTINATION_PT_CODE" = "BUS_STOP_N")) %>%
+  rename("DESTIN_hex" = "index") %>%
+  drop_na() %>%
+  group_by(ORIGIN_hex, DESTIN_hex) %>%
+  summarise(TOTAL_TRIPS = sum(TRIPS))
+```
+
+The resultant data frame is checked for duplicates, if any.
+
+```{r}
+duplicate <- od_data %>%
+  group_by_all() %>%
+  filter(n()>1) %>%
+  ungroup()
+
+DT::datatable(duplicate)
+```
+
+The output above shows that there are no duplicates in the data frame.
+
+# Visualisation of O-D flows
+
+The constructed O-D matrix can now be visualised using desire lines, which are rays connecting a site to associated location points.
+
+## Remove intra-zonal flows
+
+The code chunk below will be used to remove intra-zonal flows which will not be plotted.
+
+```{r}
+od_plot <- od_data[od_data$ORIGIN_hex!=od_data$DESTIN_hex,]
+```
+
+## Create desire lines
+
+In this code chunk below, `od2line()` of **stplanr** package is used to create the desire lines.
+
+```{r}
+#| eval: false
+flowLine <- od2line(flow = od_plot, 
+                    zones = hex_grid_bounded2,
+                    zone_code = "index")
+```
+
+```{r}
+#| echo: false
+#| eval: false
+# Save the output as rds files instead of rendering the above code chunks
+write_rds(flowLine, "data/rds/flowLine.rds")
+```
+
+```{r}
+#| echo: false
+# Load the rds files instead of rendering the above code chunks
+flowLine <- read_rds("data/rds/flowLine.rds")
+```
+
+## Visualise desire lines
+
+To visualise the resulting desire lines, the code chunk below is used. To aid in a clearer and less cluttered visualization, only desire lines with at least 5000 trips are shown.
+
+```{r, fig.width=10}
+tm_shape(hex_grid_bounded2) +
+  tm_fill(col = "busstop_count",
+          palette = "Blues",
+          style = "cont",
+          title = "Bus Stop Density") +
+  tm_borders(col = "grey") +
+flowLine %>%  
+  filter(TOTAL_TRIPS >= 5000) %>%
+tm_shape() +
+  tm_lines(lwd = "TOTAL_TRIPS",
+           style = "fixed",
+           scale = c(1,2,3,4,5,7,9),
+           n = 6, 
+           alpha = 0.7,
+           title.lwd = "Total Trips") + 
+  tm_layout(main.title = "Desire Lines with at least 5000 trips between Traffic Analysis Zones for Weekday Morning Peak Period",
+            main.title.position = "center",
+            main.title.size = 1,
+            frame = TRUE)
+```
+
+::: callout-note
+### Insights
+
+It is possible to identify centroids where people are travelling to or from during weekday morning peak period. Most centroids are in residential areas (e.g. Tampines, Jurong East, Punggol), though some are in the Central region. Notably, there are several long-distance bus routes linking the East to the North, and the Central region to the North-Western part of Singapore. The most in-demand bus route on the map appears to be between Woodlands Checkpoint and Kranji, but neither TAZ has the highest bus stop count.
+
+:::
+
+It is also possible to zoom in to individual regions of Singapore to observe commuting trends. In the code chunk below, a left join is performed for `hex_grid_bounded2` and `mpsz` sf data frames using `st_join()` and the `left = TRUE` argument. When plotting the desire lines, a filter is applied on the `REGION_N` column -- in this case for the West region.
+
+```{r, fig.width=12}
+hex_grid_mpsz <- st_join(hex_grid_bounded2, mpsz, left = TRUE)
+
+tmap_mode("view")
+
+hex_grid_mpsz %>%
+  filter(REGION_N == "WEST REGION") %>%  # Filter for West region
+tm_shape() +
+  tm_fill(col = "busstop_count",
+          palette = "Blues",
+          style = "cont",
+          title = "Bus Stop Density",
+          popup.vars = c("SUBZONE_N")) + 
+  tm_view(set.zoom.limits = c(11,14)) + 
+  tm_borders(col = "grey") +
+flowLine %>%  
+  filter(TOTAL_TRIPS >= 5000) %>%
+tm_shape() +
+  tm_lines(lwd = "TOTAL_TRIPS",
+           style = "fixed",
+           scale = c(1,2,3,4,5,7,9),
+           n = 6, 
+           alpha = 0.7,
+           popup.vars = c("TOTAL_TRIPS"))
+
+tmap_mode("plot")
+```
+
+::: callout-note
+### Insights
+
+When zoomed into the specific regions such as the West Region, it can be observed that bus stop density does not appear to directly correlate with the number of desire lines or the line thickness. For example, while hexagon grid index 772 has the highest bus stop density in the map above, its neighbouring grid 826 has more high volume flows that start from / end at that TAZ -- of which, one of the high volume flows has as many as 89k trips being made per month.
+
+As such, there is a need to further understand what drives such trends in commuting flows.
+
+:::
+
+# Assemble Propulsive and Attractiveness variable
+
+Spatial interaction represents the flow of people, material, or information between locations in geographical space. As such, Spatial Interaction Models (SIM) can be used to understand more about what propels commuters from an origin zone and what attracts commuters to a destination zone.
+
+Before such models can be built, there is a need to assemble propulsive and attractiveness variables. The following propulsive and attractiveness variables will be used:
+
+-   Population Density: The population density in an area can significantly impact movement patterns as higher population densities in an area can act as a **propulsive** force, pushing people to travel from that area to other destinations for work. However, as there is no census data publicly available on a TAZ level, the number of HDB housing units will be used as a proxy for the population density -- the more housing units there are within a TAZ, it can be implied that there is likely going to be a higher population within that zone.
+
+-   Employment Opportunities Density: The density of employment opportunities in an area can significantly impact movement patterns as fewer employment opportunities in an area can act as a **propulsive** force, attracting people to travel from that area to other destinations for work. Conversely, more employment opportunities in an area can act as an **attractiveness** force, attracting people to travel from other origins to that area for work. However, as there is no employment data publicly available on a TAZ level, the number of businesses registered under a particular address will be used as a proxy for the employment opportunities density -- more businesses registered within a TAZ suggests more employment opportunities within that zone.
+
+-   School Density: The density of education institutions in an area can significantly impact movement patterns as fewer schools in an area can act as a **propulsive** force, attracting people to travel from that area to other destinations for education. Conversely, more education opportunities in an area can act as an **attractiveness** force, attracting people to travel from other origins to that area for school.
+
+-   Financial Services Density: Close proximity of financial services such as banks, investment firms, or financial advisors to the workplace can contribute to the overall **attractiveness** of a destination for employment by offering convenience, business support, and signaling economic strength, particularly for industries where financial services are integral.
+
+-   Public Transportation Nodes Density: Accessibility to public transportation can serve as an origin **propulsive** variable since areas with better access tend to generate more movement since they provide easier means to travel to various destinations. At the same time, accessibility to public transportation can also serve as a destination **attractiveness** variable since better access also makes an area more attractive to travel to for work. While not perfectly correlated, in this study, the density of public transportation nodes will be taken as an indicator of accessibility to public transportation.
+
+## Population Density
+
+### Import Aspatial Data: HDB
+
+The code chunk below uses `read_csv()` function of **readr** package to import the specially prepared `hdb` csv data. The output R object is a tibble data frame called `hdb`. `glimpse()` is used to examine the structure of the tibble data frame.
+
+```{r}
+#| code-fold: false
+hdb <- read_csv("data/aspatial/hdb.csv")
+
+glimpse(hdb)
+```
+
+The `hdb` tibble data frame consists of 12,442 rows and 37 columns. Each row of data shows one address (with postal code) and its corresponding number of dwelling units at that address. Based on the column names, there appears to be different building types i.e. "residential", "commercial" , "market_hawker" and "miscellaneous". For the purpose of computing a proxy for population density, `filter()` of **dplyr** package will be used to extract residential units.
+
+```{r}
+hdb_residential <- hdb %>%
+  filter(residential == "Y")
+
+# Examine the data
+head(hdb_residential, 10)
+```
+
+Among the residential units, there appears to be some outlier data such as Raffles Hotel being indicated a residential dwelling. Given this, the data will be checked for buildings which contain a "hotel" in its name using the grepl() function.
+
+```{r}
+hotels <- hdb_residential %>%
+  filter(grepl("HOTEL", building, ignore.case = TRUE))
+
+kable(hotels)
+```
+
+The output above shows two listings which appear to be hotels. Upon checking, there appears to be an error with the geocoding due to similarities in address names. "Block 1 Beach Road" is indeed a HDB block while Raffles Hotel has a similar address name of "1 Beach Road". However, both of these addresses have different postal codes. This could be due to an issue with the geocoding process as the original data set did not provide postal codes, leading to a confusion when there are similar addresses. 
+
+The data will be modified using the `mutate()` and `ifelse()` functions of **dplyr** package. The correct postal codes and coordinates values will be searched for using the [OneMap service](https://www.onemap.gov.sg/). The final output is then saved out as a new tibble data frame `hdb_residential2`. 
+
+```{r}
+hdb_residential2 <- hdb_residential %>%
+  mutate(postal = ifelse(blk_no == 1 & street == "BEACH RD", 190001, postal)) %>%
+  mutate(lat = ifelse(blk_no == 1 & street == "BEACH RD", 1.3036714, lat)) %>%
+  mutate(lng = ifelse(blk_no == 1 & street == "BEACH RD", 103.8644787, lng)) %>%
+  mutate(postal = ifelse(blk_no == 3 & street == "BEACH RD", 190003, postal)) %>%
+  mutate(lat = ifelse(blk_no == 3 & street == "BEACH RD", 1.3041872, lat)) %>%
+  mutate(lng = ifelse(blk_no == 3 & street == "BEACH RD", 103.8651934, lng))
+```
+
+The resultant data frame is checked for duplicates, if any.
+
+```{r}
+duplicate <- hdb_residential2 %>%
+  group_by_all() %>%
+  filter(n()>1) %>%
+  ungroup()
+
+DT::datatable(duplicate)
+```
+
+The output above shows that there are no duplicate rows in the data set. 
+
+### Convert Aspatial data to Geospatial data
+
+To convert the aspatial data to geospatial data, the latitude (`lat`) and longitude (`lng`) columns will be used. As these columns are in decimal degree format, it is likely that the data is in **wgs84** geographic coordinate system.
+
+The code chunk below converts listing data frame into a sf data frame using `st_as_sf()` of **sf** package. The `coords` argument requires the column name of the x-coordinates first followed by the column name of the y-coordinates. Lastly, as the sf tibble data frame has many columns, only the required columns will be selected using `select()` function of **dplyr** package.
+
+```{r}
+hdb_residential_sf <- st_as_sf(hdb_residential2, 
+                   coords = c("lng", "lat"),
+                   crs=4326) %>%
+  st_transform(crs = 3414) %>%
+  select(postal, total_dwelling_units, geometry)
+
+# Examine the structure of the data frame
+str(hdb_residential_sf)
+```
+
+The table above shows the structure of `hdb_residential_sf`. A new column called `geometry` has been added into the data frame while the `lng` and `lat` columns have been dropped. To ensure that the `hdb_residential_sf` sf data frame is projected and converted correctly, it will be plotted on a map for visual inspection.
+
+```{r}
+# boundary map
+tm_shape(hex_grid_bounded2) +
+  tm_fill(col = "white") +
+  tm_borders(col = "grey") +
+# plot housing locations
+tm_shape(hdb_residential_sf) +
+  tm_dots() + 
+  tm_layout(main.title = "Location of Housing Units",
+            main.title.position = "center",
+            main.title.size = 1,
+            frame = TRUE)
+```
+
+### Performing in-polygon count
+
+In the code chunk below, `st_join()` and `st_intersects()` is used to join `hex_grid_bounded2` and `hdb_residential_sf`. The `left = TRUE` argument ensures that all elements from the `hex_grid_bounded2` are retained in the result. Once the hexagon grid indexes are obtained for each point feature, the geometry can be dropped using `st_drop_geometry()`. `group_by()` function of **dplyr** package is then used to group the data by hexagon grid index before adding up the total count of dwelling units within each TAZ. Lastly, `is.na()` is used to check for missing counts and replaces them with 0 using the `mutate()` and `ifelse()` functions, ensuring a clean data set without missing values for further analysis and visualization.
+
+```{r}
+housing_count <- st_join(hex_grid_bounded2, hdb_residential_sf, 
+                     join = st_intersects, left = TRUE) %>%
+  st_drop_geometry() %>%
+  group_by(index) %>%
+  summarise(housing_count = sum(total_dwelling_units)) %>%
+  ungroup() %>%
+  mutate(housing_count = ifelse(is.na(housing_count), 0, housing_count))
+```
+
+The counts are joined to the `hex_grid_bounded2` sf data frame to create a new `hex_grid_bounded3` sf data frame and a summary of this new column is generated using `summary()`.
+
+```{r}
+hex_grid_bounded3 <- left_join(hex_grid_bounded2, housing_count,
+                               by = c("index" = "index"))
+
+summary(hex_grid_bounded3$housing_count)
+```
+
+The new variable is also plotted on a map for visual inspection.
+
+```{r}
+tm_shape(hex_grid_bounded3) +
+  tm_fill(col = "housing_count",
+          palette = "Blues",
+          style = "cont", 
+          title = "Housing Density") + 
+  tm_borders(col = "grey")
+```
+
+## Employment Opportunities Density
+
+### Import Geospatial data: Business
+
+The code chunk below uses the `st_read()` function of **sf** package to import the specially prepared `Business` shapefile into R as a simple feature data frame called `biz`. As `Business` uses **svy21** projected coordinate system, the `crs` argument is set to 3414.
+
+```{r}
+biz <- st_read(dsn = "data/geospatial", layer = "Business") %>%
+  st_transform(crs = 3414)
+```
+
+To ensure that the `biz` sf data frame is projected and converted correctly, it will be plotted on a map for visual inspection.
+
+```{r}
+# boundary map
+tm_shape(hex_grid_bounded3) +
+  tm_fill(col = "white") +
+  tm_borders(col = "grey") +
+# plot biz locations
+tm_shape(biz) +
+  tm_dots() + 
+  tm_layout(main.title = "Location of Businesses",
+            main.title.position = "center",
+            main.title.size = 1,
+            frame = TRUE)
+```
+
+### Perform point-in-polygon count
+
+The code chunk below uses `st_intersects()` to return a list of businesses that lie inside each TAZ and `lengths()` to count the number of businesses in each list. This is then appended to the `hex_grid_bounded3` sf data frame in a new column called `biz_count` and a summary of this new column is generated.
+
+```{r}
+hex_grid_bounded3$biz_count <- lengths(st_intersects(hex_grid_bounded3, biz))
+
+summary(hex_grid_bounded3$biz_count)
+```
+
+The new variable is also plotted on a map for visual inspection.
+
+```{r}
+tm_shape(hex_grid_bounded3) +
+  tm_fill(col = "biz_count",
+          palette = "Blues",
+          style = "cont", 
+          title = "Business Density") + 
+  tm_borders(col = "grey")
+```
+
+## Schools Density
+
+### Geocode Aspatial data: Schools
+
+Address geocoding is the process of taking an aspatial description of a location, such as an address or postcode, and returning geographic coordinates, frequently latitude/longitude pair, to identify a location on the Earth's surface.
+
+Singapore Land Authority (SLA) supports an online geocoding service called OneMap API. Within which, the Search API service can be used to look up the address data or 6-digit postal code for an entered value, and returns both latitude, longitude and x,y coordinates of the searched location.
+
+The code chunks below will perform geocoding using SLA OneMap API. The input data `Generalinformationofschools` is given in csv file format and read into R Studio environment using `read_csv()` function of **readr** package. A collection of http call functions of **httr** package of R will then be used to pass the individual records to the geocoding server at OneMap.
+
+After completion of the geocoding process, two tibble data frames will be created: `found` and `not_found.` `found` contains all records that are geocoded correctly and `not_found` contains records that fail to be geocoded. The `found` data table will then be joined with the initial csv data table by using a unique identifier (i.e. postal code) common to both data tables and saved out as a csv file called `schools`.
+
+```{r}
+#| eval: false
+url <- "https://www.onemap.gov.sg/api/common/elastic/search"
+
+csv <- read_csv("data/aspatial/Generalinformationofschools.csv")
+postcodes <- csv$postal_code
+
+found <- data.frame()
+not_found <- data.frame()
+
+for (postcode in postcodes) {
+  query <- list('searchVal'=postcode, 'returnGeom'='Y', 'getAddrDetails'='Y', 'pageNum'='1')
+  res <- GET(url, query=query)
+  
+  if ((content(res)$found)!=0){
+    found <- rbind(found, data.frame(content(res))[4:13])
+  } else {
+    not_found = data.frame(postcode)
+  }
+}
+
+merged <- merge(csv, found, by.x = "postal_code", by.y = "results.POSTAL", all = T)
+
+write_csv(merged, "data/aspatial/schools.csv")
+write_csv(not_found, "data/aspatial/not_found.csv")
+```
+
+Next, the csv file for the school(s) where the geocoding could not be completed is manually updated before it is reloaded as a `schools` tibble data frame. A pipe operation is done to rename the coordinates columns and select only required columns.
+
+```{r}
+schools <- read_csv("data/aspatial/schools.csv")
+
+schools <- schools %>%
+  rename("latitude" = "results.LATITUDE",
+         "longitude" = "results.LONGITUDE") %>%
+  select(postal_code, school_name, latitude, longitude)
+```
+
+### Conversion of Aspatial data to Geospatial data
+
+Next, convert the aspatial data frame into a simple feature tibble data frame called `schools_sf` using `st_as_sf()` of sf package. The data frame is then converted into the **svy21** projected coordinate system. The coordinates in the `coords` argument are specified in the order of longitude followed by latitude.
+
+```{r}
+schools_sf <- st_as_sf(schools, coords = c("longitude", "latitude"), 
+                       crs = st_crs(4326)) %>%
+  st_transform(crs = 3414)
+```
+
+To ensure that the `schools_sf` data frame is projected and converted correctly, it will be plotted on a map for visual inspection.
+
+```{r}
+tm_shape(hex_grid_bounded3) + 
+  tm_fill(col = "white") +
+  tm_borders(col = "grey") +
+tm_shape(schools_sf) + 
+  tm_dots() + 
+  tm_layout(main.title = "Location of Schools",
+            main.title.position = "center",
+            main.title.size = 1,
+            frame = TRUE)
+```
+
+### Perform point-in-polygon count
+
+The code chunk below uses `st_intersects()` to return a list of schools that lie inside each TAZ and `lengths()` to count the number of schools in each list. This is then appended back to `hex_grid_bounded3` sf data frame in a new column called `school_count`. Lastly, a summary of this new column is generated.
+
+```{r}
+hex_grid_bounded3$school_count <- lengths(st_intersects(hex_grid_bounded3, schools_sf))
+
+summary(hex_grid_bounded3$school_count)
+```
+
+The new column is also plotted on a map for visual inspection.
+
+```{r}
+tm_shape(hex_grid_bounded3) +
+  tm_fill(col = "school_count",
+          palette = "Blues",
+          style = "cont", 
+          title = "School Density") + 
+  tm_borders(col = "grey")
+```
+
+## Financial Services Density
+
+### Import Geospatial data: Train Stations
+
+The code chunk below uses the `st_read()` function of **sf** package to import `FinServ` shapefile into R as a simple feature data frame called `FinServ`. As `FinServ` uses **svy21** projected coordinate system, the `crs` argument is set to 3414.
+
+```{r}
+FinServ <- st_read(dsn = "data/geospatial", layer = "FinServ") %>%
+  st_transform(crs = 3414)
+```
+
+The `FinServ` sf data frame will now be plotted on a map for visual inspection.
+
+```{r}
+tm_shape(hex_grid_bounded3) + 
+  tm_fill(col = "white") +
+  tm_borders(col = "grey") +
+tm_shape(FinServ) + 
+  tm_dots() + 
+  tm_layout(main.title = "Location of Financial Services",
+            main.title.position = "center",
+            main.title.size = 1,
+            frame = TRUE)
+```
+
+### Perform point-in-polygon count
+
+The code chunk below uses `st_intersects()` to return a list of financial service centres that lie inside each TAZ and `lengths()` to count the number of financial service centres in each list. This is then appended back to `hex_grid_bounded3` sf data frame in a new column called `fin_count`. Lastly, a summary of this new column is generated.
+
+```{r}
+hex_grid_bounded3$fin_count <- lengths(st_intersects(hex_grid_bounded3, FinServ))
+
+summary(hex_grid_bounded3$fin_count)
+```
+
+The new column is also plotted on a map for visual inspection.
+
+```{r}
+tm_shape(hex_grid_bounded3) +
+  tm_fill(col = "fin_count",
+          palette = "Blues",
+          style = "cont", 
+          title = "Financial Services Density") + 
+  tm_borders(col = "grey")
+```
+
+## Public Transportation Density
+
+Bus stop counts has previously been computed. Another critical component of Singapore's public transportation is the MRT / LRT system.
+
+### Import Geospatial data: Train Stations
+
+The code chunk below uses the `st_read()` function of **sf** package to import `RapidTransitSystemStation` shapefile into R as a simple feature data frame called `mrt_lrt`. As `RapidTransitSystemStation` uses **svy21** projected coordinate system, the `crs` argument is set to 3414.
+
+```{r}
+#| warning: true
+mrt_lrt <- st_read(dsn = "data/geospatial", layer = "RapidTransitSystemStation") %>%
+  st_transform(crs = 3414)
+```
+
+In the output above, there is a warning that a non closed ring is detected in the geometry of the sf data frame. The code chunk below uses `st_is_valid()` to check for the error.
+
+```{r}
+st_is_valid(mrt_lrt)
+```
+
+From the output above, it can be observed that there are two types of issues:
+
+1.  There are two invalid geometries (i.e. `FALSE` outcomes).
+2.  There is one geometry with an `NA` outcome.
+
+The specific stations can be identified and addressed using the following code chunks.
+
+::: panel-tabset
+### Invalid geometries
+
+```{r}
+# Identify problematic geometries
+problematic_geoms <- mrt_lrt[which(!st_is_valid(mrt_lrt)), ]
+
+kable(problematic_geoms)
+```
+
+Based on the output above, the invalid geometries are for Harbourfront MRT Station and Upper Thomson MRT Station. These two invalid geometries will be fixed using the `st_make_valid()` function from the **sf** package.
+
+### NA geometries
+
+```{r}
+# Identify NA geometries
+na_geoms <- mrt_lrt[is.na(st_is_valid(mrt_lrt)), ]
+
+kable(na_geoms)
+```
+
+Based on the output above, the NA geometry is for BOCC, which refers to the Bus Operations Control Centre. Given that this is not a public transportation node that is accessible to the general public, this feature will be dropped from the final `mrt_lrt` sf data frame.
+
+:::
+
+The code chunk below fixes the `mrt_lrt` data frame by first filtering out the 163th feature, which corresponds to the BOCC station with the NA geometry, then applying `st_make_valid()` to resolve the two invalid geometries. The geometries are verified again after fixing.
+
+```{r}
+mrt_lrt_fixed <- mrt_lrt[-163, ] %>%
+  st_make_valid()
+
+# Verify that the geometries are valid after fixing
+st_is_valid(mrt_lrt_fixed)
+```
+
+The output above now shows that all the geometries are valid. The `mrt_lrt_fixed` sf data frame will now be plotted on a map for visual inspection.
+
+```{r}
+tm_shape(hex_grid_bounded3) + 
+  tm_fill(col = "white") +
+  tm_borders(col = "grey") +
+tm_shape(mrt_lrt_fixed) + 
+  tm_polygons(col = "brown") + 
+  tm_layout(main.title = "Location of MRT / LRT Stations",
+            main.title.position = "center",
+            main.title.size = 1,
+            frame = TRUE)
+```
+
+### Perform point-in-polygon count
+
+As the geometries for the MRT / LRT stations are polygons, there is a need to convert them into points before Perform point-in-polygon count. A simple way could be to use `st_centroid()` to get the centroid of each polygon. Using centroids requires fewer computational resources than computing based on all points along polygon edges, especially with complex polygons featuring many vertices. Additionally, centroids act as singular points summarizing the entire shape, providing a simplified representation in contrast to edges.
+
+```{r}
+mrt_lrt_points <- st_centroid(mrt_lrt_fixed)
+```
+
+The code chunk below then uses `st_intersects()` to return a list of MRT / LRT stations that lie inside each TAZ and `lengths()` to count the number of stations in each list. This is then appended back to `hex_grid_bounded2` sf data frame in a new column called `mrtlrt_count`. Lastly, a summary of this new column is generated.
+
+```{r}
+hex_grid_bounded3$mrtlrt_count <- lengths(st_intersects(hex_grid_bounded3, mrt_lrt_points))
+
+summary(hex_grid_bounded3$mrtlrt_count)
+```
+
+The new column is also plotted on a map for visual inspection.
+
+```{r}
+tm_shape(hex_grid_bounded3) +
+  tm_fill(col = "mrtlrt_count",
+          palette = "Blues",
+          style = "cont", 
+          title = "MRT/LRT Station Count") + 
+  tm_borders(col = "grey")
+```
+
+## Assemble the variables
+
+The propulsive and attractiveness variables will be compiled into a tibble data frame called `propulsive` to be used for the Spatial Interaction Model later. A prefix of "o\_" will be added to the column names to identify them as origin variables.
+
+```{r}
+propulsive <- hex_grid_bounded3 %>%
+  st_drop_geometry() %>%
+  select(index, housing_count, biz_count, 
+         school_count, busstop_count, mrtlrt_count)
+  
+
+origin <- names(propulsive) %>%
+  modify_at(-1, ~ paste0("o_", .))  # Add prefix to all except index
+
+# Assign modified names back to the data frame
+names(propulsive) <- origin
+```
+
+## Prepare destination variables
+
+The attractiveness variables will be compiled into a tibble data frame called `attractiveness` to be used for the Spatial Interaction Model later. A prefix of "d\_" will be added to the column names to identify them as origin variables.
+
+```{r}
+attractiveness <- hex_grid_bounded3 %>%
+  st_drop_geometry() %>%
+  select(index, biz_count, school_count, 
+         fin_count, busstop_count, mrtlrt_count)
+
+destin <- names(attractiveness) %>%
+  modify_at(-1, ~ paste0("d_", .))  # Add prefix to all except index
+
+# Assign modified names back to the data frame
+names(attractiveness) <- destin
+```
+
+# Compute Distance Matrix
+
+In spatial interaction, a distance matrix is a table that shows the distance between pairs of locations. A location's distance from itself, which is shown in the main diagonal of a distance matrix table, is 0.
+
+There are at least two ways to compute the required distance matrix -- one based on **sf** and the other based on **sp**. However, past experience has shown that computing the distance matrix using **sf** function takes relatively longer than **sp** method especially when the data set is large. In view of this, **sp** method will be used in the code chunks below.
+
+### Converting sf data frame to SpatialPolygonsDataFrame
+
+First `as.Spatial()` is used to convert the `hex_grid_bounded2` sf tibble data frame to SpatialPolygonsDataFrame of sp object as shown in the code chunk below.
+
+```{r}
+hex_grid_sp <- as(hex_grid_bounded2, "Spatial")
+hex_grid_sp
+```
+
+The code chunk below is used to measure the distance between the central points of each pair of spatial shapes using the function `spDists()` of **sp** package. This method is widely used due to its computational simplicity, providing a reasonably accurate indication of spatial connections between the shapes. As mentioned above, calculating distances between centroids demands less computational resources than calculations between all points along polygon edges, especially for intricate polygons with many vertices. Centroids also act as single point representations that provide an overview of the shape. While edges offer intricate shape details, the generalized perspective of centroids could be valuable when precise edge shapes are less critical.
+
+```{r}
+dist <- spDists(hex_grid_sp, longlat = FALSE)
+
+# Examine the resultant matrix
+head(dist, n=c(10, 10))
+```
+
+As seen in the output above, the result is a matrix object class and the column and row headers are not labeled with the hexagon grid index representing the TAZ.
+
+### Label column and row headers of distance matrix
+
+To add the column and row headers, first create a list sorted according to the the distance matrix by TAZ.
+
+```{r}
+hex_names <- hex_grid_bounded2$index
+```
+
+Next, attach the hexagon grid index to row and column for distance matrix matching.
+
+```{r}
+colnames(dist) <- paste0(hex_names)
+rownames(dist) <- paste0(hex_names)
+```
+
+### Pivot distance value by hexagon grid index
+
+Next, the distance matrix is pivoted into a long table by using the `melt()` function of **reshape2** package and the row and column TAZ codes as show in the code chunk below.
+
+```{r}
+distPair <- reshape2::melt(dist) %>%
+  rename(dist = value)
+
+head(distPair, 10)
+```
+
+Notice that the within zone distance (intra-zonal distance) is 0.
+
+### Update intra-zonal distances
+
+A constant value will be appended to the data frame to replace the intra-zonal distance of 0. To do so, first find the minimum non-zero value of the distance by using `summary()`.
+
+```{r}
+distPair %>%
+  filter(dist > 0) %>%
+  summary()
+```
+
+Given that the minimum distance is 750m, any values smaller than 750m can be used to represent intra-zonal distance. As such, in the code chunk below, a value of 375m (half of 750m) will be appended to intra-zonal distance to replace the current value of 0.
+
+```{r}
+distPair$dist <- ifelse(distPair$dist == 0,
+                        375, distPair$dist)
+
+# Examine data frame
+summary(distPair)
+```
+
+The minimum value is now 375m.
+
+Lastly, the code chunk below is used to rename the origin and destination fields and to convert these two fields into factor data type.
+
+```{r}
+distPair <- distPair %>%
+  rename(orig = Var1,
+         dest = Var2) %>%
+  mutate(across(c(orig, dest), as.factor))
+```
+
+# Calibrate Spatial Interaction Model using Poisson Regression method
+
+Spatial Interaction Models (SIM) are mathematical models for estimating flows between spatial entities.
+
+There are four main types of traditional SIM: Unconstrained, Production-constrained, Attraction-constrained and Doubly-constrained.
+
+> All four SIM will be done for comparison.
+
+Ordinary least square (OLS), log-normal, Poisson and negative binomial (NB) regression methods have been used extensively to calibrate OD flow models by processing flow data as different types of dependent variables.
+
+> The Poisson regression method is used for modelling when the dependent variable represents count outcomes that are discrete and non-negative, such as the number of occurrences of an event within a fixed unit of time or space. 
+
+## Separating intra-flow from passenger volume
+
+The code chunk below is used to add three new fields into the `od_data` dataframe.
+
+Firstly, a new column `FlowNoIntra` is created to differentiate intra-zone trips from inter-zone trips based on the comparison of origin and destination zones. The `ifelse()` function is used to check if the values in columns `ORIGIN_hex` and `DESTIN_hex` are equal; if so, it is an indication that such trips start and end in the same zone, hence, the `FlowNoIntra` column is set to a value of 0. Otherwise, it holds the value from the `TOTAL_TRIPS` column.
+
+Next, an `offset` column is created using another `ifelse()` statement where for intra-zone trips, the `offset` column is set to a negligible offset value of 0.000001. Otherwise, for inter-zone trips, it is set to 1.
+
+```{r}
+#| eval: false
+od_data$FlowNoIntra <- ifelse(
+  od_data$ORIGIN_hex == od_data$DESTIN_hex, 0, od_data$TOTAL_TRIPS)
+od_data$offset <- ifelse(
+  od_data$ORIGIN_hex == od_data$DESTIN_hex, 0.000001, 1)
+```
+
+Next, inter-zonal flow will be selected from `od_data` and save into a new output data.frame called inter_zonal_flow by using the code chunk below.
+
+```{r}
+#| eval: false
+od_data <- od_data %>%
+  filter(FlowNoIntra > 0)
+```
+
+## Combining passenger volume data with distance value
+
+Before joining `od_data` and `distPair`, convert the data value type of `ORIGIN_hex` and `DESTIN_hex` fields of `od_data` dataframe into factor data type.
+
+```{r}
+#| eval: false
+od_data$ORIGIN_hex <- as.factor(od_data$ORIGIN_hex)
+od_data$DESTIN_hex <- as.factor(od_data$DESTIN_hex)
+```
+
+Next, `left_join()` of dplyr will be used to join `od_data` data frame and `distPair` data frame to give an output called `flow_data`.
+
+```{r}
+#| eval: false
+flow_data <- od_data %>%
+  left_join (distPair,
+             by = c("ORIGIN_hex" = "orig",
+                    "DESTIN_hex" = "dest"))
+```
+
+## Prepare origin attributes
+
+Next, `left_join()` is used to join `flow_data` to the origin attributes prepared earlier (`propulsive` tibble data frame) using the hexagon grid index as a common identifier.
+
+```{r}
+#| eval: false
+flow_data <- flow_data %>%
+  left_join(propulsive, by = c("ORIGIN_hex" = "index"))
+```
+
+## Prepare destination attributes
+
+Lastly, `left_join()` is used to join `flow_data` to the destination attributes prepared earlier (`attractiveness` tibble data frame) using the hexagon grid index as a common identifier.
+
+```{r}
+#| eval: false
+flow_data <- flow_data %>%
+  left_join(attractiveness, by = c("DESTIN_hex" = "index"))
+```
+
+```{r}
+#| echo: false
+#| eval: false
+# Save the output as rds files instead of rendering the above code chunks
+write_rds(flow_data, "data/rds/flow_data.rds")
+```
+
+```{r}
+#| echo: false
+# Load the rds files instead of rendering the above code chunks
+flow_data <- read_rds("data/rds/flow_data.rds")
+```
+
+## Visualising the dependent variable
+
+The code chunk below plots the distribution of the dependent variable (i.e. `TOTAL_TRIPS`) as a histogram.
+
+```{r}
+ggplot(data = flow_data,
+       aes(x = TOTAL_TRIPS)) +
+  geom_histogram() + 
+  labs(title = "Distribution of Trips across TAZ",
+       x = "Total Trips",
+       y = "Counts") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+> The distribution shown is highly skewed and does not resemble a normal distribution (bell-shaped curve).
+
+The code chunk below visualises the relationship between the dependent variable and a key independent variable (i.e. `dist`) of the SIM. Specifying the argument `method = lm` within the `geom_smooth()` function fits a linear regression line to the data.
+
+```{r}
+ggplot(data = flow_data,
+       aes(x = dist,
+           y = TOTAL_TRIPS)) +
+  geom_point() +
+  geom_smooth(method = lm) + 
+  labs(title = "Relationship between Distance and Total Trips", 
+       x = "Distance", 
+       y = "Total Trips") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+> The relationship between these two variables appears to be non-linear.
+
+The scatterplot is re-plotted after applying a log transformation on both variables.
+
+```{r}
+ggplot(data = flow_data,
+       aes(x = log(dist),
+           y = log(TOTAL_TRIPS))) +
+  geom_point() +
+  geom_smooth(method = lm) + 
+  labs(title = "Relationship between Log Distance and Log Total Trips", 
+       x = "Log Distance", 
+       y = "Log Total Trips") +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+## Check for variables with zero values
+
+Since Poisson Regression is based on log and log 0 is undefined, it is important to ensure that no 0 values in the explanatory variables before running the model. In the code chunk below, `summary()` is used to compute the summary statistics of all variables in the `flow_data` data frame.
+
+```{r}
+summary(flow_data)
+```
+
+The print report above reveals that all the count variables except `o_busstop_count` and `d_busstop_count` consist of 0 values, which should be replaced to a negligible value of 0.99.
+
+In the code chunk below, `vars(ends_with("_count"))` selects all columns with names ending in "\_count", while `ifelse()` function checks if the values in these columns are equal to 0. If so, it replaces them with 0.99; otherwise, it leaves them unchanged.
+
+```{r}
+flow_data <- flow_data %>%
+  mutate_at(vars(ends_with("_count")), ~ ifelse(. == 0, 0.99, .))
+```
+
+Run `summary()` again to check that the replacement has been done correctly.
+
+```{r}
+summary(flow_data)
+```
+
+> All 0 values in the count columns have now been replaced by 0.99.
+
+## Apply log() transformation to explanatory variables
+
+As Poisson Regression is based on log, log() will be applied to all the explanatory variables before calibrating the various SIM.
+
+```{r}
+flow_data_log <- flow_data %>%
+  mutate_at(vars(ends_with("_count")), log) %>%
+  mutate(dist = log(dist))
+```
+
+## Unconstrained Spatial Interaction Model
+
+Next, calibrate an unconstrained SIM by using `glm()` of Base Stats. The explanatory variables are all the origin and destination variables created earlier and distance between origin and destination (i.e. `dist`).
+
+The code chunk used to calibrate the model is shown below:
+
+```{r}
+# Generate propulsive variables names
+origin_var <- propulsive %>%
+  select(-(index)) %>%
+  names()
+
+# Generate attractiveness variables names
+destin_var <- attractiveness %>%
+  select(-(index)) %>%
+  names()
+
+# Generate the formula dynamically
+formula_string <- paste("TOTAL_TRIPS ~", paste(origin_var, collapse = " + "), 
+                        "+", paste(destin_var, collapse = " + "), "+ dist")
+
+# Convert the string to a formula
+formula <- as.formula(formula_string)
+
+uncSIM <- glm(formula,
+              family = poisson(link = "log"),
+              data = flow_data_log,
+              na.action = na.exclude)
+
+uncSIM
+```
+
+> Positive coefficients suggest that as the counts of the explanatory variable increase by one unit, the number of trips is also expected to increase by the value of the coefficient, holding other variables constant.
+> Conversely, negative coefficients suggest that as the counts of the explanatory variable increase by one unit, the number of trips is expected to decrease by the value of the coefficient, holding other variables constant.
+
+:::callout-note
+### Insights
+
+- By absolute value, the most influential variable is the Distance between origin and destination. The negative coefficient means there is an inverse relationship between Distance and Number of Trips: More trips are made when the distance is nearer, while less trips are made when the distance is further.
+- The most propulsive origin variable is Bus Stop counts with a coefficient of 0.547: More trips are made when there is higher bus stop density at the origin site, while less trips are made when there is lower bus stop density at the origin site. 
+- Conversely, the most attractive destination variables are School and Financial Services counts with a coefficient of 0.371 and 0.309 respectively: More trips are made when there is higher school / financial services density at the destination site, while less trips are made when there is lower school / financial services density at the destination site. 
+- Notably, there appears to be an inverse relationship between the number of trips with the Business density at the origin and the MRT / LRT station density at the destination. This means that more trips are made when there are less businesses at the origin, while less trips are made when there are more businesses at the origin. Similarly, more bus trips are made when there are less MRT / LRT stations at the destination -- suggesting a complementary role between bus services and MRT / LRT services. 
+
+:::
+
+In statistical modelling, the goodness-of-fit of a model looks at how well the proportion of variance in the dependent variable (i.e. `TOTAL_TRIPS`) can be explained by the explanatory variables. This can be answered by comparing the R^2^ statistics. However, R^2^ is not an output of `glm()`. Hence, in the code chunk below, a function called `CalcRSquared` is written to measure how much variation of the trips can be accounted for by the model.
+
+```{r}
+CalcRSquared <- function(observed,estimated){
+  r <- cor(observed,estimated)
+  R2 <- r^2
+  R2
+}
+```
+
+Next, compute the R-squared of the unconstrained SIM by using the code chunk below.
+
+```{r}
+CalcRSquared(uncSIM$data$TOTAL_TRIPS, uncSIM$fitted.values)
+```
+
+:::callout-note
+### Insights
+
+With reference to the R^2^ above, it can be concluded that the model accounts for 23.73% of the variation of flows.
+
+:::
+
+## Origin (Production) Constrained Spatial Interaction Model
+
+Next, fit an origin constrained SIM by using the code chunk below.
+
+-   For origin constrained SIM, only explanatory variables representing the attractiveness at the destinations will be used. This is because such models emphasize the limitations or capacities of the origins rather than the demand or attractiveness of the destinations. The capacity or limitation at the origin sites determines the potential for generating interactions or flows.
+-   Additionally, "-1" is added to the formula to remove the intercept that is inserted by `glm` into the model by default. Since the origin has already been constrained, the concept of an intercept would not be relevant.
+
+```{r}
+#| eval: false
+# Generate the formula dynamically
+formula_string <- paste("TOTAL_TRIPS ~ ORIGIN_hex +", 
+                        paste(destin_var, collapse = " + "), "+ dist - 1")
+
+# Convert the string to a formula
+formula <- as.formula(formula_string)
+
+orcSIM <- glm(formula,
+              family = poisson(link = "log"),
+              data = flow_data_log,
+              na.action = na.exclude)
+```
+
+```{r}
+#| echo: false
+#| eval: false
+# Save the output as rds files instead of rendering the above code chunks
+write_rds(orcSIM, "data/rds/orcSIM.rds") 
+```
+
+```{r}
+#| echo: false
+# Load the rds files instead of rendering the above code chunks
+orcSIM <- read_rds("data/rds/orcSIM.rds")
+```
+
+`summary()` is used to print out the results of the model.
+
+```{r}
+options(max.print=9999, scipen = 999, digits = 10)
+
+summary(orcSIM)
+```
+
+:::callout-note
+### Insights
+
+- By absolute value, the most influential variable is the Distance between origin and destination. The negative coefficient means there is an inverse relationship between Distance and Number of Trips: More trips are made when the distance is nearer, while less trips are made when the distance is further.
+- The most attractive variables appear to be Financial Services and School counts with a coefficient of 0.396 and 0.334 respectively: More trips are made when there is higher financial services / school density at the destination site, while less trips are made when there is lower financial services / school density at the destination site. 
+
+:::
+
+```{r}
+CalcRSquared(orcSIM$data$TOTAL_TRIPS, orcSIM$fitted.values)
+```
+
+:::callout-note
+### Insights
+
+With reference to the R^2^ above, it can be concluded that the model accounts for about 32.69% of the variation of flows.
+
+:::
+
+## Destination Constrained Spatial Interaction Model
+
+Next, fit a destination constrained SIM by using the code chunk below.
+
+-   For destination constrained SIM, only explanatory variables which represent how propulsive the origins are will be used. This is because such models emphasize the demand or attractiveness of the destinations rather than the limitations or capacities of the origins. The demand or attractiveness of the destination sites determines the potential for generating interactions or flows.
+-   Additionally, "-1" is added to the formula to remove the intercept that is inserted by `glm` into the model by default. Since the destination has already been constrained, the concept of an intercept would not be relevant.
+
+```{r}
+#| eval: false
+# Generate the formula dynamically
+formula_string <- paste("TOTAL_TRIPS ~ DESTIN_hex +", 
+                        paste(origin_var, collapse = " + "), "+ dist - 1")
+
+# Convert the string to a formula
+formula <- as.formula(formula_string)
+
+decSIM <- glm(formula,
+              family = poisson(link = "log"),
+              data = flow_data_log,
+              na.action = na.exclude)
+```
+
+```{r}
+#| echo: false
+#| eval: false
+# Save the output as rds files instead of rendering the above code chunks
+write_rds(decSIM, "data/rds/decSIM.rds") 
+```
+
+```{r}
+#| echo: false
+# Load the rds files instead of rendering the above code chunks
+decSIM <- read_rds("data/rds/decSIM.rds")
+```
+
+`summary()` is used to print out the results of the model.
+
+```{r}
+summary(decSIM)
+```
+
+:::callout-note
+### Insights
+
+- By absolute value, the most influential variable is the Distance between origin and destination. The negative coefficient means there is an inverse relationship between Distance and Number of Trips: More trips are made when the distance is nearer, while less trips are made when the distance is further.
+- The most propulsive variable appears to be Bus Stop counts at the origin site with a coefficient of 0.548: More trips are made when there is higher bus stop density at the origin site, while less trips are made when there is lower bus stop density at the origin site. 
+- There is an inverse relationship between the number of businesses at the origin and Number of Trips: More bus trips are made when there are less businesses at the origin, while less bus trips are made when there are more businesses at the origin.
+- Interestingly, unlike with business density, there is a direct relationship between school density at origin site and bus trips: More bus trips are made when there are more schools at the origin, while less bus trips are made when there are less schools at the origin. This could be due to the relationship between schools and bus stop as a result of urban planning -- most schools have at least one bus stop immediately within the vicinity of the school. 
+
+:::
+
+```{r}
+CalcRSquared(decSIM$data$TOTAL_TRIPS, decSIM$fitted.values)
+```
+
+:::callout-note
+### Insights
+
+With reference to the R^2^ above, it can be concluded that the model accounts for almost 41.43% of the variation of flows.
+
+:::
+
+## Doubly Constrained Spatial Interaction Model
+
+Next, fit a doubly constrained SIM by using the code chunk below.
+
+```{r}
+#| eval: false
+dbcSIM <- glm(formula = TOTAL_TRIPS ~ 
+                ORIGIN_hex + 
+                DESTIN_hex + 
+                dist,
+              family = poisson(link = "log"),
+              data = flow_data_log,
+              na.action = na.exclude)
+```
+
+```{r}
+#| echo: false
+#| eval: false
+# Save the output as rds files instead of rendering the above code chunks
+write_rds(dbcSIM, "data/rds/dbcSIM.rds") 
+```
+
+```{r}
+#| echo: false
+# Load the rds files instead of rendering the above code chunks
+dbcSIM <- read_rds("data/rds/dbcSIM.rds")
+```
+
+```{r}
+summary(dbcSIM)
+```
+
+:::callout-note
+### Insights
+
+- There is an inverse relationship between Distance and Number of Trips: More trips are made when the distance is nearer, while less trips are made when the distance is further. 
+
+:::
+
+```{r}
+CalcRSquared(dbcSIM$data$TOTAL_TRIPS, dbcSIM$fitted.values)
+```
+
+:::callout-note
+### Insights
+
+With reference to the R^2^ above, it can be concluded that the model accounts for 57.36% of the variation of flows.
+
+:::
+
+## Poisson Regression Models Comparison
+
+Lastly, use `compare_performance()` of the **performance** package to identify the better model. First, create a list called `model_list` using the code chunk below.
+
+```{r}
+model_list <- list(unconstrained = uncSIM,
+                   originConstrained=orcSIM,
+                   destinConstrained=decSIM,
+                   doublyConstrained=dbcSIM)
+```
+
+Next, compute the RMSE of all the models in model_list using the code chunk below.
+
+```{r}
+compare_performance(model_list, metrics = "RMSE")
+```
+:::callout-note
+### Insights
+
+The print above reveals that doubly constrained SIM is the best model as it has the smallest RMSE value of 1174.174. This is supported by the R^2^ value of doubly constrained SIM being the highest at 0.5736. However, given that doubly constrained SIM considers only the distance decay effect and not propulsive and/or attractiveness variables, practically, it may not be the best SIM in terms of uncovering the factors driving urban commuting flows. In contrast, the second best model of destination constrained SIM identifies the key propulsive variables driving commuters to destination sites. 
+
+:::
+
+## Visualise Fitted Values
+
+The observed and fitted values of the destination constrained SIM will be visualised on a scatterplot. 
+
+In the code chunk below, the fitted values from the destination constrained SIM is extracted then appended to the `flow_data` data frame. `rename()` is used to rename the newly added column. 
+
+```{r}
+df <- as.data.frame(decSIM$fitted.values) %>%
+  round(digits = 0)
+
+inter_zonal_flow <- flow_data %>%
+  cbind(df) %>%
+  rename(decTRIPS = "decSIM$fitted.values")
+```
+
+The scatterplot will then be created using `geom_point()` and other appropriate functions of **ggplot2** package.
+
+```{r}
+ggplot(data = inter_zonal_flow,
+                aes(x = decTRIPS,
+                    y = TOTAL_TRIPS)) +
+  geom_point() +
+  geom_smooth(method = lm) +
+  coord_cartesian(xlim=c(0,100000),
+                  ylim=c(0,100000)) + 
+  labs(title = "Observed vs. Fitted Values for Destination constrained SIM",
+       x = "Fitted Values", y = "Observed Values")
+```
+
+:::callout-note
+### Insights
+
+Most of the values fall far from the linear regression line, suggesting that the model can be further refined in terms of accuracy. 
+
+:::
+
+# Calibrate Spatial Econometric Interaction Model usng Maximum Likelihood Estimation
+
+Spatial Econometric Interaction Models (SEIM) could also be used as they extend the traditional SIM by incorporating additional econometric considerations and addressing specific complexities that standard SIM might not adequately capture. For example, a limitation of SIM is that it assumes independence among observations. However, SEIM explicitly address spatial dependencies among observations, acknowledging that nearby locations might influence each other's behavior or outcomes. SEIM can also handle spatial autocorrelation more effectively and address issues of multicollinearity. 
+
+To calibrate SEIM using **spflow** package, three data sets are required:
+
+-   Spatial Weights
+-   Distance Matrix
+-   Explanatory Variables
+
+## Prepare Spatial Weights
+
+There are three different matrices that can be used to describe the connectivity between TAZ: contiguity, fixed distance and adaptive distance. 
+
+Before fixed distance weights can be derived, there is a need to determine the upper limit for distance band by using the steps below:
+
+- `st_centroid()` is used to convert the hexagon grids into a point geometry. 
+- `knearneigh()` of **spdep** is then used to return a matrix with the indices of points belonging to the set of the k nearest neighbours of each other by using. The returned knn object is then converted into a neighbours list of class nb with a list of integer vectors containing neighbour region number ids by using `knn2nb()`.
+- Lastly, return the length of neighbour relationship edges by using `nbdists()` of **spdep**. The function returns in the units of the coordinates if the coordinates are projected (`longlat = FALSE`), and in km if otherwise (`longlat = TRUE`). Remove the list structure of the returned object by using `unlist()`.
+
+```{r}
+coords <- hex_grid_bounded2 %>%
+  filter(busstop_count > 0) %>%
+  select(geometry) %>%
+  st_centroid()
+k1 <- knn2nb(knearneigh(coords))
+k1dists <- unlist(nbdists(k1, coords, longlat = FALSE))
+
+# Print summary report
+summary(k1dists)
+```
+
+The summary report shows that the largest first nearest neighbour distance is 1299.03m, so using this as the upper threshold (rounded up to the next integer) gives certainty that all units will have at least one neighbour.
+
+Next , the code chunk below will be used to compute the three spatial weights at one go as follows:
+
+- `poly2nb()` of **spdep** package is used to build a neighbours list based on regions with contiguous boundaries.
+- `dnearneigh()` of **spdep* package is used to identifies neighbours of region centroids by Euclidean distance in the metric of the points between lower and and upper (less than or equal to) bounds.
+- `knn2nb()` and `knearneigh()` is used to to build the adaptive spatial weights.
+
+Lastly, `list()` is used to keep these three spatial weights in a single list class called `hexgrid_nb`.
+
+```{r}
+#| eval: false
+centroids <- suppressWarnings({
+    st_point_on_surface(st_geometry(hex_grid_bounded2))})
+
+hexgrid_nb <- list(
+  "by_contiguity" = poly2nb(hex_grid_bounded2),
+  "by_distance" = dnearneigh(centroids, 
+                             d1 = 0, d2 = 1300),
+  "by_knn" = knn2nb(knearneigh(centroids, 6))
+)
+```
+
+```{r}
+#| echo: false
+#| eval: false
+# Save the output as rds files instead of rendering the above code chunks
+write_rds(hexgrid_nb, "data/rds/hexgrid_nb.rds")
+```
+
+```{r}
+#| echo: false
+# Load the rds files instead of rendering the above code chunks
+hexgrid_nb <- read_rds("data/rds/hexgrid_nb.rds")
+```
+
+The code chunk below prints a summary of the spatial weights, which reveals that by using contiguity weights, there is at least one TAZ that does not have any neighbours.
+
+```{r}
+hexgrid_nb
+```
+
+## Prepare Flow Data
+
+From the existing `flow_data` data frame that was assembled earlier, only the required variables are selected using the `select()` function. 
+
+```{r}
+flow_data1 <- flow_data %>%
+  select(ORIGIN_hex, DESTIN_hex, TOTAL_TRIPS, dist)
+```
+
+## Prepare Explanatory Variables
+
+As both origin propulsive and destination attractiveness variables are required, this data set will be prepared by dropping the geometry (using `st_drop_geometry()`) from the existing `hex_grid_bounded3` sf data frame that was assembled earlier.  
+
+```{r}
+explanatory <- hex_grid_bounded3 %>%
+  st_drop_geometry()
+```
+
+## Prepare spflow objects
+
+The development version (0.1.0.9010) of spflow will be used instead of the released version (0.1.0). The code chunk below will be used to install the development version of spflow package.
+
+```{r}
+#| eval: false
+devtools::install_github("LukeCe/spflow")
+```
+
+Next, load **spflow** package into the R environment.
+
+```{r}
+library(spflow)
+```
+
+Three `spflow` objects are required:
+
+- `spflow_network-class` is an S4 class that contains all information on a spatial network which is composed by a set of nodes that are linked by some neighborhood relation.
+- `spflow_network_pair-class` is an S4 class that holds information on O-D pairs. Each O-D pair is composed of two nodes, each belonging to one network. All origin nodes must belong to the same origin network should be contained in one `spflow_network-class`, and likewise for the destinations.
+- `spflow_network_multi-class` is an S4 class that gathers information on multiple objects of types `spflow_network-class` and `spflow_network_pair-class`. Its purpose is to ensure that the identification between the nodes that serve as origins or destinations, and the O-D pairs is consistent (similar to relational databases).
+
+## Creating spflow_network-class objects
+
+`spflow_network-class` can be created using `spflow_network()` function of **spflow** package. For this model, the fixed distance based neighbourhood structure will be chosen.
+
+```{r}
+hex_net <- spflow_network(
+  id_net = "sg",  # assign an id name, can give it any input
+  node_neighborhood = nb2mat(hexgrid_nb$by_distance),
+  node_data = explanatory,
+  node_key_column = "index"
+)
+
+hex_net
+```
+
+`spflow_network_pair-class` can be created using `spflow_network_pair()` function of **spflow** package.
+
+```{r}
+hex_net_pairs <- spflow_network_pair(
+  id_orig_net = "sg",
+  id_dest_net = "sg",
+  pair_data = flow_data1,
+  orig_key_column = "ORIGIN_hex",
+  dest_key_column = "DESTIN_hex"
+)
+
+hex_net_pairs
+```
+
+`spflow_network_multi-class` can be created using `spflow_network_multi()` function of **spflow** package and only works on `spflow_network-class` and `spflow_network_pair-class`.
+
+```{r}
+hex_multi_net <- spflow_network_multi(hex_net, hex_net_pairs)
+
+hex_multi_net
+```
+
+## Correlation Analysis
+
+Multicollinearity refers to a situation in which more than two explanatory variables in a multiple regression model are highly linearly related. In this situation, the coefficient estimates of the multiple regression may change erratically in response to small changes in the data or the procedure used to fit the model. To avoid including explanatory variables that are highly correlated, **spflow** provides two functions:
+
+-   `pair_cor()` to create a correlation matrix, and
+-   `cor_image()` to plot the correlation matrix as a correlogram.
+
+```{r, fig.width=10, fig.height=10}
+# Generate explanatory variables names
+var_name <- explanatory %>%
+  select(-(index)) %>%
+  names()
+
+# Generate the formula dynamically
+cor_formula <- log(1 + TOTAL_TRIPS) ~ 
+  busstop_count + 
+  housing_count + 
+  biz_count + 
+  school_count + 
+  fin_count + 
+  mrtlrt_count + 
+  P_(log(dist + 1))
+
+cor_mat <- pair_cor(
+  hex_multi_net, 
+  spflow_formula = cor_formula, 
+  add_lags_x = FALSE)
+
+colnames(cor_mat) <- paste0(
+  substr(
+    colnames(cor_mat),1,3),"...")
+
+cor_image(cor_mat)
+```
+
+Given that there are no variable pairs that are very highly correlated with one another, all variables will be used to calibrate the SEIM.
+
+## Model Calibration
+
+There are currently three estimators of spatial econometric interaction models supported by spflow package:
+
+-   Maximum likelihood estimation (MLE) – default estimation procedure.
+-   Spatial two-stage least squares (S2SLS) – activate the S2SLS estimation via the estimation_control argument using the input `spflow_control(estimation_method = "s2sls")`.
+-   Bayesian Markov Chain Monte Carlo (MCMC) – activate the MCMC estimation via the estimation_control argument using the input `spflow_control(estimation_method = "mcmc")`.
+
+The function offers a formula interface adapted to spatial interaction models, which has the following structure:
+
+> Y ~ O_(X1) + D_(X2) + I_(X3) + P_(X4)
+
+-   O_(…) and D_(…) indicate which variables are used as characteristics of the origins and destinations respectively.
+-   I_(…) indicates variables that should be used for the intra-regional parameters.
+-   P_(…) declares which variables describe origin-destination pairs, which usually will include a measure of distance (distance decay).
+
+```{r}
+base_model <- spflow(
+  spflow_formula = log(1 + TOTAL_TRIPS) ~ 
+    O_(busstop_count +
+         housing_count + 
+         biz_count + 
+         school_count + 
+         mrtlrt_count) +
+    D_(busstop_count +
+         biz_count + 
+         school_count + 
+         fin_count + 
+         mrtlrt_count) +
+    P_(log(dist + 1)),
+  spflow_networks = hex_multi_net)
+
+base_model
+```
+
+:::callout-note
+### Insights
+
+Based on the print result above, model 9 and MLE estimator is used (defaults). The R2 value is 0.6213, which means the model accounts for 62.13% of the variation of flows.
+
+Among the destination explanatory variables:
+
+- Bus stop counts, Financial services counts and MRT/LRT station counts and their lags all have a t.stat that is statistically significant. This means that such counts within the TAZ and in neighbouring TAZ will affect the attractiveness of the specific destination TAZ. For all three variables, the coefficient of their lags are negative, which means the more of such counts there are in neighbouring TAZ, the less trips are made to that TAZ.
+- School and Business counts have a t.stat that is statistically significant, but their lags are not. This means that such counts within the TAZ will affect the attractiveness of the TAZ but counts in neighbouring zones do not affect the attractiveness of the specific TAZ.
+
+Among the origin explanatory variables:
+
+- Bus stop counts and MRT/LRT station counts and their lags all have a t.stat that is statistically significant. This means that such counts within the TAZ and in neighbouring TAZ will affect the propulsiveness of the specific origin TAZ. For both variables, the coefficient of their lags are negative, which means the more of such counts there are in neighbouring TAZ, the less trips are made to that TAZ.
+- School and Housing counts and their lags also have a t.stat that is statistically significant. However, for these two variables, the coefficient of their lags are positive, which means the more of such counts there are in neighbouring TAZ, the more trips are made from that TAZ.
+
+:::
+
+## Residual diagnostics
+
+In building explanatory models, it is important to check if the model calibrate conform to the statistical assumption of the statistical methods used. ***spflow** package provides several functions to support residual diagnostics needs. In the code chunk below, `spflow_moran_plots()` is used.
+
+```{r}
+old_par <- par(mfrow = c(1, 3), 
+               mar = c(2,2,2,2))
+
+spflow_moran_plots(base_model)
+```
+
+## Visualise Fitted Values
+
+Lastly, the observed and fitted values of the SEIM will be visualised on a scatterplot. 
+
+In the code chunk below, the fitted values from the destination constrained SIM is extracted then appended to the `flow_data` data frame. `rename()` is used to rename the newly added column. 
+
+```{r}
+model.df <- as_tibble(base_model@spflow_indicators) %>%
+  mutate(FITTED_Y = round(exp(FITTED),0))
+
+inter_zonal_flow2 <- flow_data %>%
+  left_join(model.df) %>%
+  mutate(diff = (FITTED_Y-TOTAL_TRIPS))
+```
+
+The scatterplot will then be created using `geom_point()` and other appropriate functions of **ggplot2** package.
+
+```{r}
+ggplot(data = inter_zonal_flow2,
+                aes(x = FITTED,
+                    y = ACTUAL)) +
+  geom_point() +
+  geom_smooth(method = lm) +
+  coord_cartesian(xlim=c(0,14),
+                  ylim=c(0,14)) + 
+  labs(title = "Observed vs. Fitted Values for SEIM",
+       x = "Fitted Values", y = "Observed Values")
+```
+
+:::callout-note
+### Insights
+
+Most of the values fall closer to the linear regression line as compared to the destination constrained SIM.
+
+:::
