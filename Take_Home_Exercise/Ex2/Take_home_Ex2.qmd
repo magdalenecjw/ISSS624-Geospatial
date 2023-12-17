@@ -406,7 +406,7 @@ tm_shape() +
            n = 6, 
            alpha = 0.7,
            title.lwd = "Total Trips") + 
-  tm_layout(main.title = "Desire Lines with at least 5000 trips /nbetween Traffic Analysis Zones for Weekday Morning Peak Period",
+  tm_layout(main.title = "Desire Lines with at least 5000 trips \nbetween Traffic Analysis Zones for Weekday Morning Peak Period",
             main.title.position = "center",
             main.title.size = 1,
             frame = TRUE)
