@@ -50,11 +50,10 @@ The code chunk below uses `p_load()` of `pacman` package to check if the require
 -   `stplanr` package is used for plotting desire lines on maps.
 -   `httr` package is used for working with HTTP.
 -   `performance` package is used for computing statistical metrics such as RMSE.
--   `ggpubr` package is used for creating publication quality statistical graphics.
 
 ```{r}
 #| code-fold: false
-pacman::p_load(sf, sp, spdep, tmap, tidyverse, knitr, stplanr, httr, performance, ggpubr)
+pacman::p_load(sf, sp, spdep, tmap, tidyverse, knitr, stplanr, httr, performance)
 ```
 
 # Data Sets used
@@ -73,13 +72,13 @@ The derived data sets used are:
 
 # Derive Traffic Analysis Zone
 
-Traffic Analysis Zones (TAZ) are used in travel demand modeling to depict the spatial layout of trip origins, destinations, population, employment, and other influential factors shaping travel demand. Urban areas are divided into zones, simplifying trips from one zone to another, despite actual travel between points.
+Traffic Analysis Zones (TAZ) are used in travel demand modelling to depict the spatial layout of trip origins, destinations, population, employment, and other influential factors shaping travel demand. Urban areas are divided into zones, simplifying trips from one zone to another, despite actual travel between points.
 
 There are at least two ways to define TAZ -- in Singapore, planning subzones have been marked out by URA for urban planning purposes. However, the use of such planning subzones would divide the study area into irregular-sized polygons. An alternative would be to create spatial grids that divide the study area into equal-sized, regular polygons. This study will make use of hexagon-spatial grids as the TAZ for analysis.
 
 ## Import Geospatial data: MPSZ
 
-Firstly, `st_read()` function of **sf** package is used to import `MPSZ-2019` shapefile into R as a simple feature data frame called `mpsz`. As `MPSZ-2019` uses **svy21** projected coordinate system, the `crs` argument is set to 3414.
+`st_read()` function of **sf** package is used to import `MPSZ-2019` shapefile into R as a simple feature data frame called `mpsz`. As `MPSZ-2019` uses **svy21** projected coordinate system, the `crs` argument is set to 3414.
 
 ```{r}
 #| code-fold: false
@@ -91,9 +90,9 @@ mpsz <- st_read(dsn = "data/geospatial", layer = "MPSZ-2019") %>%
 
 For this study, a hexagon layer of 375m (where 375m is the perpendicular distance between the hexagon centre and its edges) will be created to represent the TAZ.
 
-In the code chunk below, `st_make_grid` is used to create the hexagon grid TAZ using the `svy21` projected coordinate system. The `cellsize` argument refers to the cell size in the units that the crs of the spatial data is using and can be defined as the distance between opposite edges. Since the data is set in **svy21** projected coordinate system, which [uses metres as the unit](https://epsg.io/3414), the value is set as `c(750,750)` to create a hexagon layer of 375m. The resulting data frame is then converted into a sf data frame and an index is added for each hexagon grid.
+In the code chunk below, `st_make_grid()` of **sf** package is used to create the hexagon grid TAZ using the `svy21` projected coordinate system. The `cellsize` argument refers to the cell size in the units that the crs of the spatial data is using and can be defined as the distance between opposite edges. Since the data is set in **svy21** projected coordinate system, which [uses metres as the unit](https://epsg.io/3414), the value is set as `c(750,750)` to create a hexagon layer of 375m. The resulting data frame is then converted into a sf data frame and an index is added for each hexagon grid.
 
-However, this hexagon layer created covers the entire plot area, including non-land areas. As this study is only interested in the land areas of Singapore, the `mpsz` sf data frame is also used to create a border of the land areas. This border is then used to clip the hexagon grid layer using `st_intersection()`, resulting in the output `hex_grid_bounded` sf data frame.
+However, this hexagon layer created covers the entire plot area, including non-land areas. As this study is only interested in the land areas of Singapore, the `mpsz` sf data frame is also used to create a border of the land areas. This border is then used to clip the hexagon grid layer using `st_intersection()` of **sf** package, resulting in the output `hex_grid_bounded` sf data frame.
 
 ```{r}
 #| eval: false
@@ -127,7 +126,7 @@ hex_grid <- read_rds("data/rds/hex_grid.rds")
 hex_grid_bounded <- read_rds("data/rds/hex_grid_bounded.rds")
 ```
 
-To ensure that the `hex_grid_bounded` sf data frame is created correctly, it will be plotted on a map for visual inspection.
+To ensure that the `hex_grid_bounded` sf data frame is created correctly, it will be plotted on a map for visual inspection using **tmap** functions such as `tm_shape()` and `tm_polygons()`. 
 
 ```{r}
 tmap_mode("plot")
@@ -163,7 +162,7 @@ write_rds(hex_grid_bounded2, "data/rds/hex_grid_bounded2.rds")
 hex_grid_bounded2 <- read_rds("data/rds/hex_grid_bounded2.rds")
 ```
 
-To ensure that the `hex_grid_bounded2` sf data frame is created correctly, it will be plotted on a map for visual inspection.
+To ensure that the `hex_grid_bounded2` sf data frame is created correctly, it will be plotted on a map for visual inspection using **tmap** functions.
 
 ```{r}
 tm_shape(hex_grid_bounded2) +
@@ -198,7 +197,7 @@ BusStop$BUS_STOP_N <- as.factor(BusStop$BUS_STOP_N)
 str(BusStop)
 ```
 
-Based on the output above, `BUS_STOP_N` is now a factor of 5145 levels. However, there are a total of 5161 observations. As such, the duplicate records should be checked. The code chunk below generates a list of duplicated bus stop codes using `group_by()` and `filter()` functions of **dplyr** package and displays them using `datatable()` function of **DT** package.
+Based on the output above, `BUS_STOP_N` is now a factor of 5145 levels. However, there are a total of 5161 observations, suggesting the presence of duplicate records. The code chunk below generates a list of duplicated bus stop codes using `group_by()` and `filter()` functions of **dplyr** package and displays them using `datatable()` function of **DT** package.
 
 ```{r}
 duplicate <- BusStop %>%
@@ -209,7 +208,7 @@ duplicate <- BusStop %>%
 DT::datatable(duplicate)
 ```
 
-The code chunk below uses the `distinct()` function to keep only the unique rows based on the `BUS_STOP_N` while preserving all other fields (`.keep_all = TRUE`). By default, `distinct()` keeps the first occurrence of each unique combination of values in the specified columns. Once duplicates are removed, the resultant sf data frame is re-examined for its structure.
+The code chunk below uses the `distinct()` function of **dplyr** package to keep only the unique rows based on the `BUS_STOP_N` while preserving all other fields (through the argument `.keep_all = TRUE`). By default, `distinct()` keeps the first occurrence of each unique combination of values in the specified columns. Once duplicates are removed, the resultant sf data frame is re-examined for its structure.
 
 ```{r}
 BusStop <- BusStop %>%
@@ -223,7 +222,7 @@ There are now a total of 5145 observations, aligned with the number of factor le
 
 ## Compute Bus Stop Density
 
-The code chunk below uses `st_intersects()` to return lists of bus stops that lie inside each TAZ and `lengths()` to count the number of bus stops in each list. This is then appended back to `hex_grid_bounded2` sf data frame in a new column called `busstop_count`.
+The code chunk below uses `st_intersects()` of **sf** package to return lists of bus stops that lie inside each TAZ and `lengths()` to count the number of bus stops in each list. This is then appended back to `hex_grid_bounded2` sf data frame in a new column called `busstop_count`.
 
 ```{r}
 hex_grid_bounded2$busstop_count <- lengths(st_intersects(hex_grid_bounded2, BusStop))
@@ -273,7 +272,7 @@ Based on the output above, `ORIGIN_PT_CODE` and `DESTINATION_PT_CODE` are now fa
 
 ## Extract Commuting Flow data
 
-The code chunk below extracts commuting flows for the target time period: Weekdays morning peak.
+The code chunk below extracts commuting flows for the target time period of Weekdays morning peak period (defined as between 6am to 9am (inclusive)).
 
 ```{r}
 #| eval: false
@@ -319,9 +318,9 @@ BusStop_hex <- st_intersection(BusStop, hex_grid_bounded2) %>%
 glimpse(BusStop_hex)
 ```
 
-There are now a total of 5140 observations. Five bus stops have been excluded in the resultant data frame as they are outside of Singapore's boundary.
+From the print result above, there are now a total of 5140 observations. Five bus stops have been excluded in the resultant data frame as they are outside of Singapore's boundary.
 
-Next, append the hexagon grid index from `BusStop_hex` data frame onto `od_wkday_morn` data frame for both `ORIGIN_PT_CODE` and `DESTINATION_PT_CODE` fields.
+Next, append the hexagon grid index from `BusStop_hex` data frame to `od_wkday_morn` data frame for both `ORIGIN_PT_CODE` and `DESTINATION_PT_CODE` fields.
 
 ```{r}
 # Join hexagon grid index for ORIGIN_PT_CODE
@@ -357,7 +356,7 @@ The constructed O-D matrix can now be visualised using desire lines, which are r
 
 ## Remove intra-zonal flows
 
-The code chunk below will be used to remove intra-zonal flows which will not be plotted.
+The code chunk below will be used to remove intra-zonal flows that will not be plotted.
 
 ```{r}
 od_plot <- od_data[od_data$ORIGIN_hex!=od_data$DESTIN_hex,]
@@ -389,7 +388,7 @@ flowLine <- read_rds("data/rds/flowLine.rds")
 
 ## Visualise desire lines
 
-To visualise the resulting desire lines, the code chunk below is used. To aid in a clearer and less cluttered visualization, only desire lines with at least 5000 trips are shown.
+In the code chunk below, **tmap** functions are used to visualise the resulting desire lines. To aid in a clearer and less cluttered visualization, only desire lines with at least 5000 trips are shown.
 
 ```{r, fig.width=10}
 tm_shape(hex_grid_bounded2) +
@@ -420,7 +419,7 @@ It is possible to identify centroids where people are travelling to or from duri
 
 :::
 
-It is also possible to zoom in to individual regions of Singapore to observe commuting trends. In the code chunk below, a left join is performed for `hex_grid_bounded2` and `mpsz` sf data frames using `st_join()` and the `left = TRUE` argument. When plotting the desire lines, a filter is applied on the `REGION_N` column -- in this case for the West region.
+It is also possible to zoom in to individual regions of Singapore to observe commuting trends. In the code chunk below, a left join is performed for `hex_grid_bounded2` and `mpsz` sf data frames using `st_join()` and the `left = TRUE` argument. When plotting the desire lines, a filter can now be applied on the `REGION_N` column to zoom in to a specific region of Singapore e.g. West region.
 
 ```{r, fig.width=12}
 hex_grid_mpsz <- st_join(hex_grid_bounded2, mpsz, left = TRUE)
@@ -453,7 +452,7 @@ tmap_mode("plot")
 ::: callout-note
 ### Insights
 
-When zoomed into the specific regions such as the West Region, it can be observed that bus stop density does not appear to directly correlate with the number of desire lines or the line thickness. For example, while hexagon grid index 772 has the highest bus stop density in the map above, its neighbouring grid 826 has more high volume flows that start from / end at that TAZ -- of which, one of the high volume flows has as many as 89k trips being made per month.
+When zoomed into a specific region such as the West Region, it can be observed that bus stop density does not appear to directly correlate with the number of desire lines or the line thickness. For example, while hexagon grid index 772 has the highest bus stop density in the map above, its neighbouring grid 826 has more high volume flows that start from / end at that TAZ -- of which, one of the high volume flows has as many as 89k trips being made per month.
 
 As such, there is a need to further understand what drives such trends in commuting flows.
 
@@ -498,7 +497,7 @@ hdb_residential <- hdb %>%
 head(hdb_residential, 10)
 ```
 
-Among the residential units, there appears to be some outlier data such as Raffles Hotel being indicated a residential dwelling. Given this, the data will be checked for buildings which contain a "hotel" in its name using the grepl() function.
+Among the residential units, there appears to be some outliers such as Raffles Hotel being indicated as a residential dwelling. Given this, the data will be checked for buildings which contain a "hotel" in its name using the grepl() function.
 
 ```{r}
 hotels <- hdb_residential %>%
@@ -509,16 +508,36 @@ kable(hotels)
 
 The output above shows two listings which appear to be hotels. Upon checking, there appears to be an error with the geocoding due to similarities in address names. "Block 1 Beach Road" is indeed a HDB block while Raffles Hotel has a similar address name of "1 Beach Road". However, both of these addresses have different postal codes. This could be due to an issue with the geocoding process as the original data set did not provide postal codes, leading to a confusion when there are similar addresses. 
 
-The data will be modified using the `mutate()` and `ifelse()` functions of **dplyr** package. The correct postal codes and coordinates values will be searched for using the [OneMap service](https://www.onemap.gov.sg/). The final output is then saved out as a new tibble data frame `hdb_residential2`. 
+Given that 1 Beach Rd and 2 Beach Rd faced issues with geocoding, the data will be filtered for other similar addresses to ensure the geocoding has been done correctly. 
+
+```{r}
+beach_rd <- hdb_residential %>%
+  filter(grepl("BEACH RD", street, ignore.case = TRUE))
+
+kable(beach_rd)
+```
+
+According to postal code conventions, the postal codes for these HDB dwellings should be in the format of 1900XX, where XX is replaced by the block number. However, apart from 1 and 3 Beach Road identified earlier, 2, 5 and 15 Beach Road also do not have the correct postal codes, which suggests that the coordinates for these addresses are inaccurate. 
+
+The data will be modified using the `mutate()` and `ifelse()` functions of **dplyr** package. The correct coordinates values will be searched for using the [OneMap service](https://www.onemap.gov.sg/). The final output is then saved out as a new tibble data frame `hdb_residential2`. 
 
 ```{r}
 hdb_residential2 <- hdb_residential %>%
   mutate(postal = ifelse(blk_no == 1 & street == "BEACH RD", 190001, postal)) %>%
   mutate(lat = ifelse(blk_no == 1 & street == "BEACH RD", 1.3036714, lat)) %>%
   mutate(lng = ifelse(blk_no == 1 & street == "BEACH RD", 103.8644787, lng)) %>%
+  mutate(postal = ifelse(blk_no == 2 & street == "BEACH RD", 190002, postal)) %>%
+  mutate(lat = ifelse(blk_no == 2 & street == "BEACH RD", 1.3040331, lat)) %>%
+  mutate(lng = ifelse(blk_no == 2 & street == "BEACH RD", 103.8649285, lng)) %>%
   mutate(postal = ifelse(blk_no == 3 & street == "BEACH RD", 190003, postal)) %>%
   mutate(lat = ifelse(blk_no == 3 & street == "BEACH RD", 1.3041872, lat)) %>%
-  mutate(lng = ifelse(blk_no == 3 & street == "BEACH RD", 103.8651934, lng))
+  mutate(lng = ifelse(blk_no == 3 & street == "BEACH RD", 103.8651934, lng)) %>%
+  mutate(postal = ifelse(blk_no == 5 & street == "BEACH RD", 190005, postal)) %>%
+  mutate(lat = ifelse(blk_no == 5 & street == "BEACH RD", 1.3043463, lat)) %>%
+  mutate(lng = ifelse(blk_no == 5 & street == "BEACH RD", 103.8648158, lng)) %>%
+  mutate(postal = ifelse(blk_no == 15 & street == "BEACH RD", 190015, postal)) %>%
+  mutate(lat = ifelse(blk_no == 15 & street == "BEACH RD", 1.3034254, lat)) %>%
+  mutate(lng = ifelse(blk_no == 15 & street == "BEACH RD", 103.8631535, lng))
 ```
 
 The resultant data frame is checked for duplicates, if any.
@@ -536,9 +555,9 @@ The output above shows that there are no duplicate rows in the data set.
 
 ### Convert Aspatial data to Geospatial data
 
-To convert the aspatial data to geospatial data, the latitude (`lat`) and longitude (`lng`) columns will be used. As these columns are in decimal degree format, it is likely that the data is in **wgs84** geographic coordinate system.
+To convert the aspatial data to geospatial data, the latitude (`lat`) and longitude (`lng`) columns will be used. These columns are in decimal degree format, indicating that the data is in **wgs84** geographic coordinate system.
 
-The code chunk below converts listing data frame into a sf data frame using `st_as_sf()` of **sf** package. The `coords` argument requires the column name of the x-coordinates first followed by the column name of the y-coordinates. Lastly, as the sf tibble data frame has many columns, only the required columns will be selected using `select()` function of **dplyr** package.
+The code chunk below converts `hdb_residential2` data frame into a sf data frame using `st_as_sf()` of **sf** package. The `coords` argument requires the column name of the x-coordinates first followed by the column name of the y-coordinates. Lastly, as the resultant data frame has many columns, only the required columns will be selected using `select()` function of **dplyr** package.
 
 ```{r}
 hdb_residential_sf <- st_as_sf(hdb_residential2, 
@@ -556,16 +575,21 @@ The table above shows the structure of `hdb_residential_sf`. A new column called
 ```{r}
 # boundary map
 tm_shape(hex_grid_bounded2) +
-  tm_fill(col = "white") +
+  tm_fill(col = "busstop_count",
+          palette = "Blues",
+          style = "cont",
+          title = "Bus Stop Density") +
   tm_borders(col = "grey") +
 # plot housing locations
 tm_shape(hdb_residential_sf) +
   tm_dots() + 
-  tm_layout(main.title = "Location of Housing Units",
+  tm_layout(main.title = "Location of HDB Residential Units",
             main.title.position = "center",
             main.title.size = 1,
             frame = TRUE)
 ```
+
+> All the HDB Residential Units are encompassed in TAZ with bus stops, which aligns with the urban planning for Singapore where all HDB estates would have access to public transportation. 
 
 ### Performing in-polygon count
 
@@ -581,7 +605,7 @@ housing_count <- st_join(hex_grid_bounded2, hdb_residential_sf,
   mutate(housing_count = ifelse(is.na(housing_count), 0, housing_count))
 ```
 
-The counts are joined to the `hex_grid_bounded2` sf data frame to create a new `hex_grid_bounded3` sf data frame and a summary of this new column is generated using `summary()`.
+A new `hex_grid_bounded3` sf data frame is created using `left_join()` on `hex_grid_bounded2` and `housing_count`. A summary of this new column is generated using `summary()`.
 
 ```{r}
 hex_grid_bounded3 <- left_join(hex_grid_bounded2, housing_count,
@@ -601,6 +625,8 @@ tm_shape(hex_grid_bounded3) +
   tm_borders(col = "grey")
 ```
 
+> Based on the summary stats and the choropleth map above, it can be observed that there is a large number of zero values in the field `housing_count`. If `log()` is going to be used to transform this field, an additional step is required to ensure that all zero values are replaced with a negligible offset that is between the values of 0 and 1 (but not either value).
+
 ## Employment Opportunities Density
 
 ### Import Geospatial data: Business
@@ -617,7 +643,10 @@ To ensure that the `biz` sf data frame is projected and converted correctly, it 
 ```{r}
 # boundary map
 tm_shape(hex_grid_bounded3) +
-  tm_fill(col = "white") +
+  tm_fill(col = "busstop_count",
+          palette = "Blues",
+          style = "cont",
+          title = "Bus Stop Density") +
   tm_borders(col = "grey") +
 # plot biz locations
 tm_shape(biz) +
@@ -627,6 +656,8 @@ tm_shape(biz) +
             main.title.size = 1,
             frame = TRUE)
 ```
+
+> The locations of businesses appear to be most densely concentrated in the central and west regions, which aligns with known business zones i.e. CBD and Jurong Industrial Area.
 
 ### Perform point-in-polygon count
 
@@ -648,6 +679,8 @@ tm_shape(hex_grid_bounded3) +
           title = "Business Density") + 
   tm_borders(col = "grey")
 ```
+
+> Based on the summary stats and the choropleth map above, it can be observed that the distribution of `biz_count` is extremely skewed with a large number of zero values. If `log()` is going to be used to transform this field, an additional step is required to ensure that all zero values are replaced with a negligible offset that is between the values of 0 and 1 (but not either value).
 
 ## Schools Density
 
@@ -688,7 +721,7 @@ write_csv(merged, "data/aspatial/schools.csv")
 write_csv(not_found, "data/aspatial/not_found.csv")
 ```
 
-Next, the csv file for the school(s) where the geocoding could not be completed is manually updated before it is reloaded as a `schools` tibble data frame. A pipe operation is done to rename the coordinates columns and select only required columns.
+Next, the csv file for the school(s) where the geocoding could not be completed is manually updated outside of the R environment before it is reloaded as a `schools` tibble data frame. A pipe operation is done to rename the coordinates columns and select only required columns.
 
 ```{r}
 schools <- read_csv("data/aspatial/schools.csv")
@@ -701,7 +734,7 @@ schools <- schools %>%
 
 ### Conversion of Aspatial data to Geospatial data
 
-Next, convert the aspatial data frame into a simple feature tibble data frame called `schools_sf` using `st_as_sf()` of sf package. The data frame is then converted into the **svy21** projected coordinate system. The coordinates in the `coords` argument are specified in the order of longitude followed by latitude.
+Next, convert the aspatial data frame into a sf tibble data frame called `schools_sf` using `st_as_sf()` of **sf** package. The data frame is then converted into the **svy21** projected coordinate system. The coordinates in the `coords` argument are specified in the order of longitude followed by latitude.
 
 ```{r}
 schools_sf <- st_as_sf(schools, coords = c("longitude", "latitude"), 
@@ -713,7 +746,10 @@ To ensure that the `schools_sf` data frame is projected and converted correctly,
 
 ```{r}
 tm_shape(hex_grid_bounded3) + 
-  tm_fill(col = "white") +
+  tm_fill(col = "busstop_count",
+          palette = "Blues",
+          style = "cont",
+          title = "Bus Stop Density") +
   tm_borders(col = "grey") +
 tm_shape(schools_sf) + 
   tm_dots() + 
@@ -722,6 +758,8 @@ tm_shape(schools_sf) +
             main.title.size = 1,
             frame = TRUE)
 ```
+
+> All schools plotted are either encompassed in TAZ with bus stops, or are at the edge of a neighbouring TAZ, which aligns with the urban planning for Singapore where all schools are in close proximity to a bus stop. 
 
 ### Perform point-in-polygon count
 
@@ -744,6 +782,8 @@ tm_shape(hex_grid_bounded3) +
   tm_borders(col = "grey")
 ```
 
+> Based on the summary stats and the choropleth map above, it can be observed that there is a large number of zero values in the field `school_count`. If `log()` is going to be used to transform this field, an additional step is required to ensure that all zero values are replaced with a negligible offset that is between the values of 0 and 1 (but not either value).
+
 ## Financial Services Density
 
 ### Import Geospatial data: Train Stations
@@ -759,7 +799,10 @@ The `FinServ` sf data frame will now be plotted on a map for visual inspection.
 
 ```{r}
 tm_shape(hex_grid_bounded3) + 
-  tm_fill(col = "white") +
+  tm_fill(col = "busstop_count",
+          palette = "Blues",
+          style = "cont",
+          title = "Bus Stop Density") +
   tm_borders(col = "grey") +
 tm_shape(FinServ) + 
   tm_dots() + 
@@ -768,6 +811,8 @@ tm_shape(FinServ) +
             main.title.size = 1,
             frame = TRUE)
 ```
+
+> The location of most financial services overlaps with TAZ with bus stops, though there are several financial services in the south region that are not served by bus stops.
 
 ### Perform point-in-polygon count
 
@@ -789,6 +834,8 @@ tm_shape(hex_grid_bounded3) +
           title = "Financial Services Density") + 
   tm_borders(col = "grey")
 ```
+
+> Based on the summary stats and the choropleth map above, the distribution of `fin_count` is extremely skewed with a large number of zero values. If `log()` is going to be used to transform this field, an additional step is required to ensure that all zero values are replaced with a negligible offset that is between the values of 0 and 1 (but not either value).
 
 ## Public Transportation Density
 
@@ -856,7 +903,10 @@ The output above now shows that all the geometries are valid. The `mrt_lrt_fixed
 
 ```{r}
 tm_shape(hex_grid_bounded3) + 
-  tm_fill(col = "white") +
+  tm_fill(col = "busstop_count",
+          palette = "Blues",
+          style = "cont", 
+          title = "Bus Stop Density") +
   tm_borders(col = "grey") +
 tm_shape(mrt_lrt_fixed) + 
   tm_polygons(col = "brown") + 
@@ -866,9 +916,11 @@ tm_shape(mrt_lrt_fixed) +
             frame = TRUE)
 ```
 
+> Most MRT / LRT Stations are in a TAZ that contains at least one bus stop. However, some MRT / LRT Stations appear to cut across multiple TAZ.
+
 ### Perform point-in-polygon count
 
-As the geometries for the MRT / LRT stations are polygons, there is a need to convert them into points before Perform point-in-polygon count. A simple way could be to use `st_centroid()` to get the centroid of each polygon. Using centroids requires fewer computational resources than computing based on all points along polygon edges, especially with complex polygons featuring many vertices. Additionally, centroids act as singular points summarizing the entire shape, providing a simplified representation in contrast to edges.
+As the geometries for the MRT / LRT stations are polygons that may cut across multiple TAZ, there is a need to convert them into points before Perform point-in-polygon count. A simple way could be to use `st_centroid()` to get the centroid of each polygon. Using centroids requires fewer computational resources than computing based on all points along polygon edges, especially with complex polygons featuring many vertices. Additionally, centroids act as singular points summarizing the entire shape, providing a simplified representation in contrast to edges.
 
 ```{r}
 mrt_lrt_points <- st_centroid(mrt_lrt_fixed)
@@ -892,6 +944,8 @@ tm_shape(hex_grid_bounded3) +
           title = "MRT/LRT Station Count") + 
   tm_borders(col = "grey")
 ```
+
+> Based on the summary stats and the choropleth map above, it can be observed that there is a large number of zero values in the field `mrtlrt_count`. If `log()` is going to be used to transform this field, an additional step is required to ensure that all zero values are replaced with a negligible offset that is between the values of 0 and 1 (but not either value).
 
 ## Assemble the variables
 
@@ -1148,6 +1202,8 @@ ggplot(data = flow_data,
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
+> While the relationship is still non-linear, it is less skewed than before. 
+
 ## Check for variables with zero values
 
 Since Poisson Regression is based on log and log 0 is undefined, it is important to ensure that no 0 values in the explanatory variables before running the model. In the code chunk below, `summary()` is used to compute the summary statistics of all variables in the `flow_data` data frame.
@@ -1181,6 +1237,8 @@ As Poisson Regression is based on log, log() will be applied to all the explanat
 flow_data_log <- flow_data %>%
   mutate_at(vars(ends_with("_count")), log) %>%
   mutate(dist = log(dist))
+
+summary(flow_data_log)
 ```
 
 ## Unconstrained Spatial Interaction Model
@@ -1222,8 +1280,9 @@ uncSIM
 ### Insights
 
 - By absolute value, the most influential variable is the Distance between origin and destination. The negative coefficient means there is an inverse relationship between Distance and Number of Trips: More trips are made when the distance is nearer, while less trips are made when the distance is further.
-- The most propulsive origin variable is Bus Stop counts with a coefficient of 0.547: More trips are made when there is higher bus stop density at the origin site, while less trips are made when there is lower bus stop density at the origin site. 
-- Conversely, the most attractive destination variables are School and Financial Services counts with a coefficient of 0.371 and 0.309 respectively: More trips are made when there is higher school / financial services density at the destination site, while less trips are made when there is lower school / financial services density at the destination site. 
+- The most propulsive origin variable is Bus Stop counts with a coefficient of 0.551: More trips are made when there is higher bus stop density at the origin site, while less trips are made when there is lower bus stop density at the origin site. 
+- There is an inverse relationship between Business counts at the origin and number of trips: More trips are made when there are fewer businesses at the origin site, while less trips are made when there are more businesses at the origin. 
+- Conversely, the most attractive destination variables are School and Financial Services counts with a coefficient of 0.369 and 0.310 respectively: More trips are made when there is higher school / financial services density at the destination site, while less trips are made when there is lower school / financial services density at the destination site. 
 - Notably, there appears to be an inverse relationship between the number of trips with the Business density at the origin and the MRT / LRT station density at the destination. This means that more trips are made when there are less businesses at the origin, while less trips are made when there are more businesses at the origin. Similarly, more bus trips are made when there are less MRT / LRT stations at the destination -- suggesting a complementary role between bus services and MRT / LRT services. 
 
 :::
@@ -1247,7 +1306,7 @@ CalcRSquared(uncSIM$data$TOTAL_TRIPS, uncSIM$fitted.values)
 :::callout-note
 ### Insights
 
-With reference to the R^2^ above, it can be concluded that the model accounts for 23.73% of the variation of flows.
+With reference to the R^2^ above, it can be concluded that the model accounts for 23.79% of the variation of flows.
 
 :::
 
@@ -1358,7 +1417,7 @@ summary(decSIM)
 ### Insights
 
 - By absolute value, the most influential variable is the Distance between origin and destination. The negative coefficient means there is an inverse relationship between Distance and Number of Trips: More trips are made when the distance is nearer, while less trips are made when the distance is further.
-- The most propulsive variable appears to be Bus Stop counts at the origin site with a coefficient of 0.548: More trips are made when there is higher bus stop density at the origin site, while less trips are made when there is lower bus stop density at the origin site. 
+- The most propulsive variable appears to be Bus Stop counts at the origin site with a coefficient of 0.553: More trips are made when there is higher bus stop density at the origin site, while less trips are made when there is lower bus stop density at the origin site. 
 - There is an inverse relationship between the number of businesses at the origin and Number of Trips: More bus trips are made when there are less businesses at the origin, while less bus trips are made when there are more businesses at the origin.
 - Interestingly, unlike with business density, there is a direct relationship between school density at origin site and bus trips: More bus trips are made when there are more schools at the origin, while less bus trips are made when there are less schools at the origin. This could be due to the relationship between schools and bus stop as a result of urban planning -- most schools have at least one bus stop immediately within the vicinity of the school. 
 
@@ -1371,7 +1430,7 @@ CalcRSquared(decSIM$data$TOTAL_TRIPS, decSIM$fitted.values)
 :::callout-note
 ### Insights
 
-With reference to the R^2^ above, it can be concluded that the model accounts for almost 41.43% of the variation of flows.
+With reference to the R^2^ above, it can be concluded that the model accounts for almost 41.44% of the variation of flows.
 
 :::
 
@@ -1436,11 +1495,12 @@ model_list <- list(unconstrained = uncSIM,
                    doublyConstrained=dbcSIM)
 ```
 
-Next, compute the RMSE of all the models in model_list using the code chunk below.
+Next, compute the RMSE of all the models in `model_list` using the code chunk below.
 
 ```{r}
 compare_performance(model_list, metrics = "RMSE")
 ```
+
 :::callout-note
 ### Insights
 
@@ -1679,7 +1739,7 @@ There are currently three estimators of spatial econometric interaction models s
 -   Spatial two-stage least squares (S2SLS) – activate the S2SLS estimation via the estimation_control argument using the input `spflow_control(estimation_method = "s2sls")`.
 -   Bayesian Markov Chain Monte Carlo (MCMC) – activate the MCMC estimation via the estimation_control argument using the input `spflow_control(estimation_method = "mcmc")`.
 
-The function offers a formula interface adapted to spatial interaction models, which has the following structure:
+The code chunk below will be used to calibrate a base model based on the defaults (model 9 and MLE estimator). The `spflow` function offers a formula interface adapted to spatial interaction models, which has the following structure:
 
 > Y ~ O_(X1) + D_(X2) + I_(X3) + P_(X4)
 
@@ -1706,20 +1766,26 @@ base_model <- spflow(
 base_model
 ```
 
+> `t.stat` refers to the coefficients: a positive number means there is a direct relationship between the explanatory variable and the dependent variable, while a negative number implies an inverse relationship.
+> `p.val` shows whether the coefficients are statistically significant, and hence, a good explanatory variable, or not statistically significant, and hence, not a good explanatory variable.
+
 :::callout-note
 ### Insights
 
-Based on the print result above, model 9 and MLE estimator is used (defaults). The R2 value is 0.6213, which means the model accounts for 62.13% of the variation of flows.
+The R^2^ value is 0.6213, which means the model accounts for 62.13% of the variation of flows. While not perfect, this value is much higher than the R^2^ values of the SIM seen earlier.
 
 Among the destination explanatory variables:
 
-- Bus stop counts, Financial services counts and MRT/LRT station counts and their lags all have a t.stat that is statistically significant. This means that such counts within the TAZ and in neighbouring TAZ will affect the attractiveness of the specific destination TAZ. For all three variables, the coefficient of their lags are negative, which means the more of such counts there are in neighbouring TAZ, the less trips are made to that TAZ.
-- School and Business counts have a t.stat that is statistically significant, but their lags are not. This means that such counts within the TAZ will affect the attractiveness of the TAZ but counts in neighbouring zones do not affect the attractiveness of the specific TAZ.
+- Bus stop counts, Financial services counts and MRT/LRT station counts and their lags all have a `t.stat` that is statistically significant. This means that such counts within the TAZ and in neighbouring TAZ will affect the attractiveness of the specific destination TAZ. 
+- However, for all three variables, their coefficients are positive while the coefficients of their lags are negative. This means that the more of such counts there are in the destination TAZ, the more trips are made to that TAZ. And the more of such counts there are in neighbouring TAZ, the less trips are made to that TAZ.
+- School and Business counts have a `t.stat` that is statistically significant, but their lags are not. This means that such counts within the TAZ will affect the attractiveness of the TAZ but counts in neighbouring zones do not affect the attractiveness of the specific TAZ.
 
 Among the origin explanatory variables:
 
-- Bus stop counts and MRT/LRT station counts and their lags all have a t.stat that is statistically significant. This means that such counts within the TAZ and in neighbouring TAZ will affect the propulsiveness of the specific origin TAZ. For both variables, the coefficient of their lags are negative, which means the more of such counts there are in neighbouring TAZ, the less trips are made to that TAZ.
-- School and Housing counts and their lags also have a t.stat that is statistically significant. However, for these two variables, the coefficient of their lags are positive, which means the more of such counts there are in neighbouring TAZ, the more trips are made from that TAZ.
+- Bus stop counts and MRT/LRT station counts and their lags both have a `t.stat` that is statistically significant. This means that they are good explanatory variable as such counts within the TAZ and in neighbouring TAZ will affect the propulsiveness of the specific origin TAZ. 
+- However, for both variables, their coefficients are positive while the coefficients of their lags are negative. This means that the more of such counts there are in the origin TAZ, the more trips are made from that origin TAZ. And the more of such counts there are in neighbouring TAZ, the less trips are made from that origin TAZ.
+- School and Housing counts and their lags also have a `t.stat` that is statistically significant, making them good explanatory variables. For these two variables, their coefficients and the coefficients of their lags are positive, which means the more of such counts there are in the origin TAZ and its neighbouring TAZ, the more trips are made from that origin TAZ.
+- Business counts has a `t.stat` that is not statistically significant, but their lags are statistically significant. This means that while the business counts of the origin TAZ is not a good explanatory variable, counts in the neighbouring TAZ are: the more of such counts there are in the neighbouring TAZ, the less trips are made from that origin TAZ.
 
 :::
 
@@ -1769,3 +1835,20 @@ ggplot(data = inter_zonal_flow2,
 Most of the values fall closer to the linear regression line as compared to the destination constrained SIM.
 
 :::
+
+# Conclusion
+
+During weekday morning peak periods, most travelling is happening to and from residential areas (e.g. Tampines, Jurong East, Punggol). Notably, there are several long-distance bus routes linking the East to the North, and the Central region to the North-Western part of Singapore. However, bus stop density does not appear to directly correlate with the number of desire lines or the line thickness. As such, there is a need to further understand what are the other factors that drive such trends in commuting flows apart.
+
+Using the SEIM (model 9, MLE estimator) which accounts for 62.13% of the variation of flows, the explanatory variables for the flow are:
+
+Destination Explanatory Variables
+
+- Higher public transportation node density and Financial services density in the destination TAZ drives the number of trips to the destination TAZ. However, higher similar density in the neighbouring TAZ results in less trips to the destination TAZ.
+- Higher school density and employment opportunities in the destination TAZ also drives up the number of trips to the destination TAZ. 
+
+Origin Explanatory Variables
+
+- Higher public transportation node density in the origin TAZ increase the number of trips from the origin TAZ. However, a higher similar density in the neighbouring TAZ results in less trips from the origin TAZ.
+- Higher school and population density also increases the number of trips from the origin TAZ. A higher similar density in the neighbouring TAZ also results in more trips from the origin TAZ. 
+- However, more employment opportunities in the neighbouring TAZ results in less trips from the origin TAZ.
