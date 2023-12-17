@@ -406,7 +406,7 @@ tm_shape() +
            n = 6, 
            alpha = 0.7,
            title.lwd = "Total Trips") + 
-  tm_layout(main.title = "Desire Lines with at least 5000 trips between Traffic Analysis Zones for Weekday Morning Peak Period",
+  tm_layout(main.title = "Desire Lines with at least 5000 trips /nbetween Traffic Analysis Zones for Weekday Morning Peak Period",
             main.title.position = "center",
             main.title.size = 1,
             frame = TRUE)
@@ -1844,7 +1844,7 @@ Using the SEIM (model 9, MLE estimator) which accounts for 62.13% of the variati
 
 Destination Explanatory Variables
 
-- Higher public transportation node density and Financial services density in the destination TAZ drives the number of trips to the destination TAZ. However, higher similar density in the neighbouring TAZ results in less trips to the destination TAZ.
+- Higher public transportation node density and financial services density in the destination TAZ drives the number of trips to the destination TAZ. However, higher similar density in the neighbouring TAZ results in less trips to the destination TAZ.
 - Higher school density and employment opportunities in the destination TAZ also drives up the number of trips to the destination TAZ. 
 
 Origin Explanatory Variables
